@@ -1,9 +1,13 @@
 // Generate interesting words for the game
-const words =
-    `Lorem ipsum dolor, sit amet consectetur adipisicing elit.`.split(' '); // Split the text into words
-const gameTime = 60 * 1000; // 1 minute
+const words = `Thank you my good small. You will speak!`.split(' '); // Split the text into words
+const gameTime = 5 * 1000; // 1 minute
 window.timer = null;
 window.gameStart = null;
+let speed = 0
+let acc = 0
+let pauseTime = 0
+const errors = {};
+
 
 
 function newGame() {
@@ -26,6 +30,14 @@ function newGame() {
     window.timer = null;
 }
 
+function gameOver() {
+    clearInterval(window.timer)
+    $("#game").addClass("over")
+    $("#words").css("filter", "none")
+    $("#cursor, #focus-error").remove()
+    $(".letter").css("opacity", 0.5)
+}
+
 function randomWord() {
     return words[Math.floor(Math.random() * words.length)];
 }
@@ -38,7 +50,10 @@ function formatWord(word) {
 
 
 let offset = 0
-$("#game").keyup(function (event) {
+$("#game").keydown(function (event) {
+    if ($("#game.over").length) {
+        return
+    }
     const key = event.key;
     let currentLetter = $(".letter.current")
     let currentWord = $(".word.current")
@@ -46,18 +61,42 @@ $("#game").keyup(function (event) {
     // console.log(`Expected '${expected}', got '${key}'`);
 
 
+
     // if key is not 'backspace' and not ' '
     const isLetter = key.length === 1 && key !== ' ';
     const isSpace = key === ' '
     const isBackSpace = key === 'Backspace'
-        
+    if (key !== expected) {
+        if (expected in errors) {
+            errors[expected]++
+        } else {
+            errors[expected] = 1
+        }
+        console.log("Errors: ", errors);
+    }
+
     if (!window.timer && isLetter) {
         window.timer = setInterval(() => {
             if (!window.gameStart) {
                 window.gameStart = (new Date()).getTime()
             }
-        }, 1000)
-        alert("Start timer")
+            const timePassed = (new Date()).getTime() - window.gameStart - pauseTime
+            const timePassedInMinutes = (timePassed + 100) / 60000
+            const numCorrect = $(".correct").length
+            const numIncorrect = $(".incorrect").length + $(".extra").length
+            speed = (numCorrect + numIncorrect) / (timePassedInMinutes * 5)
+            acc = numCorrect / (numCorrect + numIncorrect)
+            setValue(speed / 200, 200, ".speed-gauge")
+            setValue(acc, 100, ".acc-gauge")
+            $(".timer").text(`Time left: ${Math.round((gameTime - timePassed) / 1000)}`)
+            if (!$("#game:focus").length) {
+                pauseTime += 200
+                console.log(pauseTime);
+            }
+            if (timePassed >= gameTime) {
+                gameOver()
+            }
+        }, 200)
     }
 
     if (isLetter) {
@@ -75,7 +114,7 @@ $("#game").keyup(function (event) {
             console.log("Extra letter typed");
 
         }
-    } else if (isSpace) {
+    } else if (isSpace && window.timer) {
         if (expected !== ' ') {
             const lettersToInvalidate = $(".word.current .letter:not(.correct)")
 
@@ -115,8 +154,8 @@ $("#game").keyup(function (event) {
     if (currentLetter.text()) {
         // Place the cursor just before the current letter
         cursor
-            .css("left", currentLetter.position().left)
-            .css("top", currentLetter.position().top)
+            .css("left", currentLetter.position().left - 3)
+            .css("top", currentLetter.position().top + 3)
         console.log("cursor: ", cursor.position());
     } else {
         // If there is no current letter it means you are at the end of a word
@@ -140,16 +179,8 @@ $("#game").keyup(function (event) {
     }
 });
 
-function infiniteRandomChange() {
-    setValue(Math.random(), 200, ".speed-gauge")
-    setValue(Math.random(), 100, ".acc-gauge")
-    setTimeout(function () {
-        infiniteRandomChange()
-    }, 1000)
-}
 initializeGauge(".speed-gauge")
 initializeGauge(".acc-gauge")
-infiniteRandomChange()
 
 newGame();
 

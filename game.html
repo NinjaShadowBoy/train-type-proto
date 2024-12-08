@@ -11,10 +11,12 @@
   <body>
     <h1>Typing Exercise</h1>
     <main class="game-container">
-      <h1 class="game-title">ISI Type</h1>
-
       <div id="header">
-        <div id="info">
+        <div class="game-title">
+          <div class="">ISI Type</div>
+          <div class="timer"></div>
+        </div>
+        <div class="gaugeinfo">
           <div class="gauge speed-gauge">
             <div class="bottom-circle"></div>
             <svg height="95%" width="95%">
@@ -70,7 +72,6 @@
               <span class="number speed">0</span>
             </div>
           </div>
-
           <div class="gauge acc-gauge">
             <div class="bottom-circle"></div>
             <svg height="95%" width="95%">
@@ -122,15 +123,13 @@
             </svg>
             <!-- Initial content of the speedometer -->
             <div class="center-circle">
-              <span class="wpm">ACC</span>
+              <span class="wpm">ACC%</span>
               <span class="number speed">0</span>
             </div>
           </div>
         </div>
-        <div id="button">
-          <button>New game</button>
-        </div>
       </div>
+      <hr />
       <div id="game" tabindex="0">
         <div id="words">
           <div id="cursor"></div>

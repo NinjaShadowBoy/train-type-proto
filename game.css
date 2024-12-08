@@ -1,6 +1,6 @@
 :root {
-    --game-bg-color: #444;
-    --game-text-primary: #fff;
+    --game-bg-color: white;
+    --game-text-primary: #333;
     --game-text-secondary: #bbb;
     --game-primary-color: rgb(31, 70, 200);
     --game-font-size: 1rem;
@@ -12,29 +12,40 @@ body {
 }
 
 .game-container {
+    box-sizing: border-box;
     max-width: 90%;
     width: 80rem;
     border-radius: 20px;
     background-color: var(--game-bg-color);
-    padding: 1rem 3rem 2rem;
+    padding: calc(var(--game-font-size)*2) calc(var(--game-font-size)*3);
     margin: 3.125em auto;
     font-size: var(--game-font-size);
+    box-shadow: 0 0 calc(var(--game-font-size)) var(--game-text-secondary);
 }
 
 .game-title {
-    margin-left: 1rem;
+    font-size: calc(var(--game-font-size)*2);
+    margin: 0;
     color: var(--game-primary-color);
+    padding: 0;
+    font-weight: bolder;
+}
+
+.timer {
+    font-size: var(--game-font-size);
+    font-weight: normal;
+    margin-left: 0 1rem;
 }
 
 /*Container containing the two .guage s*/
-#info {
+.gaugeinfo {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .gauge {
-    width: calc(var(--game-font-size)*4);
+    width: calc(var(--game-font-size)*5);
     margin: 0 calc(var(--game-font-size)/2);
 }
 
@@ -42,6 +53,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-block: 1rem;
+}
+
+hr {
+    border: thin solid var(--game-text-secondary);
 }
 
 #button {
@@ -87,8 +103,6 @@ div#game {
     /* So that the rest of the lines are hidden*/
     /* overflow-y: hidden; */
     overflow: hidden;
-    /* So that the hidden lines can be scrolled*/
-    /* overflow-y: scroll; */
     padding: 0.5rem;
 }
 
@@ -100,12 +114,16 @@ div#game {
     filter: blur(0);
 }
 
-#game:focus #focus-error {
-    display: none;
+#game.over {
+    filter: none;
 }
 
-#game:focus #cursor {
-    display: block;
+#game.over {
+    filter: none;
+}
+
+#game:focus #focus-error {
+    display: none;
 }
 
 #words {
@@ -113,6 +131,9 @@ div#game {
     color: var(--game-text-secondary);
     transition: margin-top 0.1s ease-out;
     letter-spacing: calc(var(--game-font-size)/6);
+    border: thin solid var(--game-text-secondary);
+    border-radius: var(--game-font-size);
+    padding: var(--game-font-size);
 }
 
 #focus-error {
@@ -130,8 +151,8 @@ div#game {
 }
 
 .letter.correct {
-    color: rgb(211, 255, 220);
-    background-color: rgb(96, 192, 142, 0.1);
+    color: var(--game-text-primary);
+    background-color: rgb(96, 192, 142, 0.2);
 }
 
 .letter.incorrect {
@@ -152,7 +173,7 @@ div#game {
 }
 
 #cursor {
-    width: calc(var(--game-font-size)/10);
+    width: calc(var(--game-font-size)/8);
     height: var(--game-font-size);
     background: var(--game-primary-color);
     position: absolute;
