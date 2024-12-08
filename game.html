@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ISI Type</title>
+    <link rel="stylesheet" href="game.css" />
+    <link rel="stylesheet" href="speedometer.css" />
+  </head>
+
+  <body>
+    <h1>Typing Exercise</h1>
+    <main class="game-container">
+      <h1 class="game-title">ISI Type</h1>
+
+      <div id="header">
+        <div id="info">
+          <div class="gauge speed-gauge">
+            <div class="bottom-circle"></div>
+            <svg height="95%" width="95%">
+              <!-- Define the glow filter -->
+              <defs>
+                <!-- To increase or decrease the glow, change the stdDeviation-->
+                <filter
+                  id="glowFilter"
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feGaussianBlur stdDeviation="10" result="coloredBlur" />
+                  <!-- Increase stdDeviation for more blur -->
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <!-- Change the colors of the path -->
+                <stop offset="0%" stop-color="#56e9d3ff" />
+                <stop offset="10%" stop-color="#56e969ff" />
+                <stop offset="50%" stop-color="#e8f54aff" />
+                <stop offset="80%" stop-color="#fb8132ff" />
+                <stop offset="100%" stop-color="#fb3232ff" />
+              </linearGradient>
+              <!-- The d attribute which defines the actual shape of the svg
+                         is not set here but rather in the js file -->
+              <path
+                class="arc complete"
+                stroke="lightgrey"
+                stroke-width="15"
+                fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="0"
+              ></path>
+              <path
+                class="arc incomplete"
+                stroke="url(#gradient)"
+                stroke-width="15"
+                fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="0 10000"
+                filter="url(#glowFilter)"
+              ></path>
+            </svg>
+            <!-- Initial content of the speedometer -->
+            <div class="center-circle">
+              <span class="wpm">WPM</span>
+              <span class="number speed">0</span>
+            </div>
+          </div>
+
+          <div class="gauge acc-gauge">
+            <div class="bottom-circle"></div>
+            <svg height="95%" width="95%">
+              <!-- Define the glow filter -->
+              <defs>
+                <!-- To increase or decrease the glow, change the stdDeviation-->
+                <filter
+                  id="glowFilter"
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%"
+                >
+                  <feGaussianBlur stdDeviation="10" result="coloredBlur" />
+                  <!-- Increase stdDeviation for more blur -->
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <!-- Change the colors of the path -->
+                <stop offset="0%" stop-color="#fb3232ff" />
+                <stop offset="10%" stop-color="#fb8132ff" />
+                <stop offset="50%" stop-color="#e8f54aff" />
+                <stop offset="90%" stop-color="#56e969ff" />
+                <stop offset="100%" stop-color="#56e9d3ff" />
+              </linearGradient>
+              <!-- The d attribute which defines the actual shape of the svg
+                         is not set here but rather in the js file -->
+              <path
+                class="arc complete"
+                stroke="lightgrey"
+                stroke-width="15"
+                fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="0"
+              ></path>
+              <path
+                class="arc incomplete"
+                stroke="url(#gradient1)"
+                stroke-width="15"
+                fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="0 10000"
+                filter="url(#glowFilter)"
+              ></path>
+            </svg>
+            <!-- Initial content of the speedometer -->
+            <div class="center-circle">
+              <span class="wpm">ACC</span>
+              <span class="number speed">0</span>
+            </div>
+          </div>
+        </div>
+        <div id="button">
+          <button>New game</button>
+        </div>
+      </div>
+      <div id="game" tabindex="0">
+        <div id="words">
+          <div id="cursor"></div>
+          Emptied in the begining by game.js
+        </div>
+        <div id="focus-error">Click here to focus</div>
+      </div>
+    </main>
+
+    <script src="jquery-3.7.1.min.js"></script>
+    <script src="speedometer.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

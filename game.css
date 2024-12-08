@@ -1,0 +1,177 @@
+:root {
+    --game-bg-color: #444;
+    --game-text-primary: #fff;
+    --game-text-secondary: #bbb;
+    --game-primary-color: rgb(31, 70, 200);
+    --game-font-size: 1rem;
+}
+
+body {
+    font-family: monospace;
+    padding: 3rem;
+}
+
+.game-container {
+    max-width: 90%;
+    width: 80rem;
+    border-radius: 20px;
+    background-color: var(--game-bg-color);
+    padding: 1rem 3rem 2rem;
+    margin: 3.125em auto;
+    font-size: var(--game-font-size);
+}
+
+.game-title {
+    margin-left: 1rem;
+    color: var(--game-primary-color);
+}
+
+/*Container containing the two .guage s*/
+#info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gauge {
+    width: calc(var(--game-font-size)*4);
+    margin: 0 calc(var(--game-font-size)/2);
+}
+
+#header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#button {
+    color: var(--game-text-color);
+    text-align: right;
+    margin-right: calc(var(--game-font-size));
+}
+
+#info {
+    color: var(--game-primary-color);
+}
+
+/* Style of an individual word in the #words container*/
+.word {
+    font-family: monospace;
+    margin: 0 calc(var(--game-font-size)/2.5);
+    display: inline-block;
+}
+
+.underlined {
+    text-decoration: underline;
+    text-decoration-color: #f55;
+    text-decoration-thickness: calc(var(--game-font-size)/10);
+    text-underline-offset: calc(var(--game-font-size)/2.5);
+}
+
+button {
+    background-color: var(--game-primary-color);
+    color: var(--game-text-primary);
+    border: 0;
+    padding: 0.5em 1em;
+    margin: 0.5em;
+    cursor: pointer;
+    border-radius: 0.5em;
+}
+
+
+div#game {
+    position: relative;
+    line-height: calc(var(--game-font-size)*2);
+    /* So that only 3 lines are displayed at a time*/
+    height: calc(var(--game-font-size)*6);
+    /* So that the rest of the lines are hidden*/
+    /* overflow-y: hidden; */
+    overflow: hidden;
+    /* So that the hidden lines can be scrolled*/
+    /* overflow-y: scroll; */
+    padding: 0.5rem;
+}
+
+#game:focus {
+    outline: 0;
+}
+
+#game:focus #words {
+    filter: blur(0);
+}
+
+#game:focus #focus-error {
+    display: none;
+}
+
+#game:focus #cursor {
+    display: block;
+}
+
+#words {
+    filter: blur(calc(var(--game-font-size)/6));
+    color: var(--game-text-secondary);
+    transition: margin-top 0.1s ease-out;
+    letter-spacing: calc(var(--game-font-size)/6);
+}
+
+#focus-error {
+    font-size: calc(var(--game-font-size)/1.2);
+    position: absolute;
+    inset: 0;
+    text-align: center;
+    color: var(--game-text-primary);
+    top: calc(var(--game-font-size)*2.5);
+}
+
+.letter {
+    border-radius: calc(var(--game-font-size)/4);
+    text-align: center;
+}
+
+.letter.correct {
+    color: rgb(211, 255, 220);
+    background-color: rgb(96, 192, 142, 0.1);
+}
+
+.letter.incorrect {
+    color: #f55;
+    background-color: rgb(255, 85, 85, 0.1);
+}
+
+.letter.current {
+    /* text-decoration: underline; */
+    position: relative;
+    text-decoration-color: var(--game-primary-color);
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.3em;
+}
+
+.extra {
+    opacity: 0.5;
+}
+
+#cursor {
+    width: calc(var(--game-font-size)/10);
+    height: var(--game-font-size);
+    background: var(--game-primary-color);
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    animation: blink 0.4s infinite;
+    transition: all 0.2s ease-in-out;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
