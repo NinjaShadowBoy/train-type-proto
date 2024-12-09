@@ -1,5 +1,5 @@
 :root {
-    --game-bg-color: white;
+    --game-bg-color: #1111;
     --game-text-primary: #333;
     --game-text-secondary: #bbb;
     --game-primary-color: rgb(31, 70, 200);
@@ -70,24 +70,40 @@ hr {
 }
 
 #Type-again-button {
-    background-color: var(--game-primary-color);
-    border: 0;
+    background-color: transparent;
+    color: var(--game-primary-color);
+    border: 2px solid var(--game-primary-color);
     padding: 0.5em 1em;
-    margin: 0.5em;
-    cursor: pointer;
     border-radius: 0.5em;
-    color: var(--game-bg-color);
     text-align: right;
-    margin-right: calc(var(--game-font-size));
     transition: all 0.3s ease;
+
+    position: relative;
+    isolation: isolate;
+}
+
+#Type-again-button::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    background: var(--game-primary-color);
+    inset: 0;
+
+
+    transition: scale 0.45s ease;
+    scale: 0 1;
+    transform-origin: right;
 }
 
 #Type-again-button:hover {
-    color: var(--game-primary-color);
-    background-color: var(--game-bg-color);
-    box-shadow:
-        calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) var(--game-primary-color);
-    animation: rotating-shadow 1s ease infinite;
+    color: white;
+    background-color: transparent;
+}
+
+#Type-again-button:hover::after,
+#Type-again-button:focus-visible::after {
+    transform-origin: left;
+    scale: 1 1;
 }
 
 @keyframes rotating-shadow {
