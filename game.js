@@ -1,14 +1,25 @@
 // Generate interesting words for the game
 const words = `Thank you my good small. You will speak!`.split(' '); // Split the text into words
-const gameTime = 60 * 1000; // 1 minute
+const gameTime = 10 * 1000; // 1 minute
 
-$(".timer").text(`Exercise time: ${Math.round(gameTime / 1000)} s`)
+$("#Type-again-button").on("click", () => {
+    speed = 0
+    acc = 0
+    pauseTime = 0
+    $("#game, .game-container").removeClass("over")
+    offset = 0
+    $("#words").css("margin-top", "auto")
+    newGame()
+})
+
+$(".timer").text(`Exercise time: ${Math.round(gameTime / 1000)}s`)
 
 window.timer = null;
 window.gameStart = null;
 let speed = 0
 let acc = 0
 let pauseTime = 0
+let offset = 0
 const errors = {};
 
 function newGame() {
@@ -28,15 +39,13 @@ function newGame() {
     $(".word")
         .first().addClass("current")
         .children().first().addClass("current");
-    window.timer = null;
 }
 
 function gameOver() {
     clearInterval(window.timer)
-    $("#game").addClass("over")
-    $("#words").css("filter", "none")
-    $("#cursor, #focus-error").remove()
-    $(".letter").css("opacity", 0.5)
+    $("#game, .game-container").addClass("over")
+    window.gameStart = null
+    window.timer = null
 }
 
 function randomWord() {
@@ -50,7 +59,6 @@ function formatWord(word) {
 }
 
 
-let offset = 0
 $("#game").keyup(function (event) {
     if ($("#game.over").length) {
         return
@@ -89,7 +97,7 @@ $("#game").keyup(function (event) {
             acc = numCorrect / (numCorrect + numIncorrect)
             setValue(speed / 200, 200, ".speed-gauge")
             setValue(acc, 100, ".acc-gauge")
-            $(".timer").text(`Time left: ${Math.round((gameTime - timePassed) / 1000)}`)
+            $(".timer").text(`Time left: ${Math.round((gameTime - timePassed) / 1000)}s`)
             if (!$("#game:focus").length) {
                 pauseTime += 200
                 console.log(pauseTime);

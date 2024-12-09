@@ -29,6 +29,7 @@ body {
     color: var(--game-primary-color);
     padding: 0;
     font-weight: bolder;
+    transition: all 0.3s ease;
 }
 
 .timer {
@@ -46,7 +47,7 @@ body {
 
 .gauge {
     width: calc(var(--game-font-size)*5);
-    margin: 0 calc(var(--game-font-size)/2);
+    margin: 0 calc(var(--game-font-size)/3);
 }
 
 #header {
@@ -60,10 +61,60 @@ hr {
     border: thin solid var(--game-text-secondary);
 }
 
-#button {
-    color: var(--game-text-color);
+.game-container #Type-again-button {
+    display: none;
+}
+
+.game-container.over #Type-again-button {
+    display: block;
+}
+
+#Type-again-button {
+    background-color: var(--game-primary-color);
+    border: 0;
+    padding: 0.5em 1em;
+    margin: 0.5em;
+    cursor: pointer;
+    border-radius: 0.5em;
+    color: var(--game-bg-color);
     text-align: right;
     margin-right: calc(var(--game-font-size));
+    transition: all 0.3s ease;
+}
+
+#Type-again-button:hover {
+    color: var(--game-primary-color);
+    background-color: var(--game-bg-color);
+    box-shadow:
+        calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) var(--game-primary-color);
+    animation: rotating-shadow 1s ease infinite;
+}
+
+@keyframes rotating-shadow {
+    0% {
+        box-shadow:
+            calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) var(--game-primary-color);
+    }
+
+    30% {
+        box-shadow:
+            calc(var(--game-font-size)/-3) calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) var(--game-primary-color);
+    }
+
+    50% {
+        box-shadow:
+            calc(var(--game-font-size)/-3) calc(var(--game-font-size)/-3) calc(var(--game-font-size)/3) var(--game-primary-color);
+    }
+
+    70% {
+        box-shadow:
+            calc(var(--game-font-size)/3) calc(var(--game-font-size)/-3) calc(var(--game-font-size)/3) var(--game-primary-color);
+    }
+
+    100% {
+        box-shadow:
+            calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) calc(var(--game-font-size)/3) var(--game-primary-color);
+    }
 }
 
 #info {
@@ -83,17 +134,6 @@ hr {
     text-decoration-thickness: calc(var(--game-font-size)/10);
     text-underline-offset: calc(var(--game-font-size)/2.5);
 }
-
-button {
-    background-color: var(--game-primary-color);
-    color: var(--game-text-primary);
-    border: 0;
-    padding: 0.5em 1em;
-    margin: 0.5em;
-    cursor: pointer;
-    border-radius: 0.5em;
-}
-
 
 div#game {
     position: relative;
@@ -166,6 +206,19 @@ div#game {
     text-decoration-color: var(--game-primary-color);
     text-decoration-thickness: 0.12em;
     text-underline-offset: 0.3em;
+}
+
+.game-container .over .letter {
+    opacity: 0.5;
+}
+
+.game-container .over #words {
+    filter: none;
+}
+
+.game-container .over #focus-error,
+.game-container .over #cursor {
+    display: none;
 }
 
 .extra {
