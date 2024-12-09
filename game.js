@@ -1,14 +1,15 @@
 // Generate interesting words for the game
 const words = `Thank you my good small. You will speak!`.split(' '); // Split the text into words
-const gameTime = 5 * 1000; // 1 minute
+const gameTime = 60 * 1000; // 1 minute
+
+$(".timer").text(`Exercise time: ${Math.round(gameTime / 1000)} s`)
+
 window.timer = null;
 window.gameStart = null;
 let speed = 0
 let acc = 0
 let pauseTime = 0
 const errors = {};
-
-
 
 function newGame() {
     // Reset the words
@@ -50,7 +51,7 @@ function formatWord(word) {
 
 
 let offset = 0
-$("#game").keydown(function (event) {
+$("#game").keyup(function (event) {
     if ($("#game.over").length) {
         return
     }
