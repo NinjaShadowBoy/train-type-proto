@@ -1,6 +1,20 @@
 // Generate interesting words for the game
-const words = `Thank you my good small. You will speak!`.split(' '); // Split the text into words
-const gameTime = 10 * 1000; // 1 minute
+const words = `Once upon a time, there was a cat. The cat was gray. It loved to play. It chased mice. It ran fast. The sun was up. The sky was blue. The cat felt happy.
+
+One day, the cat saw a bird. The bird was small and red. It flew high. The cat wanted to catch it. So, it climbed a tree. The tree was tall. The cat slipped and fell. It landed on the ground. The bird flew away.
+
+In the garden, there were many flowers. The flowers had bright colors. Red, yellow, blue, and pink. Bees buzzed around the flowers. Butterflies flitted from petal to petal. The garden was lively.
+
+As the cat wandered, it found a hidden path. Curious, it followed the path. The path led to a secret place. There was a small pond. Fish swam in the pond. Frogs croaked by the edge. The cat dipped its paw in the water.
+
+Suddenly, it heard a noise. It was a dog. The dog was big and brown. It barked loudly. The cat ran away quickly. It jumped over rocks and logs. The dog chased the cat. But the cat was too fast.
+
+The cat hid in a bush. The dog couldn't find it. The cat waited until the dog left. It then came out carefully. The sun was setting. The sky turned orange and pink. The cat decided to go home.
+
+On the way back, the cat saw its friend. The friend was a rabbit. The rabbit had long ears. They played together. They jumped and hopped. They had fun until it got dark.
+
+Back at home, the cat felt tired. It curled up in its bed. The moon shone brightly in the sky. Stars twinkled like diamonds. The cat closed its eyes. It dreamed of more adventures.`.split(' '); // Split the text into words
+const gameTime = 120 * 1000; // 1 minute
 
 $("#Type-again-button").on("click", () => {
     speed = 0
@@ -29,7 +43,7 @@ function newGame() {
     // Generate random words
     for (let i = 0; i < 200; i++) {
         // Append a new word to the text
-        $("#words").html($("#words").html() + formatWord(randomWord()));
+        $("#words").html($("#words").html() + formatWord(words[i]));
     }
     $(".word").each(function () {
         $(this).children().first().addClass("firstLetterOfWord")
