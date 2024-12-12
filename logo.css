@@ -1,0 +1,103 @@
+.keyboard-key {
+    transform-origin: center;
+    animation: keyPress 0.2s ease-in-out both;
+}
+
+.key-1 {
+    animation-delay: 0s;
+}
+
+.key-2 {
+    animation-delay: 0.1s;
+}
+
+.key-3 {
+    animation-delay: 0.2s;
+}
+
+.key-4 {
+    animation-delay: 0.3s;
+}
+
+.key-5 {
+    animation-delay: 0.4s;
+}
+
+.key-6 {
+    animation-delay: 0.5s;
+}
+
+.key-7 {
+    animation-delay: 0.6s;
+}
+
+.key-8 {
+    animation-delay: 0.7s;
+}
+
+.key-9 {
+    animation-delay: 0.8s;
+}
+
+.key-10 {
+    animation-delay: 0.9s;
+}
+
+.key-11 {
+    animation-delay: 1s;
+}
+
+.key-12 {
+    animation-delay: 1.1s;
+}
+
+.key-13 {
+    animation-delay: 1.2s;
+}
+
+.key-14 {
+    animation-delay: 1.3s;
+}
+
+.key-15 {
+    animation-delay: 1.4s;
+}
+
+.key-16 {
+    animation-delay: 1.5s;
+}
+
+.key-17 {
+    animation-delay: 1.6s;
+}
+
+.key-18 {
+    animation-delay: 1.7s;
+}
+
+.key-19 {
+    animation-delay: 1.8s;
+}
+
+.key-20 {
+    animation-delay: 1.9s;
+}
+
+/* Continue for other keys with increasing delays */
+
+@keyframes keyPress {
+    0% {
+        transform: translateY(0);
+        transform: scale(1);
+    }
+
+    50% {
+        transform: translateY(5px);
+        transform: scale(0.8);
+    }
+
+    100% {
+        transform: translateY(0);
+        transform: scale(1);
+    }
+}

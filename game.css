@@ -248,8 +248,8 @@ div#game {
     position: absolute;
     top: calc(var(--game-font-size)*1.5);
     left: calc(var(--game-font-size));
-    animation: blink 0.4s infinite;
-    transition: all 0.2s ease-in-out;
+    animation: blink 0.5s infinite;
+    transition: all 0.2s ease;
 }
 
 @keyframes blink {
@@ -264,4 +264,8 @@ div#game {
     100% {
         opacity: 1;
     }
+}
+
+.typing-logo {
+    width: 70px;
 }
