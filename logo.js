@@ -24,3 +24,11 @@ $(".typing-logo").html(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144
         <rect class="keyboard-key key-17" x="92" y="52" width="30" height="15" fill="#3498db" rx="3" ry="3"></rect>
       </svg>`
 );
+
+
+let now = (new Date()).getTime()
+console.log(now);
+let perf = new Map()
+perf[now] = []
+console.log(perf.entries());
+
