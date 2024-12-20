@@ -8,6 +8,7 @@
     <title>Dash board </title>
     <link rel="stylesheet" href="./dash.css">
     <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="./Material_Icons_Outlined/MaterialIconsOutlined-Regular.otf">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
 </head>
 
@@ -18,7 +19,7 @@
                 <i class='bx bx-chevron-left'></i>
             </span>
             <img src="./images/logo.png" class="logo" alt="">
-            <h3 class="hide">Train<span class="danger">Type</span></h3>
+            <h3 class="hide">TRAIN<span class="danger">TYPE</span></h3>
         </div>
 
         <div class="search">
@@ -62,7 +63,7 @@
                             <i class='bx bx-bell'></i>
                             <i class='bx bxs-bell'></i>
                         </div>
-                        <span class="link hide">Notificaions</span>
+                        <span class="link hide">Notifications</span>
                     </a>
                 </li>
                 <li class="tooltip-element" data-tooltip="4">
@@ -143,18 +144,93 @@
         <div class="performance">
             <div class="speedometer1">
                 <span class="material-icons-outlined">speed</span>
-
+                <div class="middle">
+                    <div class="left">
+                        <h3>Average Speed</h3>
+                    </div>
+                    <div class="progress">
+                        <!---------put the speed speedometer here----------->
+                    </div>
+                </div>
                 <small class="text-muted">Last 24hours</small>
             </div>
             <div class="speedometer2">
                 <span class="material-icons-outlined">speed</span>
-            </div>
-            <div class="chart">
-                <span class="material-icons-outlined">show_chart</span>
+                <div class="middle">
+                    <div class="left">
+                        <h3>Average Accuracy</h3>
+                    </div>
+                    <div class="progress">
+                        <!---------put the Accuracy speedometer here----------->
+                    </div>
+                </div>
+                <small class="text-muted">Last 24hours</small>
             </div>
         </div>
-    </main>
+        <div class="chart">
+            <h2>Chart</h2>
+            <div class="middle">
+                <div class="left">
 
+                </div>
+                <div class="progress">
+                    <!---------put the chart here----------->
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <aside class="right">
+        <div class="top">
+            <button id="menu-btn">
+                <span class="material-icons-outlined">menu</span>
+            </button>
+            <div class="theme-toggler">
+                <span class="material-icons-outlined active">light_mode</span>
+                <span class="material-icons-outlined">dark_mode</span>
+            </div>
+        </div>
+        <div class="recommendations">
+            <h2>Recomended Exercises</h2>
+            <div class="updates">
+                <div class="update">
+                    <div class="profile-photo">
+                        <img src="./images/face-1.png">
+                    </div>
+                    <div class="message">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet est earum expedita </p>
+                        <small class="text-muted">2 Minutes Ago</small>
+                    </div>
+                </div>
+                <div class="update">
+                    <div class="profile-photo">
+                        <img src="./images/face-1.png">
+                    </div>
+                    <div class="message">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet est earum expedita </p>
+                        <small class="text-muted">2 Minutes Ago</small>
+                    </div>
+                </div>
+                <div class="update">
+                    <div class="profile-photo">
+                        <img src="./images/face-1.png">
+                    </div>
+                    <div class="message">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet est earum expedita </p>
+                        <small class="text-muted">2 Minutes Ago</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <!-----<img src="./images/" alt="" class="card__img">--->
+            <div class="card__data">
+                <h1 class="card__title">Exercices</h1>
+                <p class="card__description">Are you ready to challenge yourself?</p>
+                <a href="#" class="card__button">Get started</a>
+            </div>
+        </div>
+    </aside>
     <script src="./dash.js"></script>
 </body>
 
