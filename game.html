@@ -19,116 +19,16 @@
           <button type="reset" id="Type-again-button">Type Again</button>
         </div>
         <div class="gaugeinfo">
-          <div class="gauge speed-gauge">
-            <div class="bottom-circle"></div>
-            <svg height="95%" width="95%">
-              <!-- Define the glow filter -->
-              <defs>
-                <!-- To increase or decrease the glow, change the stdDeviation-->
-                <filter
-                  id="glowFilter"
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
-                >
-                  <feGaussianBlur stdDeviation="10" result="coloredBlur" />
-                  <!-- Increase stdDeviation for more blur -->
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <!-- Change the colors of the path -->
-                <stop offset="0%" stop-color="#56e9d3ff" />
-                <stop offset="10%" stop-color="#56e969ff" />
-                <stop offset="50%" stop-color="#e8f54aff" />
-                <stop offset="80%" stop-color="#fb8132ff" />
-                <stop offset="100%" stop-color="#fb3232ff" />
-              </linearGradient>
-              <!-- The d attribute which defines the actual shape of the svg
-                         is not set here but rather in the js file -->
-              <path
-                class="arc complete"
-                stroke="lightgrey"
-                stroke-width="15"
-                fill="none"
-                stroke-linecap="round"
-                stroke-dasharray="0"
-              ></path>
-              <path
-                class="arc incomplete"
-                stroke="url(#gradient)"
-                stroke-width="15"
-                fill="none"
-                stroke-linecap="round"
-                stroke-dasharray="0 10000"
-                filter="url(#glowFilter)"
-              ></path>
-            </svg>
-            <!-- Initial content of the speedometer -->
-            <div class="center-circle">
-              <span class="wpm">WPM</span>
-              <span class="number speed">0</span>
-            </div>
-          </div>
-          <div class="gauge acc-gauge">
-            <div class="bottom-circle"></div>
-            <svg height="95%" width="95%">
-              <!-- Define the glow filter -->
-              <defs>
-                <!-- To increase or decrease the glow, change the stdDeviation-->
-                <filter
-                  id="glowFilter"
-                  x="-50%"
-                  y="-50%"
-                  width="200%"
-                  height="200%"
-                >
-                  <feGaussianBlur stdDeviation="10" result="coloredBlur" />
-                  <!-- Increase stdDeviation for more blur -->
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                <!-- Change the colors of the path -->
-                <stop offset="0%" stop-color="#fb3232ff" />
-                <stop offset="10%" stop-color="#fb8132ff" />
-                <stop offset="50%" stop-color="#e8f54aff" />
-                <stop offset="90%" stop-color="#56e969ff" />
-                <stop offset="100%" stop-color="#56e9d3ff" />
-              </linearGradient>
-              <!-- The d attribute which defines the actual shape of the svg
-                         is not set here but rather in the js file -->
-              <path
-                class="arc complete"
-                stroke="lightgrey"
-                stroke-width="15"
-                fill="none"
-                stroke-linecap="round"
-                stroke-dasharray="0"
-              ></path>
-              <path
-                class="arc incomplete"
-                stroke="url(#gradient1)"
-                stroke-width="15"
-                fill="none"
-                stroke-linecap="round"
-                stroke-dasharray="0 10000"
-                filter="url(#glowFilter)"
-              ></path>
-            </svg>
-            <!-- Initial content of the speedometer -->
-            <div class="center-circle">
-              <span class="wpm">ACC%</span>
-              <span class="number speed">0</span>
-            </div>
-          </div>
+          <div
+            class="gauge speed-gauge"
+            data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
+            data-text="WPM"
+          ></div>
+          <div
+            class="gauge acc-gauge"
+            data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
+            data-text="ACC%"
+          ></div>
         </div>
       </div>
       <hr />

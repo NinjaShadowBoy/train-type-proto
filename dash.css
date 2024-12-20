@@ -18,6 +18,10 @@
     --main-color-dark: #088395;
     --main-color-light: #37b7c3;
     --text-color: #ebf4f6;
+    --first-color: #F2A20C;
+    --white-color: #E9EAEC;
+    --dark-color: #272D40;
+    --dark-color-lighten: #F2F5FF;
 
     --card-border-radius: 2rem;
     --border-radius-1: 0.4rem;
@@ -27,6 +31,17 @@
     --card-padding: 1.8rem;
     --padding-1: 1.2rem;
 
+    --box-shadow: 0 2rem 3rem var(--color-light);
+}
+
+/*----------------DARK THEME VARIABLES--------*/
+.dark-theme-variables {
+    --color-background: #181a1e;
+    --color-white: #202528;
+    --color-dark: #edeffd;
+    --main-color-light: #37b7c3;
+    --color-dark-variant: #a3bdcc;
+    --color-light: rgba(0, 0, 0.4);
     --box-shadow: 0 2rem 3rem var(--color-light);
 }
 
@@ -427,4 +442,257 @@ b {
 
 .warning {
     color: var(--color-warning);
+}
+
+/*=================MAIN=================*/
+main .date {
+    display: inline-block;
+    background: var(--color-background);
+    border-radius: var(--border-radius-1);
+    margin-top: 1rem;
+    padding: 0.5rem 1.6rem;
+}
+
+main .date input[type='date'] {
+    background: transparent;
+    color: var(--color-dark);
+}
+
+main .performance {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.6rem;
+}
+
+main .performance>div {
+    background: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    margin-top: 1rem;
+    box-shadow: var(--box-shadow);
+    transition: all 300ms ease;
+}
+
+main .performance>div:hover {
+    box-shadow: none;
+}
+
+main .performance>div span,
+main .chart>span {
+    background: var(--main-color-light);
+    padding: 0.5rem;
+    border-radius: 50%;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+main .performance>div .middle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+main .performance h3 {
+    margin: 1rem 0 0.6rem;
+    font-size: 1rem;
+}
+
+main .performance .progress,
+main .chart .progress {
+    position: relative;
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+}
+
+main .performance small {
+    margin-top: 1.3rem;
+    display: block;
+}
+
+main .chart {
+    margin-top: 2rem;
+}
+
+main .chart h2 {
+    margin-bottom: 0.8rem;
+}
+
+main .chart>.middle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--color-white);
+    width: 100%;
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    transition: all 300ms ease;
+}
+
+main .chart .middle:hover {
+    box-shadow: none;
+}
+
+/*======================ASIDE=====================*/
+aside {
+    width: 23rem;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.right {
+    margin-top: 1.4rem;
+}
+
+.right .top {
+    display: flex;
+    justify-content: end;
+    gap: 2rem;
+}
+
+.right .top button {
+    display: none;
+}
+
+.right .theme-toggler {
+    background: var(--color-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 1.6rem;
+    width: 4.2rem;
+    cursor: pointer;
+    border-radius: var(--border-radius-1);
+}
+
+.right .theme-toggler span {
+    font-size: 1.2rem;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.right .theme-toggler span.active {
+    background: var(--main-color-light);
+    color: white;
+    border-radius: var(--border-radius-1);
+}
+
+.right .recommendations {
+    margin-top: 1rem;
+}
+
+.right .recommendations h2 {
+    margin-bottom: 0.8rem;
+}
+
+.right .recommendations .updates {
+    background: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 300ms ease;
+}
+
+.right .recommendations .updates:hover {
+    box-shadow: none;
+}
+
+.right .recommendations .updates .update {
+    display: grid;
+    grid-template-columns: 2.6rem auto;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.right .recommendations .updates .update img {
+    width: 2.9rem;
+    height: 2.9rem;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-white);
+    padding: var(--card-padding);
+    border-radius: var(--card-border-radius);
+    padding: 4rem 2rem 0;
+    color: var(--color-dark);
+    overflow-y: hidden;
+}
+
+.card__data {
+    transform: translateY(13.2rem);
+    width: 100%;
+    height: 100%;
+    text-align: center;
+}
+
+.card__title {
+    font-size: 1.75rem;
+    color: var(--color-dark);
+    margin-top: .3rem;
+}
+
+.card__description {
+    font-size: 1rem;
+    text-align: initial;
+    margin-bottom: 1.25rem;
+    opacity: 0;
+}
+
+.card__button {
+    display: block;
+    width: 100%;
+    padding: 1.125rem 2rem;
+    background-color: var(--main-color-dark);
+    color: var(--white-color);
+    border-radius: .5rem;
+    font-weight: 600;
+    transition: .2s;
+    opacity: 0;
+}
+
+.card__button:hover {
+    box-shadow: 0 18px 40px -12px rgba(242, 162, 12, .35);
+}
+
+.card__data,
+.card__title,
+.card__preci,
+.card__description {
+    transition: .5s;
+}
+
+/* Hover card effect */
+.card:hover .card__img {
+    transform: translate(-1.5rem, -9.5rem) rotate(-20deg);
+}
+
+.card:hover .card__data {
+    transform: translateY(4.8rem);
+}
+
+.card:hover .card__title {
+    transform: translateX(-2.3rem);
+    margin-bottom: 0;
+}
+
+.card:hover .card__description,
+.card:hover .card__button {
+    transition-delay: .2s;
+    opacity: 1;
+}
+
+.gauge * {
+    background: unset !important;
+    padding: 0 !important;
 }
