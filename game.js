@@ -202,6 +202,7 @@ $("#game").keyup(function (event) {
     }
 });
 
+
 initializeGauge(".speed-gauge")
 initializeGauge(".acc-gauge")
 

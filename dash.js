@@ -65,3 +65,6 @@ themetoggler.addEventListener("click", () => {
 
     themetoggler.querySelector("span").classList.toggle("active");
 })
+
+initializeGauge(".avg-speed")
+setValue(0.5, 100, ".avg-speed")

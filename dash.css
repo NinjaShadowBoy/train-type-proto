@@ -691,3 +691,8 @@ aside {
     transition-delay: .2s;
     opacity: 1;
 }
+
+.gauge * {
+    background: unset !important;
+    padding: 0 !important;
+}
