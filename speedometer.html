@@ -4,21 +4,37 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="speedometer.css" />
+    <style>
+      .container {
+        width: 50rem;
+      }
+    </style>
     <title>Document</title>
   </head>
   <body>
     <!-- starts here -->
     <!-- The classes used to customize: .gauge bottom-circle .center-circle
      .wpm for the title text and .speed for the meter value -->
-    <div
-      class="gauge"
-      data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
-      data-text="Nice"
-    ></div>
+    <div class="container">
+      <div
+        class="gauge"
+        data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
+        data-text="Nice"
+      ></div>
+    </div>
     <!-- ends here -->
 
     <script src="./bootstrap-5.3.3-dist/js/bootstrap.js"></script>
     <script src="./jquery-3.7.1.min.js"></script>
     <script src="speedometer.js"></script>
+    <script>
+      initializeGauge();
+      function randomChanges() {
+        setValue(Math.random(), 100);
+        setTimeout(randomChanges, 1000);
+      }
+
+      randomChanges();
+    </script>
   </body>
 </html>

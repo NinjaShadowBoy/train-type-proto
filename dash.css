@@ -696,3 +696,12 @@ aside {
     background: unset !important;
     padding: 0 !important;
 }
+
+.typing-logo {
+    width: 5rem;
+}
+
+main .performance .progress{
+    width: 10rem !important;
+    aspect-ratio: 1;
+}

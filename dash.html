@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dash board</title>
-    <link rel="stylesheet" href="./dash.css" />
     <link
       href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
       rel="stylesheet"
@@ -19,6 +18,8 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
     />
     <link rel="stylesheet" href="speedometer.css" />
+    <link rel="stylesheet" href="logo.css" />
+    <link rel="stylesheet" href="./dash.css" />
   </head>
 
   <body>
@@ -27,7 +28,8 @@
         <span class="shrink-btn">
           <i class="bx bx-chevron-left"></i>
         </span>
-        <img src="./images/logo.png" class="logo" alt="" />
+        <div class="typing-logo"></div>
+        <!-- <img src="./images/logo.png" class="logo" alt="" /> -->
         <h3 class="hide">TRAIN<span class="danger">TYPE</span></h3>
       </div>
 
@@ -176,6 +178,11 @@
             </div>
             <div class="progress">
               <!---------put the Accuracy speedometer here----------->
+              <div
+                class="gauge avg-acc"
+                data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
+                data-text="ACC%"
+              ></div>
             </div>
           </div>
           <small class="text-muted">Last 24hours</small>
@@ -252,6 +259,7 @@
       </div>
     </aside>
     <script src="jquery-3.7.1.min.js"></script>
+    <script src="logo.js"></script>
     <script src="speedometer.js"></script>
     <script src="./dash.js"></script>
   </body>

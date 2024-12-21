@@ -67,4 +67,17 @@ themetoggler.addEventListener("click", () => {
 })
 
 initializeGauge(".avg-speed")
-setValue(0.5, 100, ".avg-speed")
+initializeGauge(".avg-acc")
+
+function randomChanges() {
+    setValue(Math.random(), 70, ".avg-speed")
+    setValue(Math.random(), 100, ".avg-acc")
+    setTimeout(randomChanges, 1000)
+}
+
+randomChanges()
+
+$(this).on("resize", function () {
+    initializeGauge(".avg-speed")
+    initializeGauge(".avg-acc")
+})

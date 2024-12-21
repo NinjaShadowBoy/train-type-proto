@@ -56,7 +56,7 @@ function initializeGauge(guageName = ".gauge") {
     let w = svg.width();
 
     let proportion = 0.8
-    let radius = proportion * Math.sqrt(w * h) / 2
+    let radius = proportion * Math.sqrt(w * w) / 2
     let x_offset = (1 - proportion) * w / 2
     let y_offset = (1 - proportion) * w / 2
     let a = Math.sqrt(2) / 2
@@ -89,7 +89,6 @@ function setValue(percent, maxValue = 100, guageName = ".gauge") {
     const arc = $(guageName + " path.arc")
 
     const maxLen = arc[0].getTotalLength()
-
 
     $(guageName + " .center-circle .number").text(Math.round(percent * maxValue));
     arc[1].style.strokeDasharray = `${percent * maxLen} ${maxLen}`;

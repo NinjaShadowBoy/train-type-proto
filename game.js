@@ -109,7 +109,7 @@ $("#game").keyup(function (event) {
             const numIncorrect = $(".incorrect").length + $(".extra").length
             speed = (numCorrect + numIncorrect) / (timePassedInMinutes * 5)
             acc = numCorrect / (numCorrect + numIncorrect)
-            setValue(speed / 200, 200, ".speed-gauge")
+            setValue(speed / 70, 70, ".speed-gauge")
             setValue(acc, 100, ".acc-gauge")
             $(".timer").text(`Time left: ${Math.round((gameTime - timePassed) / 1000)}s`)
             if (!$("#game:focus").length) {
