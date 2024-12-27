@@ -149,9 +149,9 @@
 
     <main>
       <h1>Dashboard</h1>
-      <div class="date">
+      <!-- <div class="date">
         <input type="date" />
-      </div>
+      </div> -->
       <div class="performance">
         <div class="speedometer1">
           <span class="material-icons-outlined">speed</span>
@@ -177,23 +177,45 @@
               <h3>Average Accuracy</h3>
             </div>
             <div class="progress">
-              <!---------put the Accuracy speedometer here----------->
+              <!---------put the speed speedometer here----------->
               <div
                 class="gauge avg-acc"
                 data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
-                data-text="ACC%"
+                data-text="WPM"
               ></div>
             </div>
           </div>
           <small class="text-muted">Last 24hours</small>
         </div>
+        <div class="speedometer3">
+          <span class="material-icons-outlined">speed</span>
+          <div class="middle">
+            <div class="left">
+              <h3>Average Adjusted Speed</h3>
+            </div>
+            <div class="progress">
+              <!---------put the Accuracy speedometer here----------->
+              <div
+                class="gauge avg-aspeed"
+                data-colors="#56e9d3ff #56e969ff #e8f54aff #fb8132ff #fb3232ff"
+                data-text="AWPM%"
+              ></div>
+            </div>
+          </div>
+          <small class="text-muted">All time</small>
+        </div>
       </div>
       <div class="chart">
-        <h2>Chart</h2>
-        <div class="middle">
-          <div class="left"></div>
-          <div class="progress">
+        <h2>Performance</h2>
+        <div class="middle chart">
+          <!-- <div class="left"></div> -->
+          <div class="graph">
             <!---------put the chart here----------->
+            <canvas
+              id="typingPerformanceChart"
+              width="600"
+              height="400"
+            ></canvas>
           </div>
         </div>
       </div>
@@ -259,8 +281,143 @@
       </div>
     </aside>
     <script src="jquery-3.7.1.min.js"></script>
+    <script type="module" src="model.js"></script>
     <script src="logo.js"></script>
     <script src="speedometer.js"></script>
-    <script src="./dash.js"></script>
+    <script type="module" src="./dash.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Example data
+      const timestamps = [
+        1672444800000, 1672531200000, 1672617600000, 1672704000000,
+      ];
+      const speeds = [45, 50, 55, 60]; // Typing speed in WPM
+      const accuracies = [90, 92, 94, 95]; // Accuracy in percentage
+
+      // Convert timestamps to readable dates
+      const formattedDates = timestamps.map((ts) => {
+        const date = new Date(ts);
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+      });
+
+      // Initialize Chart.js
+      const ctx = document
+        .getElementById("typingPerformanceChart")
+        .getContext("2d");
+      const typingPerformanceChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: formattedDates, // X-axis: Dates
+          datasets: [
+            {
+              label: "Typing Speed (WPM)",
+              data: speeds, // Y-axis: Typing speeds
+              backgroundColor: "rgba(75, 192, 192, 0.2)",
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 2,
+              pointBackgroundColor: "rgba(75, 192, 192, 1)",
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              cubicInterpolationMode: "monotone", // Smooth line
+              tension: 0.4, // Adds some tension to the curve
+              yAxisID: "ySpeed",
+            },
+            {
+              label: "Accuracy (%)",
+              data: accuracies, // Y-axis: Accuracies
+              backgroundColor: "rgba(255, 159, 64, 0.2)",
+              borderColor: "rgba(255, 159, 64, 1)",
+              borderWidth: 2,
+              pointBackgroundColor: "rgba(255, 159, 64, 1)",
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              cubicInterpolationMode: "monotone",
+              tension: 0.4,
+              yAxisID: "yAccuracy",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              enabled: true,
+              callbacks: {
+                // Display both metrics in the tooltip
+                title: (context) => `Date: ${context[0].label}`,
+                label: (context) => {
+                  const datasetLabel = context.dataset.label;
+                  const value = context.raw;
+                  return `${datasetLabel}: ${value}`;
+                },
+              },
+            },
+            legend: {
+              position: "top", // Move legend to the top
+              labels: {
+                boxWidth: 20,
+              },
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Typing Speed (WPM)",
+              },
+              title: {
+                display: true,
+                text: "Date",
+              },
+            },
+            // y: {
+            //   // Explicitly defining only two Y-axes
+            ySpeed: {
+              beginAtZero: false,
+              type: "linear",
+              position: "left",
+              title: {
+                display: true,
+                text: "Typing Speed (WPM)",
+              },
+            },
+            yAccuracy: {
+              beginAtZero: false,
+              type: "linear",
+              position: "right",
+              title: {
+                display: true,
+                text: "Accurac (%)",
+              },
+              grid: {
+                drawOnChartArea: false, // Prevent grid lines from overlapping
+              },
+            },
+            // },
+          },
+        },
+      });
+
+      // Dynamically update the chart
+      function addData(newTimestamp, newSpeed, newAccuracy) {
+        const newDate = new Date(newTimestamp).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+        typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
+        typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
+        typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
+        typingPerformanceChart.update(); // Refresh the chart
+      }
+
+      // Example: Adding a new point dynamically
+      setTimeout(() => {
+        addData(1672790400000, 65, 97); // Add Jan 4 data
+      }, 3000);
+    </script>
   </body>
 </html>

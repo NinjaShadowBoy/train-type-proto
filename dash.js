@@ -1,3 +1,5 @@
+import { User, ExerciseDone, CustomExo, DB } from "./model.js";
+
 const shrink_btn = document.querySelector(".shrink-btn");
 const search = document.querySelector(".search");
 const sidebar_links = document.querySelectorAll(".sidebar-links a");
@@ -5,6 +7,22 @@ const active_tab = document.querySelector(".active-tab");
 const shortcuts = document.querySelector(".sidebar-links h4");
 const tooltip_elements = document.querySelectorAll(".tooltip-element");
 const themetoggler = document.querySelector(".theme-toggler");
+let user = sessionStorage.getItem("user")
+console.log(user);
+user = JSON.parse(user)
+console.log(user);
+user = User.newUser(user)
+
+let jsonDB = localStorage.getItem("DB")
+jsonDB = JSON.parse(jsonDB)
+let db = new DB(jsonDB.users, jsonDB.exos)
+
+console.log(user, db);
+
+$("main h1").text(`Welcome ${user.username} !`)
+// $("nav h3").text(`${user.username}`)
+
+
 
 let activeIndex;
 
@@ -68,6 +86,7 @@ themetoggler.addEventListener("click", () => {
 
 initializeGauge(".avg-speed")
 initializeGauge(".avg-acc")
+initializeGauge(".avg-aspeed")
 
 function randomChanges() {
     setValue(Math.random(), 70, ".avg-speed")
@@ -75,9 +94,13 @@ function randomChanges() {
     setTimeout(randomChanges, 1000)
 }
 
-randomChanges()
+setValue(user.avg_speed, 70, ".avg-speed")
+setValue(user.avg_acc, 100, ".avg-acc")
+setValue(0.98, 60, ".avg-aspeed")
+// randomChanges()
 
 $(this).on("resize", function () {
     initializeGauge(".avg-speed")
     initializeGauge(".avg-acc")
+    initializeGauge(".avg-aspeed")
 })
