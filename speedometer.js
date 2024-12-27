@@ -1,5 +1,5 @@
 function initializeGauge(guageName = ".gauge") {
-    let guage = $(guageName).html(`<div class="bottom-circle"></div>
+  let guage = $(guageName).html(`<div class="bottom-circle"></div>
       <svg height="95%" width="95%">
         <!-- Define the glow filter -->
         <defs>
@@ -43,69 +43,92 @@ function initializeGauge(guageName = ".gauge") {
         <span class="number speed">0</span>
       </div>`)
 
-    let grad = $(guageName + " linearGradient")
-    let colors = $(guageName).attr("data-colors").split(' ')
-    guage.attr("grad-colors", colors)
+  let grad = $(guageName + " linearGradient")
+  let colors = $(guageName).attr("data-colors").split(' ')
+  guage.attr("grad-colors", colors)
 
-    for (let i = 0; i < colors.length; i++) {
-        grad.html(grad.html() + `<stop offset="${i * 100 / (colors.length - 1)}%" stop-color="${colors[i]}" />`)
-    }
+  for (let i = 0; i < colors.length; i++) {
+    grad.html(grad.html() + `<stop offset="${i * 100 / (colors.length - 1)}%" stop-color="${colors[i]}" />`)
+  }
 
-    const svg = $(guageName + " svg")
-    let h = svg.height();
-    let w = svg.width();
+  const svg = $(guageName + " svg")
+  let h = svg.height();
+  let w = svg.width();
 
-    let proportion = 0.8
-    let radius = proportion * Math.sqrt(w * w) / 2
-    let x_offset = (1 - proportion) * w / 2
-    let y_offset = (1 - proportion) * w / 2
-    let a = Math.sqrt(2) / 2
+  let proportion = 0.8
+  let radius = proportion * Math.sqrt(w * w) / 2
+  let x_offset = (1 - proportion) * w / 2
+  let y_offset = (1 - proportion) * w / 2
+  let a = Math.sqrt(2) / 2
 
-    let p1 = `${radius * (1 - a) + x_offset} ${h - radius * (1 - a) - y_offset}`
-    let p2 = `${radius * (1 + a) + x_offset} ${h - radius * (1 - a) - y_offset}`
-    let p3 = `${radius + x_offset} ${h - 2 * radius - y_offset}`
+  let p1 = `${radius * (1 - a) + x_offset} ${h - radius * (1 - a) - y_offset}`
+  let p2 = `${radius * (1 + a) + x_offset} ${h - radius * (1 - a) - y_offset}`
+  let p3 = `${radius + x_offset} ${h - 2 * radius - y_offset}`
 
-    let completeArc = $(guageName + " path.arc")
-        .attr("d", `M${p1}, A${radius} ${radius}, 0, 0 1, ${p3} A${radius} ${radius}, 0, 0 1, ${p2}`)
-        .attr("stroke-width", radius / 5.6);
+  let completeArc = $(guageName + " path.arc")
+    .attr("d", `M${p1}, A${radius} ${radius}, 0, 0 1, ${p3} A${radius} ${radius}, 0, 0 1, ${p2}`)
+    .attr("stroke-width", radius / 5.6);
 
-    let incompleteArc = $(guageName + " path.arc.incomplete")
-        .attr("stroke-width", radius / 6)
-        .attr("stroke", "url(#gradient)");
+  let incompleteArc = $(guageName + " path.arc.incomplete")
+    .attr("stroke-width", radius / 6)
+    .attr("stroke", "url(#gradient)");
 
-    let text = guage.attr("data-text")
+  let text = guage.attr("data-text")
 
-    console.log(text);
+  console.log(text);
 
 
-    $(guageName + " .number").css("font-size", `${radius / 18}rem`)
-    let desc = $(guageName + " .wpm")
-        .css("font-size", `${radius / 50}rem`)
-        .text(text)
-    $(guageName + " feGaussianBlur").attr("stdDeviation", `${radius / 20}`)
+  $(guageName + " .number").css("font-size", `${radius / 18}rem`)
+  let desc = $(guageName + " .wpm")
+    .css("font-size", `${radius / 50}rem`)
+    .text(text)
+  $(guageName + " feGaussianBlur").attr("stdDeviation", `${radius / 20}`)
 }
 function setValue(percent, maxValue = 100, guageName = ".gauge") {
-    let guage = $(guageName)
-    const arc = $(guageName + " path.arc")
+  let guage = $(guageName)
+  const arc = $(guageName + " path.arc")
 
-    const maxLen = arc[0].getTotalLength()
+  const maxLen = arc[0].getTotalLength()
 
-    $(guageName + " .center-circle .number").text(Math.round(percent * maxValue));
-    arc[1].style.strokeDasharray = `${percent * maxLen} ${maxLen}`;
-    arc[0].style.strokeDasharray = `0`;
+  $(guageName + " .center-circle .number").text(Math.round(percent * maxValue));
+  arc[1].style.strokeDasharray = `${percent * maxLen} ${maxLen}`;
+  arc[0].style.strokeDasharray = `0`;
 
-    const colors = guage.attr("grad-colors").split(',')
+  const colors = guage.attr("grad-colors").split(',')
 
-    let col = "lightgrey"
-    let index = Math.floor(percent * colors.length)
-    col = index < colors.length ? colors[index] : colors[colors.length - 1]
+  let col = "lightgrey"
+  let index = Math.floor(percent * colors.length)
+  col = index < colors.length ? colors[index] : colors[colors.length - 1]
 
-    const svg = $(guageName + " svg")
-    let h = svg.height();
-    let w = svg.width();
+  const svg = $(guageName + " svg")
+  let h = svg.height();
+  let w = svg.width();
 
-    let proportion = 0.8
-    let radius = proportion * Math.sqrt(w * h) / 2
-    $(guageName + " .center-circle").css("box-shadow", `inset 0px 0px ${radius / 5}px ${col}`)
-    $(guageName + " .center-circle .number").css("color", col)
+  let proportion = 0.8
+  let radius = proportion * Math.sqrt(w * h) / 2
+  $(guageName + " .center-circle").css("box-shadow", `inset 0px 0px ${radius / 5}px ${col}`)
+  $(guageName + " .center-circle .number").css("color", col)
 }
+
+$(document).ready(function () {
+  // Define the element to observe
+  const elements = $(".gauge");
+
+  console.log(elements);
+
+  // Create a ResizeObserver instance
+  const resizeObserver = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      // console.log('Size changed:', entry.contentRect);
+      // Handle the size change (width, height) here
+      // console.log(`New size: ${entry.contentRect.width}px x ${entry.contentRect.height}px`);
+      initializeGauge(`.${entry.target.className.split(" ").join(".")}`)
+      console.log(`.${entry.target.className.split(" ").join(".")}`);
+    }
+  });
+
+  // Start observing the element
+  for (const item of elements) {
+    resizeObserver.observe(item);
+  }
+});

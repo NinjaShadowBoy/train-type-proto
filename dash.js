@@ -84,6 +84,7 @@ themetoggler.addEventListener("click", () => {
     themetoggler.querySelector("span").classList.toggle("active");
 })
 
+
 initializeGauge(".avg-speed")
 initializeGauge(".avg-acc")
 initializeGauge(".avg-aspeed")
@@ -91,15 +92,16 @@ initializeGauge(".avg-aspeed")
 function randomChanges() {
     setValue(Math.random(), 70, ".avg-speed")
     setValue(Math.random(), 100, ".avg-acc")
+    setValue(Math.random(), 100, ".avg-aspeed")
     setTimeout(randomChanges, 1000)
 }
 
 setValue(user.avg_speed, 70, ".avg-speed")
 setValue(user.avg_acc, 100, ".avg-acc")
 setValue(0.98, 60, ".avg-aspeed")
-// randomChanges()
+randomChanges()
 
-$(this).on("resize", function () {
+$("body *").on("zoom", function () {
     initializeGauge(".avg-speed")
     initializeGauge(".avg-acc")
     initializeGauge(".avg-aspeed")
