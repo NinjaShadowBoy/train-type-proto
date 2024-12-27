@@ -1,8 +1,11 @@
 # steph_sji_ing3isi_group10_theme7_web_en
 Team members:
-BILOUI TIGUENA
-ABENA ALEX
-MFONE AMIN
+BILOGUI TIGUENA, 
+
+ABENA ALEX,
+
+MFONE AMIN, and
+
 TAGAM SIGNE
  
  PROJECT NAME: TRAIN TYPE
