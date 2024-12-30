@@ -6,19 +6,54 @@ export class User {
         this.perf = []
         this.challenges = []
         this.customExos = []
-        this.avg_speed = 0
-        this.avg_acc = 0
     }
-    static newUser(obj) {
+
+    static load() {
+        let jsonUserString = sessionStorage.getItem("user")
+        let jsonUser = JSON.parse(jsonUserString)
+        return this.loadUser(jsonUser)
+    }
+
+    addToPerformance(exoDone) {
+        this.perf.push(exoDone)
+        for (let i = 0; i < this.perf.length; i++) {
+            const elt = this.perf[i];
+
+        }
+    }
+
+    addCustomExo(customText) {
+        this.customExos.push(new CustomExo(customText))
+    }
+
+    static loadUser(obj) {
         let user = new User()
         user.username = obj.username
         user.password = obj.password
         user.perf = obj.perf ? obj.perf : []
         user.challenges = obj.challenges ? obj.challenges : []
         user.customExos = obj.customExos ? obj.customExos : []
-        user.avg_speed = obj.avg_speed ? obj.avg_speed : 0
-        user.avg_acc = obj.avg_acc ? obj.avg_acc : 0
         return user
+    }
+
+    avg_acc() {
+        let avg = 0
+        for (let i = 0; i < this.perf.length; i++) {
+            const p = this.perf[i];
+            avg += p.acc
+        }
+        avg /= this.perf.length ? this.perf.length : 1
+        return avg
+    }
+
+    avg_speed() {
+        let avg = 0
+        for (let i = 0; i < this.perf.length; i++) {
+            const p = this.perf[i];
+            avg += p.wpm
+        }
+        avg /= this.perf.length ? this.perf.length : 1
+        return avg
     }
 }
 
@@ -32,20 +67,21 @@ export class DefaultExo {
 }
 
 export class CustomExo {
-    constructor(text, duration) {
+    constructor(text) {
         this.text = text
-        this.duration = duration
     }
 }
 
 export class ExerciseDone {
-    constructor(date, exoID, wpm, acc, errors, duration) {
+    constructor(date, exoID, wpm, acc, errors, duration, number_of_words, number_of_wrong_words) {
         this.date = date;
         this.wpm = wpm;
         this.exoID = exoID;
         this.acc = acc;
         this.errors = errors;
         this.duration = duration;
+        this.number_of_words = number_of_words;
+        this.number_of_wrong_words = this.number_of_wrong_words;
     }
 }
 
@@ -66,6 +102,9 @@ export class DB {
         this.numExos = Object.keys(this.exos).length;
         this.numUser = Object.keys(this.users).length;
     }
+    setUser(user) {
+        this.users[user.username] = user
+    }
     getUser(username) {
         return this.users[username]
     }
@@ -74,11 +113,13 @@ export class DB {
     }
     addUser(user) {
         if (this.users[user.username] != undefined) {
-            console.log(user, ` username "${user.username}" already existing`)
+            alert(`Username "${user.username}" already existing. Choose another username please.`)
             return false
         } else {
             this.users[user.username] = user
             this.numUser++
+            this.save()
+            alert(`You were succesfully registerd as ${user.username}`)
             return true
         }
     }
@@ -94,109 +135,122 @@ export class DB {
             if (password === user.password) {
                 return user
             }
+            alert("Incorrect password");
+            return false
         }
-        console.log("Inexisting user");
+        alert("Inexisting user");
 
         return undefined
     }
 
+    save() {
+        localStorage.setItem("DB", JSON.stringify(this))
+    }
+    static load() {
+        let jsonDB = localStorage.getItem("DB")
+        jsonDB = JSON.parse(jsonDB)
+        let db = new DB(jsonDB.users, jsonDB.exos)
+        return db
+    }
 }
 
-let me = new User("Alex", "alex")
-let her = new User("Paule", "paule")
-let db = new DB()
+// let me = new User("Alex", "alex")
+// let her = new User("Paule", "paule")
+// let db = new DB()
 
-db.addUser(me)
-db.addUser(her)
-me.perf.push(new ExerciseDone(Number(new Date()), 1, 22, 0.95, { 'a': 11 }, 60000))
-db.addExo("Alex is a boy in ING 3 EN at IUSJC. He likes programming", 60000)
-db.addExo(`Max saw a box. It was red. He had a key. Does it fit? He tried. It worked!
+// db.addUser(me)
+// db.addUser(her)
+// me.perf.push(new ExerciseDone(Number(new Date()), 1, 22, 0.95, { 'a': 11 }, 60000))
+// db.addExo("Alex is a boy in ING 3 EN at IUSJC. He likes programming", 60000)
+// db.addExo(`Max saw a box. It was red. He had a key. Does it fit? He tried. It worked!
 
-Inside the box, Max found a note. It said, "Find the cave." The map showed a path. Max felt brave. He grabbed his bag and left.
+// Inside the box, Max found a note. It said, "Find the cave." The map showed a path. Max felt brave. He grabbed his bag and left.
 
-The trail was rocky, but Max kept going. He climbed a tall hill and looked around. In the distance, he saw a dark cave. “That must be the place,” he thought. Max walked for hours until he reached the entrance.
+// The trail was rocky, but Max kept going. He climbed a tall hill and looked around. In the distance, he saw a dark cave. “That must be the place,” he thought. Max walked for hours until he reached the entrance.
 
-The cave was cold, damp, and silent—except for the sound of dripping water. Max used a flashlight (battery-powered) to explore. Suddenly, he saw a shiny object: a golden compass! The compass had strange symbols: @, #, &, and %. It pointed east, so Max followed.
+// The cave was cold, damp, and silent—except for the sound of dripping water. Max used a flashlight (battery-powered) to explore. Suddenly, he saw a shiny object: a golden compass! The compass had strange symbols: @, #, &, and %. It pointed east, so Max followed.
 
-“Who enters my cave?” a voice boomed. Startled, Max replied, “I’m just an explorer!”
+// “Who enters my cave?” a voice boomed. Startled, Max replied, “I’m just an explorer!”
 
-“Then solve this riddle,” the voice said. “What is greater than gold, cannot be bought, but is free to give?”
+// “Then solve this riddle,” the voice said. “What is greater than gold, cannot be bought, but is free to give?”
 
-Max thought hard. “Is it... friendship?”
+// Max thought hard. “Is it... friendship?”
 
-“Correct!” the voice said. A hidden door opened, revealing a treasure chest. Inside were priceless gems and a scroll that read: Adventure is the true treasure. Share it with the world!
+// “Correct!” the voice said. A hidden door opened, revealing a treasure chest. Inside were priceless gems and a scroll that read: Adventure is the true treasure. Share it with the world!
 
-`, 60000 * 5)
+// `, 60000 * 5)
 
-db.addExo(`Sam had a map. The map was old. It led to a hill. On the hill was a hut. Can Sam find it?
+// db.addExo(`Sam had a map. The map was old. It led to a hill. On the hill was a hut. Can Sam find it?
 
-Sam set off on the path. The day was hot. He felt the wind blow. As he walked, he saw the hut. It was small but looked safe.
+// Sam set off on the path. The day was hot. He felt the wind blow. As he walked, he saw the hut. It was small but looked safe.
 
-Sam went inside the hut. The room was dark and quiet. On the table was a locked box. He found a note next to it. The note said to find a key.
+// Sam went inside the hut. The room was dark and quiet. On the table was a locked box. He found a note next to it. The note said to find a key.
 
-Sam searched the hut for the key. He moved the rug and saw a trapdoor. Inside was a chest with strange symbols. It had letters and numbers like a1b2 and c3d4. Sam tried many codes until one worked.
+// Sam searched the hut for the key. He moved the rug and saw a trapdoor. Inside was a chest with strange symbols. It had letters and numbers like a1b2 and c3d4. Sam tried many codes until one worked.
 
-Inside the chest was another map. It showed a cave deep in the forest. Sam packed his bag and set out. The trail was marked with symbols @, #, and &. He kept walking until he saw a glowing light.`, 60000 * 5)
+// Inside the chest was another map. It showed a cave deep in the forest. Sam packed his bag and set out. The trail was marked with symbols @, #, and &. He kept walking until he saw a glowing light.`, 60000 * 5)
 
-db.addExo(`Sam had a box. The box was red. It had a lid.
+// db.addExo(`Sam had a box. The box was red. It had a lid.
 
-He saw a key. The key was small. Does it fit?
+// He saw a key. The key was small. Does it fit?
 
-Sam tried the key. The lid opened. Inside was a map.
+// Sam tried the key. The lid opened. Inside was a map.
 
-The map was old. It showed a trail. The trail led to a hut.
+// The map was old. It showed a trail. The trail led to a hut.
 
-Sam walked fast. The path was flat. He saw the hut.
+// Sam walked fast. The path was flat. He saw the hut.
 
-The hut had a door. Sam pushed the door. It was dark inside.
+// The hut had a door. Sam pushed the door. It was dark inside.
 
-He lit a lamp. The room had a table. On the table was a note.
+// He lit a lamp. The room had a table. On the table was a note.
 
-The note said, "Find the code." The code opens the chest.
+// The note said, "Find the code." The code opens the chest.
 
-Sam looked for the chest. He moved the rug. Under the rug was a trapdoor.
+// Sam looked for the chest. He moved the rug. Under the rug was a trapdoor.
 
-Sam opened the trapdoor. A chest was there. The chest had symbols on it.
+// Sam opened the trapdoor. A chest was there. The chest had symbols on it.
 
-The symbols were letters and numbers: a1, b2, c3. What could they mean?
+// The symbols were letters and numbers: a1, b2, c3. What could they mean?
 
-Sam thought hard. He tried the code b2c3a1. The chest clicked open.
+// Sam thought hard. He tried the code b2c3a1. The chest clicked open.
 
-Inside the chest was another note. This note had strange shapes.
+// Inside the chest was another note. This note had strange shapes.
 
-The shapes were like @, &, and %. Sam needed a clue.
+// The shapes were like @, &, and %. Sam needed a clue.
 
-He checked the map again. The map pointed to a cave in the woods.
+// He checked the map again. The map pointed to a cave in the woods.
 
-Sam packed his bag. He walked through the woods. The path was narrow and rough.
+// Sam packed his bag. He walked through the woods. The path was narrow and rough.
 
-The trees were tall, and the air was cool. Sam kept going.
+// The trees were tall, and the air was cool. Sam kept going.
 
-Finally, he saw the cave. It was dark and quiet.
+// Finally, he saw the cave. It was dark and quiet.
 
-Sam used a flashlight. The cave walls had drawings.
+// Sam used a flashlight. The cave walls had drawings.
 
-One drawing showed a sun. Another showed a key.
+// One drawing showed a sun. Another showed a key.
 
-Sam found a stone door in the cave. On the door were buttons.
+// Sam found a stone door in the cave. On the door were buttons.
 
-The buttons had symbols: @, #, $, %, and &.
+// The buttons had symbols: @, #, $, %, and &.
 
-Sam pressed the buttons in the order on the note: @, %, &, and #.
+// Sam pressed the buttons in the order on the note: @, %, &, and #.
 
-The door opened slowly. Behind it was a glowing crystal.
+// The door opened slowly. Behind it was a glowing crystal.
 
-The crystal was bright and warm. It filled the cave with light.
+// The crystal was bright and warm. It filled the cave with light.
 
-Sam smiled. He had solved the mystery. The journey was the real prize.`, 60000 * 5)
-console.log(db);
+// Sam smiled. He had solved the mystery. The journey was the real prize.`, 60000 * 5)
+// console.log(db);
 
-let jsonDB = JSON.stringify(db)
-localStorage.setItem("DB", jsonDB)
-console.log("JSON String: ", jsonDB)
+// let jsonDB = JSON.stringify(db)
+// localStorage.setItem("DB", jsonDB)
+// console.log("JSON String: ", jsonDB)
 
-jsonDB = localStorage.getItem("DB")
-jsonDB = JSON.parse(jsonDB)
-db = new DB(jsonDB.users, jsonDB.exos)
+// jsonDB = localStorage.getItem("DB")
+// jsonDB = JSON.parse(jsonDB)
+// db = new DB(jsonDB.users, jsonDB.exos)
 
-console.log(db);
+// console.log(db);
+
+// db.save()

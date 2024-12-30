@@ -128,4 +128,19 @@ body {
     border-radius: 500px;
     padding-block: 10px;
     background-color: aqua;
+    margin-block: 0.5rem;
+}
+
+
+.typing-logo {
+    filter: brightness(0.5);
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10%;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    transition: all 0.2s ease both;
 }

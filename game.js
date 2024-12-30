@@ -1,20 +1,25 @@
+import { DB, User, ExerciseDone } from "./model.js"
+let db = DB.load()
+let user = User.load()
+let exoID = Number(sessionStorage.getItem("exoID"))
+let difficulty = sessionStorage.getItem("difficulty")
+
 // Generate interesting words for the game
-const words = `Once upon a time, there was a cat. The cat was gray. It loved to play. It chased mice. It ran fast. The sun was up. The sky was blue. The cat felt happy.
+const words = db.getExo(exoID).text.replace(/\s/, " ").split(/\s/).filter((a) => !/\s/.test(a))
+console.log(words);
 
-One day, the cat saw a bird. The bird was small and red. It flew high. The cat wanted to catch it. So, it climbed a tree. The tree was tall. The cat slipped and fell. It landed on the ground. The bird flew away.
-
-In the garden, there were many flowers. The flowers had bright colors. Red, yellow, blue, and pink. Bees buzzed around the flowers. Butterflies flitted from petal to petal. The garden was lively.
-
-As the cat wandered, it found a hidden path. Curious, it followed the path. The path led to a secret place. There was a small pond. Fish swam in the pond. Frogs croaked by the edge. The cat dipped its paw in the water.
-
-Suddenly, it heard a noise. It was a dog. The dog was big and brown. It barked loudly. The cat ran away quickly. It jumped over rocks and logs. The dog chased the cat. But the cat was too fast.
-
-The cat hid in a bush. The dog couldn't find it. The cat waited until the dog left. It then came out carefully. The sun was setting. The sky turned orange and pink. The cat decided to go home.
-
-On the way back, the cat saw its friend. The friend was a rabbit. The rabbit had long ears. They played together. They jumped and hopped. They had fun until it got dark.
-
-Back at home, the cat felt tired. It curled up in its bed. The moon shone brightly in the sky. Stars twinkled like diamonds. The cat closed its eyes. It dreamed of more adventures.`.split(' '); // Split the text into words
-const gameTime = 120 * 1000; // 1 minute
+let duration = 0; // 0 minute
+switch (difficulty) {
+    case "hard":
+        duration = 5 * 60000 // 5 minutes
+        break;
+    case "medium":
+        duration = 3 * 60000 // 3 minutes
+        break;
+    default:
+        duration = 1 * 60000 // 1 minute
+        break;
+}
 
 $("#Type-again-button").on("click", () => {
     speed = 0
@@ -26,7 +31,7 @@ $("#Type-again-button").on("click", () => {
     newGame()
 })
 
-$(".timer").text(`Exercise time: ${Math.round(gameTime / 1000)}s`)
+$(".timer").text(`Exercise time: ${Math.round(duration / 1000)}s`)
 
 window.timer = null;
 window.gameStart = null;
@@ -34,17 +39,24 @@ let speed = 0
 let acc = 0
 let pauseTime = 0
 let offset = 0
+let number_of_words = 0
+let number_of_wrong_words = 0
+let date = 0
+
 const errors = {};
 
 function newGame() {
+    $(".results").css("visibility", "hidden")
+    $(".results").css("margin", "-6.2rem")
     // Reset the words
     $("#words").html('<div id="cursor"></div>');
 
     // Generate random words
-    for (let i = 0; i < 200; i++) {
+    for (const word of words) {
         // Append a new word to the text
-        $("#words").html($("#words").html() + formatWord(words[i]));
+        $("#words").html($("#words").html() + formatWord(word));
     }
+
     $(".word").each(function () {
         $(this).children().first().addClass("firstLetterOfWord")
     });
@@ -57,9 +69,35 @@ function newGame() {
 
 function gameOver() {
     clearInterval(window.timer)
+    date = Number(new Date())
+
+    $(".results").css("visibility", "visible")
+    $(".results").css("margin", "0")
+
+    setValue(speed * acc / 70, 70, ".aspeed-gauge")
+    number_of_wrong_words = $(".word.underlined").length
+
+    let number_of_errors = 0
+    for (const letter of Object.keys(errors)) {
+        number_of_errors += errors[letter]
+        $(".errors-details").html($(".errors-details").html() + `<p>'${letter}': ${errors[letter]} times</p>`)
+    }
+
+    $(".words-typed").html(`<span>${number_of_words}</span> ` + $(".words-typed").html())
+    $(".correctly").html(`<span class="correct">${number_of_words - number_of_wrong_words}</span> ` + $(".correctly").html())
+    $(".incorrectly").html(`<span class="incorrect">${number_of_wrong_words}</span> ` + $(".incorrectly").html())
+    $(".number_of_errors").text(number_of_errors)
+
     $("#game, .game-container").addClass("over")
     window.gameStart = null
     window.timer = null
+    let exoDone = new ExerciseDone(date, exoID, speed, acc, errors, duration, number_of_words, number_of_wrong_words)
+    console.log("Exo done ", exoDone);
+    user.addToPerformance(exoDone)
+    db.exos[exoID].timesAttempted++
+    db.setUser(user)
+    sessionStorage.setItem("user", JSON.stringify(user))
+    db.save()
 }
 
 function randomWord() {
@@ -67,13 +105,15 @@ function randomWord() {
 }
 function formatWord(word) {
     // Put in a span with the class .word 
-    return `<span class="word"><span class="letter">${word
-        .split("")
-        .join('</span><span class="letter">')}</span></span>`; // Put all letter in seperate spans
+    return `<span class="word"><span class="letter">${word.split("").join('</span><span class="letter">')}</span></span>`; // Put all letter in seperate spans
 }
 
 
 $("#game").keyup(function (event) {
+    console.log($("#words").children().length);
+    console.log(event);
+
+
     if ($("#game.over").length) {
         return
     }
@@ -89,7 +129,7 @@ $("#game").keyup(function (event) {
     const isLetter = key.length === 1 && key !== ' ';
     const isSpace = key === ' '
     const isBackSpace = key === 'Backspace'
-    if (key !== expected) {
+    if (key !== expected && (isLetter || isSpace)) {
         if (expected in errors) {
             errors[expected]++
         } else {
@@ -99,24 +139,25 @@ $("#game").keyup(function (event) {
     }
 
     if (!window.timer && isLetter) {
+        // FIrst letter to be typed since timer is not started
         window.timer = setInterval(() => {
             if (!window.gameStart) {
                 window.gameStart = (new Date()).getTime()
             }
             const timePassed = (new Date()).getTime() - window.gameStart - pauseTime
             const timePassedInMinutes = (timePassed + 100) / 60000
-            const numCorrect = $(".correct").length
-            const numIncorrect = $(".incorrect").length + $(".extra").length
+            const numCorrect = $(".letter.correct").length
+            const numIncorrect = $(".letter.incorrect").length + $(".extra").length
             speed = (numCorrect + numIncorrect) / (timePassedInMinutes * 5)
             acc = numCorrect / (numCorrect + numIncorrect)
             setValue(speed / 70, 70, ".speed-gauge")
             setValue(acc, 100, ".acc-gauge")
-            $(".timer").text(`Time left: ${Math.round((gameTime - timePassed) / 1000)}s`)
+            $(".timer").text(`Time left: ${Math.round((duration - timePassed) / 1000)}s`)
             if (!$("#game:focus").length) {
                 pauseTime += 200
-                console.log(pauseTime);
+                // console.log(pauseTime);
             }
-            if (timePassed >= gameTime) {
+            if (timePassed >= duration) {
                 gameOver()
             }
         }, 200)
@@ -138,6 +179,7 @@ $("#game").keyup(function (event) {
 
         }
     } else if (isSpace && window.timer) {
+        number_of_words++
         if (expected !== ' ') {
             const lettersToInvalidate = $(".word.current .letter:not(.correct)")
 
@@ -179,7 +221,7 @@ $("#game").keyup(function (event) {
         cursor
             .css("left", currentLetter.position().left - 3)
             .css("top", currentLetter.position().top + 3)
-        console.log("cursor: ", cursor.position());
+        // console.log("cursor: ", cursor.position());
     } else {
         // If there is no current letter it means you are at the end of a word
         // so place the cursor at end of the current word
@@ -192,13 +234,13 @@ $("#game").keyup(function (event) {
     // Move lines of words up
     const lineheight = parseInt($("#game").css("line-height").replace("px", ""))
     const distaceToBottom = (currentWord.position().top - $("#game").height() + lineheight - offset)
-    console.log(distaceToBottom);
-    console.log("Line height", lineheight);
+    // console.log(distaceToBottom);
+    // console.log("Line height", lineheight);
     if (distaceToBottom >= 0) {
         offset += lineheight
         const words = $("#words")
         words.css("margin-top", `${words.css("margin-top").replace("px", "") - lineheight}px`)
-        console.log(words.css("margin-top"));
+        // console.log(words.css("margin-top"));
     }
 });
 

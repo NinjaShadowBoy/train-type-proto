@@ -206,12 +206,12 @@ div#game {
     text-align: center;
 }
 
-.letter.correct {
+.correct {
     color: var(--game-text-primary);
     background-color: rgb(96, 192, 142, 0.2);
 }
 
-.letter.incorrect {
+.incorrect {
     color: #f55;
     background-color: rgb(255, 85, 85, 0.1);
 }
@@ -268,4 +268,22 @@ div#game {
 
 .typing-logo {
     width: 6rem;
+}
+
+.results {
+    display: flex;
+    visibility: hidden;
+    margin: -6.2rem;
+
+    align-items: center;
+    justify-content: space-evenly;
+    padding-block: var(--game-font-size);
+    transition: margin 1s ease, visibility 0.3s ease;
+}
+
+.errors {
+    margin: 0;
+    height: 8rem;
+    overflow-y: scroll;
+    line-height: 10px;
 }

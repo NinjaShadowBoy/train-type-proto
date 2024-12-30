@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Logging Form</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
-    <link rel="stylesheet" href="./login.css" />
     <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
+    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    rel="stylesheet"
     />
+    <link rel="stylesheet" href="logo.css" />
+    <link rel="stylesheet" href="./login.css" />
   </head>
 
   <body>
+    <div class="typing-logo"></div>
     <div class="wrapper">
-      <form action="">
+      <form class="login-form" action="">
         <h1>Login</h1>
         <div class="input-box">
           <input class="username" type="text" placeholder="username" required />
@@ -39,6 +41,12 @@
           style="color: black"
           value="LOGIN"
         />
+        <input
+          class="login-button"
+          type="submit"
+          style="color: black"
+          value="SIGNUP"
+        />
         <div class="register-link">
           <p>Dont have account?? <a href="#">Register</a></p>
         </div>
@@ -48,5 +56,6 @@
     <script src="jquery-3.7.1.min.js"></script>
     <script type="module" src="model.js"></script>
     <script type="module" src="login.js"></script>
+    <script src="logo.js"></script>
   </body>
 </html>

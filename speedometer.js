@@ -1,4 +1,7 @@
 function initializeGauge(guageName = ".gauge") {
+  let initialPercent = Number($(guageName).attr("percent")) ? Number($(guageName).attr("percent")) : 0
+  let initialMaxValue = Number($(guageName).attr("maxValue")) ? Number($(guageName).attr("maxValue")) : 100
+
   let guage = $(guageName).html(`<div class="bottom-circle"></div>
       <svg height="95%" width="95%">
         <!-- Define the glow filter -->
@@ -75,17 +78,20 @@ function initializeGauge(guageName = ".gauge") {
 
   let text = guage.attr("data-text")
 
-  console.log(text);
 
-
-  $(guageName + " .number").css("font-size", `${radius / 18}rem`)
+  $(guageName + " .number").css("font-size", `${radius / 20}rem`)
   let desc = $(guageName + " .wpm")
-    .css("font-size", `${radius / 50}rem`)
+    .css("font-size", `${radius / 60}rem`)
     .text(text)
   $(guageName + " feGaussianBlur").attr("stdDeviation", `${radius / 20}`)
+
+  setValue(initialPercent, initialMaxValue, guageName)
 }
 function setValue(percent, maxValue = 100, guageName = ".gauge") {
-  let guage = $(guageName)
+  let guage = $(guageName).attr({
+    "percent": percent,
+    "maxValue": maxValue
+  })
   const arc = $(guageName + " path.arc")
 
   const maxLen = arc[0].getTotalLength()
@@ -114,8 +120,6 @@ $(document).ready(function () {
   // Define the element to observe
   const elements = $(".gauge");
 
-  console.log(elements);
-
   // Create a ResizeObserver instance
   const resizeObserver = new ResizeObserver(entries => {
     for (let entry of entries) {
@@ -123,7 +127,7 @@ $(document).ready(function () {
       // Handle the size change (width, height) here
       // console.log(`New size: ${entry.contentRect.width}px x ${entry.contentRect.height}px`);
       initializeGauge(`.${entry.target.className.split(" ").join(".")}`)
-      console.log(`.${entry.target.className.split(" ").join(".")}`);
+      // console.log(`.${entry.target.className.split(" ").join(".")}`);
     }
   });
 
