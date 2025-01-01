@@ -9,7 +9,7 @@ const tooltip_elements = document.querySelectorAll(".tooltip-element");
 const themetoggler = document.querySelector(".theme-toggler");
 let user = User.loadUser(JSON.parse(sessionStorage.getItem("user")))
 let db = DB.load()
-console.log(user, db);
+console.log(db);
 
 
 
@@ -30,9 +30,9 @@ for (const exo of Object.entries(db.exos)) {
               </div>
               <p class="exo-content-preview">${exo[1].text.slice(0, 80)}...</p>
               <div class="start-buttons">
-                <div class="start-button easy" difficulty="easy">Easy</div>
+                <div class="start-button easy" difficulty="easy">Short</div>
                 <div class="start-button medium" difficulty="medium">Medium</div>
-                <div class="start-button hard" difficulty="hard">Difficult</div>
+                <div class="start-button hard" difficulty="hard">Long</div>
               </div>
             </div>`
     })
@@ -118,13 +118,14 @@ function randomChanges() {
 
 setValue(user.avg_speed() / 70, 70, ".avg-speed")
 setValue(user.avg_acc(), 100, ".avg-acc")
-setValue(user.avg_acc()*user.avg_speed() / 70, 70, ".avg-aspeed")
+setValue(user.avg_acc() * user.avg_speed() / 70, 70, ".avg-aspeed")
 // randomChanges()
 
 // Example data
 let timestamps = [];
 let speeds = []; // Typing speed in WPM
 let accuracies = []; // Accuracy in percentage
+let aspeeds = []
 
 // Convert timestamps to readable dates
 const formattedDates = timestamps.map((ts) => {
@@ -151,7 +152,7 @@ const typingPerformanceChart = new Chart(ctx, {
                 backgroundColor: "rgba(75, 192, 192, 0.2)",
                 borderColor: "rgba(75, 192, 192, 1)",
                 borderWidth: 2,
-                pointBackgroundColor: "rgba(75, 192, 192, 1)",
+                pointBackgroundColor: "hsl(180, 48.10%, 40%)",
                 pointRadius: 5,
                 pointHoverRadius: 7,
                 cubicInterpolationMode: "monotone", // Smooth line
@@ -164,12 +165,25 @@ const typingPerformanceChart = new Chart(ctx, {
                 backgroundColor: "rgba(255, 159, 64, 0.2)",
                 borderColor: "rgba(255, 159, 64, 1)",
                 borderWidth: 2,
-                pointBackgroundColor: "rgba(255, 159, 64, 1)",
+                pointBackgroundColor: "hsl(30, 100.00%, 40%)",
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                cubicInterpolationMode: "monotone",
+                tension: 0.1,
+                yAxisID: "yAccuracy",
+            },
+            {
+                label: "Ajusted Typing Speed (WPM)",
+                data: aspeeds, // Y-axis: Adjusted typing speed
+                backgroundColor:"rgb(251, 50, 50, 0.2)",
+                borderColor: "#fb3232ff",
+                borderWidth: 2,
+                pointBackgroundColor:"hsl(0, 96.20%, 40.00%)",
                 pointRadius: 5,
                 pointHoverRadius: 7,
                 cubicInterpolationMode: "monotone",
                 tension: 0.4,
-                yAxisID: "yAccuracy",
+                yAxisID: "yASpeed",
             },
         ],
     },
@@ -210,7 +224,7 @@ const typingPerformanceChart = new Chart(ctx, {
             // y: {
             //   // Explicitly defining only two Y-axes
             ySpeed: {
-                beginAtZero: false,
+                beginAtZero: true,
                 type: "linear",
                 position: "left",
                 title: {
@@ -219,12 +233,24 @@ const typingPerformanceChart = new Chart(ctx, {
                 },
             },
             yAccuracy: {
-                beginAtZero: false,
+                beginAtZero: true,
                 type: "linear",
                 position: "right",
                 title: {
                     display: true,
-                    text: "Accurac (%)",
+                    text: "Accuracy (%)",
+                },
+                grid: {
+                    drawOnChartArea: false, // Prevent grid lines from overlapping
+                },
+            },
+            yASpeed: {
+                beginAtZero: true,
+                type: "linear",
+                position: "left",
+                title: {
+                    display: true,
+                    // text: "Ajusted Typing Speed (WPM)",
                 },
                 grid: {
                     drawOnChartArea: false, // Prevent grid lines from overlapping
@@ -244,6 +270,7 @@ function addData(newTimestamp, newSpeed, newAccuracy) {
     typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
     typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
     typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
+    typingPerformanceChart.data.datasets[2].data.push(newAccuracy * newSpeed/100); // Add new accuracy to accuracy dataset
     typingPerformanceChart.update(); // Refresh the chart
 }
 
@@ -289,5 +316,14 @@ $(".start-button").on("click", function (e) {
     }, 500)
     sessionStorage.setItem("difficulty", $(this).attr("difficulty"));
     sessionStorage.setItem("exoID", $(this).parent().parent().attr("data-exoID"))
+})
+
+$(".start-button").on("mouseenter", function () {
+    console.log($(this).css("border-color"));
+    $(this).parent().parent().css("box-shadow", `0 0 1em ${$(this).css("border-color") }`)
+})
+  
+$(".start-button").on("mouseleave", function () {  
+    $(this).parent().parent().css("box-shadow", "0 0 1em lightgray")
 })
 

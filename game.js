@@ -5,7 +5,7 @@ let exoID = Number(sessionStorage.getItem("exoID"))
 let difficulty = sessionStorage.getItem("difficulty")
 
 // Generate interesting words for the game
-const words = db.getExo(exoID).text.replace(/\s/, " ").split(/\s/).filter((a) => !/\s/.test(a))
+const words = db.getExo(exoID).text.split(/\s+/)
 console.log(words);
 
 let duration = 0; // 0 minute
@@ -193,6 +193,9 @@ $("#game").keyup(function (event) {
             .removeClass("current")
             .next().addClass("current")
             .children().first().addClass("current")
+        if(currentWord.next().length === 0) {
+            gameOver()
+        }
     } else if (isBackSpace) {
         // You cannot rectify a word you already entered
         if (!currentLetter.hasClass("firstLetterOfWord")) {

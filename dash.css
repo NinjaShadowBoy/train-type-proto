@@ -243,7 +243,7 @@ nav:hover .shrink-btn,
     background-color: var(--main-color-dark);
     border-radius: 10px;
     position: absolute;
-    top: 2.5px;
+    top: 60.5px;
     left: 0;
     transition: top 0.3s;
 }
@@ -515,9 +515,9 @@ main .chart {
     margin-top: 2rem;
 }
 
-main .chart h2 {
-    /* margin-bottom: 0.8rem; */
-}
+/* main .chart h2 {
+    margin-bottom: 0.8rem;
+} */
 
 main .chart .middle {
     display: flex;
@@ -719,8 +719,9 @@ main .performance .progress {
     width: 90%;
     height: auto;
     border-radius: 1rem;
-    box-shadow: 0 0 10px gray;
+    box-shadow: 0 0 10px lightgray;
     align-content: flex-start;
+    transition: all 0.5s ease;
 }
 
 .start-button {
