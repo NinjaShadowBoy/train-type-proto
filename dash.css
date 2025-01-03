@@ -841,7 +841,9 @@ b {
     /* flex-wrap: wrap; */
 }
 
-.users {
+.users,
+.exercises,
+.exercises-done {
     display: flex;
     flex-direction: column;
     background-color: lightblue;
@@ -851,7 +853,14 @@ b {
     min-width: 100%;
 }
 
-.user {
+.exercise-done .exo-head {
+    padding: 1em;
+    border-bottom: solid lightblue 3px;
+}
+
+.user,
+.exercise,
+.exercise-done {
     background-color: white;
     border-radius: 1em;
     width: 100%;
@@ -895,7 +904,6 @@ b {
     display: flex;
     justify-content: space-between;
     padding: 1rem;
-    ;
 }
 
 .user-stats {

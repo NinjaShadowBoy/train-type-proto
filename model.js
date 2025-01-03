@@ -150,6 +150,9 @@ export class DB {
         let jsonDB = localStorage.getItem("DB")
         jsonDB = JSON.parse(jsonDB)
         let db = new DB(jsonDB.users, jsonDB.exos)
+        for (let user of Object.values(db.users)) {
+            db.users[user.username] = User.loadUser(user)
+        }
         return db
     }
 }

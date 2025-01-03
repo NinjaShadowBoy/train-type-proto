@@ -7,8 +7,12 @@ $(document).ready(function () {
     const shortcuts = document.querySelector(".sidebar-links h4");
     const tooltip_elements = document.querySelectorAll(".tooltip-element");
     const shrink_btn = document.querySelector(".shrink-btn");
+    const logout_btn = $(".log-out");
     let activeIndex;
 
+    logout_btn.on("click", function () {
+        window.location.href = "/login.html";
+    });
     shrink_btn.addEventListener("click", () => {
         document.body.classList.toggle("shrink");
         setTimeout(moveActiveTab, 400);
@@ -39,18 +43,25 @@ $(document).ready(function () {
         moveActiveTab();
         console.log("active index", activeIndex);
 
+        let location = window.location.pathname;
         setTimeout(() => {
             switch (Number(activeIndex)) {
                 case 1:
-                    window.location.href = "./dash.html"
+                    location = "/dash.html";
+                    break;
+                case 2:
+                    location = "/exercises.html";
                     break;
                 case 4:
-                    window.location.href = "./leaderboards.html"
+                    location = "/leaderboards.html";
                     break;
                 default:
                     break;
             }
-        }, 400)
+            if (location != window.location.pathname) {
+                window.location.href = location;
+            }
+        }, 400);
     }
 
     sidebar_links.forEach((link) => link.addEventListener("click", changeLink));
@@ -63,44 +74,23 @@ $(document).ready(function () {
         Array.from(spans).forEach((sp) => sp.classList.remove("show"));
         spans[tooltipIndex].classList.add("show");
 
-        tooltip.style.top = `${(100 / (spans.length * 2)) * (tooltipIndex * 2 + 1)}%`;
+        tooltip.style.top = `${(100 / (spans.length * 2)) * (tooltipIndex * 2 + 1)
+            }%`;
     }
 
     tooltip_elements.forEach((elem) => {
         elem.addEventListener("mouseover", showTooltip);
     });
 
+    function loadExercisesOnPage() {
+        let exercises = $(".exercises").html("");
+        for (const exo of Object.entries(db.exos)) {
+            exercises.html(function (_, old) {
+                console.log(exo);
 
-    let user = User.load()
-    let db = DB.load()
-    console.log(db);
-    active_tab.style.visibility = "visible"
-
-    switch (window.location.pathname) {
-        case "/dash.html": (() => {
-            activeIndex = 1
-            moveActiveTab()
-
-            const search = document.querySelector(".search");
-            const themetoggler = document.querySelector(".theme-toggler");
-
-            search.addEventListener("click", () => {
-                document.body.classList.remove("shrink");
-                search.lastElementChild.focus();
-            });
-            themetoggler.addEventListener("click", () => {
-                document.body.classList.toggle("dark-theme-variables");
-
-                themetoggler.querySelector("span").classList.toggle("active");
-            })
-
-            let exercises = $(".exercises").html("")
-            for (const exo of Object.entries(db.exos)) {
-                exercises.html(function (_, old) {
-                    console.log(exo);
-
-                    return old +
-                        `<div class="exercise" data-exoID=" ${exo[0]}">
+                return (
+                    old +
+                    `<div class="exercise" data-exoID=" ${exo[0]}">
               <div class="exo-head">
                 <h3 class="exo-title">Exo ${exo[0]}</h4>
                 <p>Attempted <b>${exo[1].timesAttempted}</b> times</p>
@@ -112,265 +102,395 @@ $(document).ready(function () {
                 <div class="start-button hard" difficulty="hard">Long</div>
               </div>
             </div>`
-                })
-            }
-
-
-            $("main h1").text(`Welcome ${user.username} !`)
-            $(".admin-info h3").text(`${user.username}`)
-            $(".admin-info h5").text(`${user.role}`)
-
-
-            initializeGauge(".avg-speed")
-            initializeGauge(".avg-acc")
-            initializeGauge(".avg-aspeed")
-
-            function randomChanges() {
-                setValue(Math.random(), 70, ".avg-speed")
-                setValue(Math.random(), 100, ".avg-acc")
-                setValue(Math.random(), 100, ".avg-aspeed")
-                setTimeout(randomChanges, 1000)
-            }
-
-            setValue(user.avg_speed() / 70, 70, ".avg-speed")
-            setValue(user.avg_acc(), 100, ".avg-acc")
-            setValue(user.avg_acc() * user.avg_speed() / 70, 70, ".avg-aspeed")
-            // randomChanges()
-
-            // Example data
-            let timestamps = [];
-            let speeds = []; // Typing speed in WPM
-            let accuracies = []; // Accuracy in percentage
-            let aspeeds = []
-
-            // Convert timestamps to readable dates
-            const formattedDates = timestamps.map((ts) => {
-                const date = new Date(ts);
-                return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                });
+                );
             });
+        }
+        $(".start-button").on("click", function (e) {
+            console.log(e);
+            console.log($(this).parent().parent().attr("data-exoID"));
+            $(this).css({
+                margin: "0",
+                padding: "0",
+                top: "0",
+                left: "0",
+                "z-index": "100",
+                position: "fixed",
+                width: "100vw",
+                height: "100vh",
+            });
+            setTimeout(() => {
+                window.location.href = "./game.html"; // Add Jan 4 data
+            }, 500);
+            sessionStorage.setItem("difficulty", $(this).attr("difficulty"));
+            sessionStorage.setItem(
+                "exoID",
+                $(this).parent().parent().attr("data-exoID")
+            );
+        });
 
-            // Initialize Chart.js
-            const ctx = document
-                .getElementById("typingPerformanceChart")
-                .getContext("2d");
+        $(".start-button").on("mouseenter", function () {
+            console.log($(this).css("border-color"));
+            $(this)
+                .parent()
+                .parent()
+                .css("box-shadow", `0 0 1em ${$(this).css("border-color")}`);
+        });
 
-            const typingPerformanceChart = new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: formattedDates, // X-axis: Dates
-                    datasets: [
-                        {
-                            label: "Typing Speed (WPM)",
-                            data: speeds, // Y-axis: Typing speeds
-                            backgroundColor: "rgba(75, 192, 192, 0.2)",
-                            borderColor: "rgba(75, 192, 192, 1)",
-                            borderWidth: 2,
-                            pointBackgroundColor: "hsl(180, 48.10%, 40%)",
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            cubicInterpolationMode: "monotone", // Smooth line
-                            tension: 0.4, // Adds some tension to the curve
-                            yAxisID: "ySpeed",
-                        },
-                        {
-                            label: "Accuracy (%)",
-                            data: accuracies, // Y-axis: Accuracies
-                            backgroundColor: "rgba(255, 159, 64, 0.2)",
-                            borderColor: "rgba(255, 159, 64, 1)",
-                            borderWidth: 2,
-                            pointBackgroundColor: "hsl(30, 100.00%, 40%)",
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            cubicInterpolationMode: "monotone",
-                            tension: 0.1,
-                            yAxisID: "yAccuracy",
-                        },
-                        {
-                            label: "Ajusted Typing Speed (WPM)",
-                            data: aspeeds, // Y-axis: Adjusted typing speed
-                            backgroundColor: "rgb(251, 50, 50, 0.2)",
-                            borderColor: "#fb3232ff",
-                            borderWidth: 2,
-                            pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
-                            pointRadius: 5,
-                            pointHoverRadius: 7,
-                            cubicInterpolationMode: "monotone",
-                            tension: 0.4,
-                            yAxisID: "yASpeed",
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        tooltip: {
-                            enabled: true,
-                            callbacks: {
-                                // Display both metrics in the tooltip
-                                title: (context) => `Date: ${context[0].label}`,
-                                label: (context) => {
-                                    const datasetLabel = context.dataset.label;
-                                    const value = context.raw;
-                                    return `${datasetLabel}: ${value}`;
+        $(".start-button").on("mouseleave", function () {
+            $(this).parent().parent().css("box-shadow", "0 0 1em lightgray");
+        });
+    }
+
+    function loadPerformanceOnPage() {
+        let exercises = $(".exercises-done");
+        for (const p of user.perf) {
+            exercises.html(function (_, old) {
+                console.log(p);
+                let difficulty = ""
+                if (p.duration == 60000) {
+                    difficulty = "easy"
+                }
+                else if (p.duration == 3 * 60000) {
+                    difficulty = "medium"
+                }
+                else if (p.duration == 5 * 60000) {
+                    difficulty = "hard"
+                }
+                let date = (new Date(p.date))
+
+                let dateString = date.toLocaleDateString() + " at " + date.toLocaleTimeString()
+
+
+                return (`
+                    <div class="exercise-done">
+                        <div class="exo-head">
+                        <h3 class="">Exo ${p.exoID} for <span style="border-radius: 10px;" class="${difficulty}"></span></h3>
+                        <p>${dateString}</p>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <h4>WPM</h4>
+                                <p>${Math.round(p.wpm)}</p>
+                            </div>
+                            <div class="user-stat">
+                                <h4>ACC%</h4>
+                                <p>${Math.round(p.acc * 100)}</p>
+                            </div>
+                            <div class="user-stat">
+                                <h4>Words</h4>
+                                <p>${(() => { return p.number_of_words || 0; })()}</p>
+                            </div>
+                            <div>
+                                <h4>AWPM</h4>
+                                <p>${(() => { return Math.round(p.acc * p.wpm) || 0; })()}</p>
+                            </div>
+                        </div>
+                    </div>` + old
+                );
+            });
+        }
+        $(".start-button").on("click", function (e) {
+            console.log(e);
+            console.log($(this).parent().parent().attr("data-exoID"));
+            $(this).css({
+                margin: "0",
+                padding: "0",
+                top: "0",
+                left: "0",
+                "z-index": "100",
+                position: "fixed",
+                width: "100vw",
+                height: "100vh",
+            });
+            setTimeout(() => {
+                window.location.href = "./game.html"; // Add Jan 4 data
+            }, 500);
+            sessionStorage.setItem("difficulty", $(this).attr("difficulty"));
+            sessionStorage.setItem(
+                "exoID",
+                $(this).parent().parent().attr("data-exoID")
+            );
+        });
+
+        $(".start-button").on("mouseenter", function () {
+            console.log($(this).css("border-color"));
+            $(this)
+                .parent()
+                .parent()
+                .css("box-shadow", `0 0 1em ${$(this).css("border-color")}`);
+        });
+
+        $(".start-button").on("mouseleave", function () {
+            $(this).parent().parent().css("box-shadow", "0 0 1em lightgray");
+        });
+    }
+
+    function loadUserOnPage() {
+        $("main h1").text(`Welcome ${user.username} !`);
+        $(".admin-info h3").text(`${user.username}`);
+        $(".admin-info h5").text(`${user.role}`);
+    }
+
+    let user = User.load();
+    let db = DB.load();
+    console.log(db);
+    active_tab.style.visibility = "visible";
+
+    loadUserOnPage();
+    switch (window.location.pathname) {
+        case "/dash.html":
+            (() => {
+                activeIndex = 1;
+                moveActiveTab();
+
+                const search = document.querySelector(".search");
+                const themetoggler = document.querySelector(".theme-toggler");
+
+                search.addEventListener("click", () => {
+                    document.body.classList.remove("shrink");
+                    search.lastElementChild.focus();
+                });
+                themetoggler.addEventListener("click", () => {
+                    document.body.classList.toggle("dark-theme-variables");
+
+                    themetoggler.querySelector("span").classList.toggle("active");
+                });
+
+                loadPerformanceOnPage();
+                loadUserOnPage();
+
+                initializeGauge(".avg-speed");
+                initializeGauge(".avg-acc");
+                initializeGauge(".avg-aspeed");
+
+                function randomChanges() {
+                    setValue(Math.random(), 70, ".avg-speed");
+                    setValue(Math.random(), 100, ".avg-acc");
+                    setValue(Math.random(), 100, ".avg-aspeed");
+                    setTimeout(randomChanges, 1000);
+                }
+
+                setValue(user.avg_speed() / 70, 70, ".avg-speed");
+                setValue(user.avg_acc(), 100, ".avg-acc");
+                setValue((user.avg_acc() * user.avg_speed()) / 70, 70, ".avg-aspeed");
+                // randomChanges()
+
+                // Example data
+                let timestamps = [];
+                let speeds = []; // Typing speed in WPM
+                let accuracies = []; // Accuracy in percentage
+                let aspeeds = [];
+
+                // Convert timestamps to readable dates
+                const formattedDates = timestamps.map((ts) => {
+                    const date = new Date(ts);
+                    return date.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                    });
+                });
+
+                // Initialize Chart.js
+                const ctx = document
+                    .getElementById("typingPerformanceChart")
+                    .getContext("2d");
+
+                const typingPerformanceChart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: formattedDates, // X-axis: Dates
+                        datasets: [
+                            {
+                                label: "Typing Speed (WPM)",
+                                data: speeds, // Y-axis: Typing speeds
+                                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                                borderColor: "rgba(75, 192, 192, 1)",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(180, 48.10%, 40%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone", // Smooth line
+                                tension: 0.4, // Adds some tension to the curve
+                                yAxisID: "ySpeed",
+                            },
+                            {
+                                label: "Accuracy (%)",
+                                data: accuracies, // Y-axis: Accuracies
+                                backgroundColor: "rgba(255, 159, 64, 0.2)",
+                                borderColor: "rgba(255, 159, 64, 1)",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(30, 100.00%, 40%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone",
+                                tension: 0.1,
+                                yAxisID: "yAccuracy",
+                            },
+                            {
+                                label: "Ajusted Typing Speed (WPM)",
+                                data: aspeeds, // Y-axis: Adjusted typing speed
+                                backgroundColor: "rgb(251, 50, 50, 0.2)",
+                                borderColor: "#fb3232ff",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone",
+                                tension: 0.4,
+                                yAxisID: "yASpeed",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    // Display both metrics in the tooltip
+                                    title: (context) => `Date: ${context[0].label}`,
+                                    label: (context) => {
+                                        const datasetLabel = context.dataset.label;
+                                        const value = context.raw;
+                                        return `${datasetLabel}: ${value}`;
+                                    },
+                                },
+                            },
+                            legend: {
+                                position: "top", // Move legend to the top
+                                labels: {
+                                    boxWidth: 20,
                                 },
                             },
                         },
-                        legend: {
-                            position: "top", // Move legend to the top
-                            labels: {
-                                boxWidth: 20,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Typing Speed (WPM)",
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Date",
+                                },
                             },
+                            // y: {
+                            //   // Explicitly defining only two Y-axes
+                            ySpeed: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "Typing Speed (WPM)",
+                                },
+                            },
+                            yAccuracy: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "Accuracy (%)",
+                                },
+                                grid: {
+                                    drawOnChartArea: false, // Prevent grid lines from overlapping
+                                },
+                            },
+                            yASpeed: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    // text: "Ajusted Typing Speed (WPM)",
+                                },
+                                grid: {
+                                    drawOnChartArea: false, // Prevent grid lines from overlapping
+                                },
+                            },
+                            // },
                         },
                     },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: "Typing Speed (WPM)",
-                            },
-                            title: {
-                                display: true,
-                                text: "Date",
-                            },
-                        },
-                        // y: {
-                        //   // Explicitly defining only two Y-axes
-                        ySpeed: {
-                            beginAtZero: true,
-                            type: "linear",
-                            position: "left",
-                            title: {
-                                display: true,
-                                text: "Typing Speed (WPM)",
-                            },
-                        },
-                        yAccuracy: {
-                            beginAtZero: true,
-                            type: "linear",
-                            position: "right",
-                            title: {
-                                display: true,
-                                text: "Accuracy (%)",
-                            },
-                            grid: {
-                                drawOnChartArea: false, // Prevent grid lines from overlapping
-                            },
-                        },
-                        yASpeed: {
-                            beginAtZero: true,
-                            type: "linear",
-                            position: "left",
-                            title: {
-                                display: true,
-                                // text: "Ajusted Typing Speed (WPM)",
-                            },
-                            grid: {
-                                drawOnChartArea: false, // Prevent grid lines from overlapping
-                            },
-                        },
-                        // },
-                    },
-                },
-            });
-
-            // Dynamically update the chart
-            function addData(newTimestamp, newSpeed, newAccuracy) {
-                const newDate = new Date(newTimestamp).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
                 });
-                typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
-                typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
-                typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
-                typingPerformanceChart.data.datasets[2].data.push(newAccuracy * newSpeed / 100); // Add new accuracy to accuracy dataset
-                typingPerformanceChart.update(); // Refresh the chart
-            }
 
-            // setTimeout(() => {
-            //     $("canvas")[0].$chartjs
-            //     console.log("Chart height", $("canvas").attr({
-            //         "height": "200",
-            //         "width": "400",
-            //     }).parent().html());
-            // }, 3000)
+                // Dynamically update the chart
+                function addData(newTimestamp, newSpeed, newAccuracy) {
+                    const newDate = new Date(newTimestamp).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                    });
+                    typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
+                    typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
+                    typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
+                    typingPerformanceChart.data.datasets[2].data.push(
+                        (newAccuracy * newSpeed) / 100
+                    ); // Add new accuracy to accuracy dataset
+                    typingPerformanceChart.update(); // Refresh the chart
+                }
 
+                // setTimeout(() => {
+                //     $("canvas")[0].$chartjs
+                //     console.log("Chart height", $("canvas").attr({
+                //         "height": "200",
+                //         "width": "400",
+                //     }).parent().html());
+                // }, 3000)
 
-            timestamps = user.perf.map(elt => elt.date);
-            speeds = user.perf.map(elt => elt.wpm); // Typing speed in WPM
-            accuracies = user.perf.map(elt => elt.acc * 100); // Accuracy in percentage
+                timestamps = user.perf.map((elt) => elt.date);
+                speeds = user.perf.map((elt) => elt.wpm); // Typing speed in WPM
+                accuracies = user.perf.map((elt) => elt.acc * 100); // Accuracy in percentage
 
-
-            // Example: Adding a new point dynamically
-            for (let i = 0; i < timestamps.length; i++) {
-                const newTimestamp = timestamps[i]
-                const newSpeed = speeds[i]
-                const newAccuracy = accuracies[i]
-                setTimeout(() => {
-                    addData(newTimestamp, newSpeed, newAccuracy); // Add Jan 4 data
-                }, i * 3000 / (timestamps.length + 1));
-            }
-
-            $(".start-button").on("click", function (e) {
-                console.log(e);
-                console.log($(this).parent().parent().attr("data-exoID"));
-                $(this).css({
-                    "margin": "0",
-                    "padding": "0",
-                    "top": "0",
-                    "left": "0",
-                    "z-index": "100",
-                    "position": "fixed",
-                    "width": "100vw",
-                    "height": "100vh",
-                })
-                setTimeout(() => {
-                    window.location.href = "./game.html" // Add Jan 4 data
-                }, 500)
-                sessionStorage.setItem("difficulty", $(this).attr("difficulty"));
-                sessionStorage.setItem("exoID", $(this).parent().parent().attr("data-exoID"))
-            })
-
-            $(".start-button").on("mouseenter", function () {
-                console.log($(this).css("border-color"));
-                $(this).parent().parent().css("box-shadow", `0 0 1em ${$(this).css("border-color")}`)
-            })
-
-            $(".start-button").on("mouseleave", function () {
-                $(this).parent().parent().css("box-shadow", "0 0 1em lightgray")
-            })
-        })()
+                // Example: Adding a new point dynamically
+                for (let i = 0; i < timestamps.length; i++) {
+                    const newTimestamp = timestamps[i];
+                    const newSpeed = speeds[i];
+                    const newAccuracy = accuracies[i];
+                    setTimeout(() => {
+                        addData(newTimestamp, newSpeed, newAccuracy); // Add Jan 4 data
+                    }, (i * 3000) / (timestamps.length + 1));
+                }
+            })();
 
             break;
 
-        case "/leaderboards.html": (() => {
-            activeIndex = 4
-            moveActiveTab()
+        case "/exercises.html":
+            (() => {
+                activeIndex = 2;
+                moveActiveTab();
 
-            console.log("yeah!");
-            let db = DB.load()
-            sessionStorage.setItem("user", JSON.stringify(db.users["Alex"]))
-            let users = Object.values(db.users)
-            $(".users").html("")
-            users = users.map(user => User.loadUser(user))
-            let currentUser = User.load()
-            console.log(users);
+                loadExercisesOnPage();
+            })();
+            break;
 
-            users.sort((a, b) => b.avg_speed() - a.avg_speed())
-            for (let user of users) {
-                user = User.loadUser(user)
-                console.log(user);
+        case "/leaderboards.html":
+            (() => {
+                activeIndex = 4;
+                moveActiveTab();
 
-                $(".users").html(function (i, old) {
-                    return old + `
-                    <div class="user" id="${currentUser.username == user.username ? "current-user" : ""}">
+                console.log("yeah!");
+                let db = DB.load();
+                let users = Object.values(db.users);
+                $(".users").html("");
+                users = users.map((user) => User.loadUser(user));
+                let currentUser = User.load();
+
+                users.sort((a, b) => b.avg_speed() - a.avg_speed());
+                for (let user of users) {
+                    $(".users").html(function (i, old) {
+                        return (
+                            old +
+                            `
+                    <div class="user" id="${currentUser.username == user.username
+                                ? "current-user"
+                                : ""
+                            }">
             <div class="user-info">
               <img src="./images/face-1.png" alt="" />
               <div class="user-details">
-                <h3>${currentUser.username == user.username ? "You" : user.username}</h3>
+                <h3>${currentUser.username == user.username ? "You" : user.username
+                            }</h3>
                 <h5>User</h5>
               </div>
             </div>
@@ -386,32 +506,31 @@ $(document).ready(function () {
               <div class="user-stat">
                 <h4>Words</h4>
                 <p>${(() => {
-                            let numberOfWords = 0;
-                            for (const p of user.perf) {
-                                numberOfWords += p.number_of_words || 0
-                            }
-                            return numberOfWords
-                        })()}</p>
+                                let numberOfWords = 0;
+                                for (const p of user.perf) {
+                                    numberOfWords += p.number_of_words || 0;
+                                }
+                                return numberOfWords;
+                            })()}</p>
               </div>
               <div class="user-stat">
                 <h4>Time spent</h4>
                 <p>${(() => {
-                            let timeSpent = 0;
-                            for (const p of user.perf) {
-                                timeSpent += p.duration || 0
-                            }
-                            return Math.round(timeSpent / 1000)
-                        })()}s</p>
+                                let timeSpent = 0;
+                                for (const p of user.perf) {
+                                    timeSpent += p.duration || 0;
+                                }
+                                return Math.round(timeSpent / 1000);
+                            })()}s</p>
               </div>
             </div>
           </div>
                     `
-                })
-            }
-
-        })()
+                        );
+                    });
+                }
+            })();
         default:
             break;
     }
-
 });
