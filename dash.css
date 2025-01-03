@@ -55,12 +55,13 @@
 
 body {
     font-family: "Poppins", sans-serif;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     background-color: var(--text-color);
     color: var(--main-color);
     min-height: 100vh;
     display: flex;
     position: relative;
+    /* flex-wrap: wrap; */
     justify-content: space-between;
 }
 
@@ -96,7 +97,7 @@ nav::before {
 }
 
 main {
-    flex: 1;
+    /* flex: 1; */
     padding: 2rem;
     color: #1f2027;
     display: flex;
@@ -243,8 +244,9 @@ nav:hover .shrink-btn,
     background-color: var(--main-color-dark);
     border-radius: 10px;
     position: absolute;
-    top: 60.5px;
+    /* top: 60.5px; */
     left: 0;
+    visibility: hidden;
     transition: top 0.3s;
 }
 
@@ -618,14 +620,14 @@ aside {
 }
 
 .card {
-    width: 100%;
-    height: 100%;
+    /* width: 100%; */
+    /* height: 100%; */
     background-color: var(--color-white);
     padding: var(--card-padding);
     border-radius: var(--card-border-radius);
-    padding: 4rem 2rem 0;
+    /* padding: 4rem 2rem 0; */
     color: var(--color-dark);
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
 }
 
 /* .card__data {
@@ -836,4 +838,71 @@ b {
 
 .mother {
     display: flex;
+    /* flex-wrap: wrap; */
+}
+
+.users {
+    display: flex;
+    flex-direction: column;
+    background-color: lightblue;
+    border-radius: 1rem;
+    padding: 1rem;
+    gap: 1em;
+    min-width: 100%;
+}
+
+.user {
+    background-color: white;
+    border-radius: 1em;
+    width: 100%;
+}
+
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    gap: 1em;
+}
+
+.user-info img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.user-info h4 {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.user-info p {
+    font-size: 1rem;
+    color: #777;
+}
+
+.user-info button {
+    padding: 0.5rem 1rem;
+    background-color: #f2f2f2;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.user-stats,
+.user {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+    ;
+}
+
+.user-stats {
+    gap: 1rem;
+}
+
+#current-user {
+    color: var(--main-color);
+    background-color: #ebf4f6;
 }
