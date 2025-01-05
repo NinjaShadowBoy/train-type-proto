@@ -129,7 +129,6 @@ $(document).ready(function () {
         });
 
         $(".start-button").on("mouseenter", function () {
-            console.log($(this).css("border-color"));
             $(this)
                 .parent()
                 .parent()
