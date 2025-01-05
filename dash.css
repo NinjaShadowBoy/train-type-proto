@@ -40,8 +40,10 @@
     --color-white: #202528;
     --color-dark: #edeffd;
     --main-color-light: #37b7c3;
+    --main-color-dark: #088395;
     --color-dark-variant: #a3bdcc;
     --color-light: rgba(0, 0, 0.4);
+    --text-color: #181a1e;
     --box-shadow: 0 2rem 3rem var(--color-light);
 }
 
@@ -60,6 +62,7 @@ body {
     color: var(--main-color);
     min-height: 100vh;
     display: flex;
+    flex-wrap: wrap;
     position: relative;
 }
 
@@ -97,7 +100,7 @@ nav::before {
 main {
     flex: 1;
     padding: 2rem;
-    color: #1f2027;
+    color:var(--color-dark);
     display: flex;
     flex-direction: column;
 }
@@ -191,7 +194,7 @@ nav:hover .shrink-btn,
 }
 
 .sidebar-links a {
-    color: var(--text-color);
+    color:#ebf4f6 ;
     font-weight: 400;
     font-size: 0.9rem;
     display: flex;
@@ -253,7 +256,7 @@ nav:hover .shrink-btn,
     text-transform: uppercase;
     font-weight: 600;
     padding: 0 0.8rem;
-    color: var(--text-color);
+    color: #ebf4f6;
     letter-spacing: 0.5px;
     height: 45px;
     line-height: 45px;
@@ -270,7 +273,7 @@ nav:hover .shrink-btn,
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
-    color: var(--text-color);
+    color: #ebf4f6;
     height: 53px;
     width: 3.7rem;
     opacity: 0;
@@ -316,7 +319,7 @@ nav:hover .shrink-btn,
 .admin-info h5 {
     font-weight: 400;
     font-size: 0.75rem;
-    color: var(--text-color);
+    color: #ebf4f6;
     margin-top: 0.3rem;
     line-height: 1;
 }
@@ -326,7 +329,7 @@ nav:hover .shrink-btn,
     height: 40px;
     min-width: 2.4rem;
     background-color: var(--main-color-dark);
-    color: var(--text-color);
+    color: #ebf4f6;
     align-items: center;
     justify-content: center;
     font-size: 1.15rem;
@@ -542,6 +545,7 @@ aside {
     flex: 1;
     flex-direction: column;
     gap: 2rem;
+    color: var(--color-dark);
 }
 
 .right {
@@ -690,9 +694,4 @@ aside {
 .card:hover .card__button {
     transition-delay: .2s;
     opacity: 1;
-}
-
-.gauge * {
-    background: unset !important;
-    padding: 0 !important;
 }

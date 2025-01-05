@@ -5,6 +5,8 @@ const active_tab = document.querySelector(".active-tab");
 const shortcuts = document.querySelector(".sidebar-links h4");
 const tooltip_elements = document.querySelectorAll(".tooltip-element");
 const themetoggler = document.querySelector(".theme-toggler");
+const lightTheme = document.querySelector(".theme");
+const darkTheme = document.querySelector(".theme1");
 
 let activeIndex;
 
@@ -62,9 +64,14 @@ tooltip_elements.forEach((elem) => {
 
 themetoggler.addEventListener("click", () => {
     document.body.classList.toggle("dark-theme-variables");
+    //themetoggler.querySelector("span").classList.toggle("active");
+});
 
-    themetoggler.querySelector("span").classList.toggle("active");
-})
-
-initializeGauge(".avg-speed")
-setValue(0.5, 100, ".avg-speed")
+function changetheme() {
+    lightTheme.classList.remove("active");
+    darkTheme.classList.add("active");
+}
+function Switch() {
+    lightTheme.classList.add("active");
+    darkTheme.classList.remove("active");
+}
