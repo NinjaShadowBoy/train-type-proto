@@ -1,5 +1,27 @@
 import { User, ExerciseDone, CustomExo, DB } from "./model.js";
 
+var p2 = new Peer("alex");
+
+p2.on('open', function (id) {
+    console.log('My id is ' + id);
+
+    // Connecting to p1
+    let opponent_id = "nelson";
+    let conn = p2.connect(opponent_id);
+
+    conn.on('open', function () {
+        alert(p2.id + " connected to " + opponent_id);
+
+        // Sending a message to p1
+        conn.send("Hello from " + p2.id);
+
+        // Receiving a message from p1
+        conn.on('data', (data) => {
+            alert(p2.id + " received:" + data);
+        });
+    });
+});
+
 $(document).ready(function () {
     console.log(window.location.pathname);
     const sidebar_links = document.querySelectorAll(".sidebar-links a");
@@ -52,6 +74,9 @@ $(document).ready(function () {
                 case 2:
                     location = "/exercises.html";
                     break;
+                case 3:
+                    location = "/challenge.html";
+                    break;
                 case 4:
                     location = "/leaderboards.html";
                     break;
@@ -61,7 +86,7 @@ $(document).ready(function () {
             if (location != window.location.pathname) {
                 window.location.href = location;
             }
-        }, 400);
+        }, 300);
     }
 
     sidebar_links.forEach((link) => link.addEventListener("click", changeLink));
@@ -225,9 +250,9 @@ $(document).ready(function () {
     }
 
     function loadUserOnPage() {
-        $("main h1").text(`Welcome ${user.username} !`);
         $(".admin-info h3").text(`${user.username}`);
         $(".admin-info h5").text(`${user.role}`);
+        $(".tooltip .show").text(`${user.username}`);
     }
 
     let user = User.load();
@@ -239,6 +264,8 @@ $(document).ready(function () {
     switch (window.location.pathname) {
         case "/dash.html":
             (() => {
+                $("main h1").text(`Welcome ${user.username} !`);
+
                 activeIndex = 1;
                 moveActiveTab();
 
@@ -462,7 +489,26 @@ $(document).ready(function () {
                 loadExercisesOnPage();
             })();
             break;
-
+        case "/challenge.html":
+            let opponent
+            loadExercisesOnPage();
+            $(".challenge-form").on("submit", function (e) {
+                e.preventDefault();
+                opponent = $(".username").val();
+                if (opponent != user.username) {
+                    opponent = $(".username").val();
+                    $(".restricted").removeClass("restricted").addClass("unrestricted");
+                    
+                    sessionStorage("opponent", opponent);
+                    $(".start-button").on("click", function (e) {                
+                        alert("Challenge sent to " + opponent);
+                    });
+                }
+                else {
+                    alert("You can't challenge yourself");
+                }
+               });
+            break;
         case "/leaderboards.html":
             (() => {
                 activeIndex = 4;

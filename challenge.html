@@ -75,10 +75,11 @@
           <li class="tooltip-element" data-tooltip="3">
             <a href="#" data-active="3">
               <div class="icon">
-                <i class="bx bx-bell"></i>
-                <i class="bx bxs-bell"></i>
+                <span class="material-symbols-outlined"> swords </span>
+                <!-- <i class="bx bx-bell"></i>
+                <i class="bx bxs-bell"></i> -->
               </div>
-              <span class="link hide">Notifications</span>
+              <span class="link hide">Challenge</span>
             </a>
           </li>
           <li class="tooltip-element" data-tooltip="4">
@@ -90,11 +91,12 @@
               <span class="link hide">Leaderboard</span>
             </a>
           </li>
+
           <div class="tooltip">
             <span class="show">Home</span>
             <span>Dashboard</span>
             <span>Exercises</span>
-            <span>Notifications</span>
+            <span>Challenge</span>
             <span>Leaderboard</span>
           </div>
         </ul>
@@ -153,8 +155,20 @@
 
     <div class="mother">
       <main>
-        <h1>Typing Exercices</h1>
-        <div class="exercises">
+        <!-- A form to ask for the username of the opponent -->
+        <h1>Challenge another user</h1>
+        <form class="challenge-form">
+            <div class="input-box">
+                <input class="username" type="text" placeholder="opponent username" required />
+                <i class="bx bxs-user-circle"></i>
+            </div>
+            <!-- Nicely styles input button to submit -->
+
+            <input class="challenge-button" type="submit" style="color: black" value="CHALLENGE" />
+        </form>
+        
+        <h1 class="restricted">Choose Exercice</h1>
+        <div class="exercises restricted">
             <!-- A list of exercises -->
              <div class="exercise">
               <div class="exo-head">
@@ -170,13 +184,14 @@
           </div>
       </main>
     </div>
+
     <script src="jquery-3.7.1.min.js"></script>
     <script type="module" src="model.js"></script>
     <script src="logo.js"></script>
     <script src="speedometer.js"></script>
-    <script src="chart.js"></script>
     <script type="module" src="peerjs.min.js"></script>
     <script type="module" src="./dash.js"></script>
+    <script src="chart.js"></script>
     <script></script>
   </body>
 </html>
