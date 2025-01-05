@@ -1,8 +1,66 @@
 import { DB, User, ExerciseDone } from "./model.js"
+
+
 let db = DB.load()
 let user = User.load()
 let exoID = Number(sessionStorage.getItem("exoID"))
 let difficulty = sessionStorage.getItem("difficulty")
+let opponent = sessionStorage.getItem("opponent")
+let initiator = sessionStorage.getItem("initiator")
+
+let youCanStart = false
+
+if (initiator) {
+    var peer = new Peer(user.username);
+
+    peer.on('open', function (id) {
+        console.log('My id is ' + id);
+
+        // Connecting to op
+        let opponent_id = opponent;
+        conn = peer.connect(opponent_id);
+        console.log(conn);
+
+        conn.on('open', function () {
+            console.log(peer.id + " connected to " + opponent_id);
+
+            // Sending a message to op
+            conn.send("Hello from " + peer.id);
+            runTimer()
+
+            // Receiving a message from op
+            conn.on('data', (data) => {
+                console.log(peer.id + " received:" + data);
+
+                if (opponent) {
+                    let opponent_cursor = $("#opponent-cursor")
+                }
+            });
+        });
+    });
+} else if (opponent) {
+    var p1 = new Peer(user.username);
+
+    p1.on('open', function (id) {
+        console.log('My id is ' + id);
+        runTimer()
+
+        p1.on('connection', function (conn) {
+            alert(p1.id + " received connection from " + conn.peer);
+
+            // Sending a message to the connected peer
+            // conn.send("Hello from " + p1.id);
+
+            // Receiving a message from the connected peer
+            conn.on('data', (data) => {
+                alert(p1.id + " received: " + data);
+            });
+        });
+    });
+} else {
+    youCanStart = true
+}
+
 
 // Generate interesting words for the game
 const words = db.getExo(exoID).text.split(/\s+/)
@@ -49,7 +107,7 @@ function newGame() {
     $(".results").css("visibility", "hidden")
     $(".results").css("margin", "-6.2rem")
     // Reset the words
-    $("#words").html('<div id="cursor"></div>');
+    $("#words").html(opponent ? `<div id="cursor"></div><div id="opponent-cursor"></div>` : '<div id="cursor"></div>');
 
     // Generate random words
     for (const word of words) {
@@ -65,6 +123,30 @@ function newGame() {
     $(".word")
         .first().addClass("current")
         .children().first().addClass("current");
+}
+
+function runTimer() {
+    window.timer = setInterval(() => {
+        if (!window.gameStart) {
+            window.gameStart = (new Date()).getTime()
+        }
+        const timePassed = (new Date()).getTime() - window.gameStart - pauseTime
+        const timePassedInMinutes = (timePassed + 100) / 60000
+        const numCorrect = $(".letter.correct").length
+        const numIncorrect = $(".letter.incorrect").length + $(".extra").length
+        speed = (numCorrect + numIncorrect) / (timePassedInMinutes * 5)
+        acc = numCorrect / (numCorrect + numIncorrect)
+        setValue(speed / 70, 70, ".speed-gauge")
+        setValue(acc, 100, ".acc-gauge")
+        $(".timer").text(`Time left: ${Math.round((duration - timePassed) / 1000)}s`)
+        if (!$("#game:focus").length && !opponent) {
+            pauseTime += 200
+            // console.log(pauseTime);
+        }
+        if (timePassed >= duration) {
+            gameOver()
+        }
+    }, 200)
 }
 
 function gameOver() {
@@ -110,140 +192,122 @@ function formatWord(word) {
 
 
 $("#game").keyup(function (event) {
-    console.log($("#words").children().length);
-    console.log(event);
+    if (youCanStart) {
+        console.log($("#words").children().length);
+        console.log(event);
 
 
-    if ($("#game.over").length) {
-        return
-    }
-    const key = event.key;
-    let currentLetter = $(".letter.current")
-    let currentWord = $(".word.current")
-    const expected = currentLetter.text() || ' ';
-    // console.log(`Expected '${expected}', got '${key}'`);
-
-
-
-    // if key is not 'backspace' and not ' '
-    const isLetter = key.length === 1 && key !== ' ';
-    const isSpace = key === ' '
-    const isBackSpace = key === 'Backspace'
-    if (key !== expected && (isLetter || isSpace)) {
-        if (expected in errors) {
-            errors[expected]++
-        } else {
-            errors[expected] = 1
+        if ($("#game.over").length) {
+            return
         }
-        console.log("Errors: ", errors);
-    }
+        const key = event.key;
+        let currentLetter = $(".letter.current")
+        let currentWord = $(".word.current")
+        const expected = currentLetter.text() || ' ';
+        // console.log(`Expected '${expected}', got '${key}'`);
 
-    if (!window.timer && isLetter) {
-        // FIrst letter to be typed since timer is not started
-        window.timer = setInterval(() => {
-            if (!window.gameStart) {
-                window.gameStart = (new Date()).getTime()
+
+
+        // if key is not 'backspace' and not ' '
+        const isLetter = key.length === 1 && key !== ' ';
+        const isSpace = key === ' '
+        const isBackSpace = key === 'Backspace'
+        if (key !== expected && (isLetter || isSpace)) {
+            if (expected in errors) {
+                errors[expected]++
+            } else {
+                errors[expected] = 1
             }
-            const timePassed = (new Date()).getTime() - window.gameStart - pauseTime
-            const timePassedInMinutes = (timePassed + 100) / 60000
-            const numCorrect = $(".letter.correct").length
-            const numIncorrect = $(".letter.incorrect").length + $(".extra").length
-            speed = (numCorrect + numIncorrect) / (timePassedInMinutes * 5)
-            acc = numCorrect / (numCorrect + numIncorrect)
-            setValue(speed / 70, 70, ".speed-gauge")
-            setValue(acc, 100, ".acc-gauge")
-            $(".timer").text(`Time left: ${Math.round((duration - timePassed) / 1000)}s`)
-            if (!$("#game:focus").length) {
-                pauseTime += 200
-                // console.log(pauseTime);
+            console.log("Errors: ", errors);
+        }
+
+        if (!window.timer && isLetter) {
+            // FIrst letter to be typed since timer is not started
+            runTimer()
+        }
+
+        if (isLetter) {
+            // If current letter is not inexisting
+            if (currentLetter.text()) {
+                currentLetter.addClass(key !== expected ? "incorrect" : "correct").removeClass("current")
+                if (currentLetter.next()) {
+                    currentLetter.next().addClass("current")
+                }
+            } else {
+                // If current letter is null it means that we are at the 
+                // end of the word and the user is typing extra wrong letters
+                const incorectLetter = `<span class="letter incorrect extra">${key}</span>`
+                currentWord.html(currentWord.html() + incorectLetter)
+                console.log("Extra letter typed");
+
             }
-            if (timePassed >= duration) {
+        } else if (isSpace && window.timer) {
+            number_of_words++
+            if (expected !== ' ') {
+                const lettersToInvalidate = $(".word.current .letter:not(.correct)")
+
+                lettersToInvalidate.addClass("incorrect").removeClass("current")
+            }
+            // Underlined mistyped word
+            if (currentWord.children().hasClass("incorrect")) {
+                currentWord.addClass("underlined")
+            }
+            currentWord
+                .removeClass("current")
+                .next().addClass("current")
+                .children().first().addClass("current")
+            if (currentWord.next().length === 0) {
                 gameOver()
             }
-        }, 200)
-    }
+        } else if (isBackSpace) {
+            // You cannot rectify a word you already entered
+            if (!currentLetter.hasClass("firstLetterOfWord")) {
+                if (currentLetter.text()) {
+                    // If you are not at the end of a word
+                    currentLetter
+                        .removeClass("current")
+                        .prev().removeClass("correct incorrect")
+                        .addClass("current")
+                } else {
+                    // If you are at the end of the word
+                    currentWord
+                        .children().last().removeClass("correct incorrect")
+                        .addClass("current")
+                }
+                const lastExtra = $(".current.extra").remove()
+            }
+        }
 
-    if (isLetter) {
-        // If current letter is not inexisting
+        // Move the cursor to the next letter
+        let cursor = $("#cursor")
+        currentLetter = $(".letter.current")
+        currentWord = $(".word.current")
         if (currentLetter.text()) {
-            currentLetter.addClass(key !== expected ? "incorrect" : "correct").removeClass("current")
-            if (currentLetter.next()) {
-                currentLetter.next().addClass("current")
-            }
+            // Place the cursor just before the current letter
+            cursor
+                .css("left", currentLetter.position().left - 3)
+                .css("top", currentLetter.position().top + 3)
+            // console.log("cursor: ", cursor.position());
         } else {
-            // If current letter is null it means that we are at the 
-            // end of the word and the user is typing extra wrong letters
-            const incorectLetter = `<span class="letter incorrect extra">${key}</span>`
-            currentWord.html(currentWord.html() + incorectLetter)
-            console.log("Extra letter typed");
+            // If there is no current letter it means you are at the end of a word
+            // so place the cursor at end of the current word
+            const lastLetter = currentWord.children().last()
+            cursor
+                .css("left", lastLetter.position().left + lastLetter.width())
+                .css("top", lastLetter.position().top)
+        }
 
+        // Move lines of words up
+        const lineheight = parseInt($("#game").css("line-height").replace("px", ""))
+        const distaceToBottom = (currentWord.position().top - $("#game").height() + lineheight - offset)
+        // console.log(distaceToBottom);
+        // console.log("Line height", lineheight);
+        if (distaceToBottom >= 0) {
+            offset += lineheight
+            const words = $("#words")
+            words.css("margin-top", `${words.css("margin-top").replace("px", "") - lineheight}px`)
+            // console.log(words.css("margin-top"));
         }
-    } else if (isSpace && window.timer) {
-        number_of_words++
-        if (expected !== ' ') {
-            const lettersToInvalidate = $(".word.current .letter:not(.correct)")
-
-            lettersToInvalidate.addClass("incorrect").removeClass("current")
-        }
-        // Underlined mistyped word
-        if (currentWord.children().hasClass("incorrect")) {
-            currentWord.addClass("underlined")
-        }
-        currentWord
-            .removeClass("current")
-            .next().addClass("current")
-            .children().first().addClass("current")
-        if(currentWord.next().length === 0) {
-            gameOver()
-        }
-    } else if (isBackSpace) {
-        // You cannot rectify a word you already entered
-        if (!currentLetter.hasClass("firstLetterOfWord")) {
-            if (currentLetter.text()) {
-                // If you are not at the end of a word
-                currentLetter
-                    .removeClass("current")
-                    .prev().removeClass("correct incorrect")
-                    .addClass("current")
-            } else {
-                // If you are at the end of the word
-                currentWord
-                    .children().last().removeClass("correct incorrect")
-                    .addClass("current")
-            }
-            const lastExtra = $(".current.extra").remove()
-        }
-    }
-
-    // Move the cursor to the next letter
-    let cursor = $("#cursor")
-    currentLetter = $(".letter.current")
-    currentWord = $(".word.current")
-    if (currentLetter.text()) {
-        // Place the cursor just before the current letter
-        cursor
-            .css("left", currentLetter.position().left - 3)
-            .css("top", currentLetter.position().top + 3)
-        // console.log("cursor: ", cursor.position());
-    } else {
-        // If there is no current letter it means you are at the end of a word
-        // so place the cursor at end of the current word
-        const lastLetter = currentWord.children().last()
-        cursor
-            .css("left", lastLetter.position().left + lastLetter.width())
-            .css("top", lastLetter.position().top)
-    }
-
-    // Move lines of words up
-    const lineheight = parseInt($("#game").css("line-height").replace("px", ""))
-    const distaceToBottom = (currentWord.position().top - $("#game").height() + lineheight - offset)
-    // console.log(distaceToBottom);
-    // console.log("Line height", lineheight);
-    if (distaceToBottom >= 0) {
-        offset += lineheight
-        const words = $("#words")
-        words.css("margin-top", `${words.css("margin-top").replace("px", "") - lineheight}px`)
-        // console.log(words.css("margin-top"));
     }
 });
 

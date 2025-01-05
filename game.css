@@ -233,7 +233,8 @@ div#game {
 }
 
 .game-container .over #focus-error,
-.game-container .over #cursor {
+.game-container .over #cursor,
+.game-container .over #opponent-cursor {
     display: none;
 }
 
@@ -241,7 +242,8 @@ div#game {
     opacity: 0.5;
 }
 
-#cursor {
+#cursor,
+#opponent-cursor {
     width: calc(var(--game-font-size)/8);
     height: var(--game-font-size);
     background: var(--game-primary-color);
@@ -250,6 +252,11 @@ div#game {
     left: calc(var(--game-font-size));
     animation: blink 0.5s infinite;
     transition: all 0.2s ease;
+}
+
+#opponent-cursor {
+    background: #f55;
+    animation-delay: 0.2s;
 }
 
 @keyframes blink {

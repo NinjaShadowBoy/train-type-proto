@@ -1,27 +1,5 @@
 import { User, ExerciseDone, CustomExo, DB } from "./model.js";
 
-var p2 = new Peer("alex");
-
-p2.on('open', function (id) {
-    console.log('My id is ' + id);
-
-    // Connecting to p1
-    let opponent_id = "nelson";
-    let conn = p2.connect(opponent_id);
-
-    conn.on('open', function () {
-        alert(p2.id + " connected to " + opponent_id);
-
-        // Sending a message to p1
-        conn.send("Hello from " + p2.id);
-
-        // Receiving a message from p1
-        conn.on('data', (data) => {
-            alert(p2.id + " received:" + data);
-        });
-    });
-});
-
 $(document).ready(function () {
     console.log(window.location.pathname);
     const sidebar_links = document.querySelectorAll(".sidebar-links a");
@@ -213,40 +191,6 @@ $(document).ready(function () {
                 );
             });
         }
-        $(".start-button").on("click", function (e) {
-            console.log(e);
-            console.log($(this).parent().parent().attr("data-exoID"));
-            $(this).css({
-                margin: "0",
-                padding: "0",
-                top: "0",
-                left: "0",
-                "z-index": "100",
-                position: "fixed",
-                width: "100vw",
-                height: "100vh",
-            });
-            setTimeout(() => {
-                window.location.href = "./game.html"; // Add Jan 4 data
-            }, 500);
-            sessionStorage.setItem("difficulty", $(this).attr("difficulty"));
-            sessionStorage.setItem(
-                "exoID",
-                $(this).parent().parent().attr("data-exoID")
-            );
-        });
-
-        $(".start-button").on("mouseenter", function () {
-            console.log($(this).css("border-color"));
-            $(this)
-                .parent()
-                .parent()
-                .css("box-shadow", `0 0 1em ${$(this).css("border-color")}`);
-        });
-
-        $(".start-button").on("mouseleave", function () {
-            $(this).parent().parent().css("box-shadow", "0 0 1em lightgray");
-        });
     }
 
     function loadUserOnPage() {
@@ -259,6 +203,8 @@ $(document).ready(function () {
     let db = DB.load();
     console.log(db);
     active_tab.style.visibility = "visible";
+    sessionStorage.setItem("opponent", "");
+    sessionStorage.setItem("initiator", "");
 
     loadUserOnPage();
     switch (window.location.pathname) {
@@ -491,23 +437,24 @@ $(document).ready(function () {
             break;
         case "/challenge.html":
             let opponent
+            // Declare conn outside the function
+            
             loadExercisesOnPage();
             $(".challenge-form").on("submit", function (e) {
                 e.preventDefault();
                 opponent = $(".username").val();
                 if (opponent != user.username) {
                     opponent = $(".username").val();
+                    alert("Challenge will be sent to " + opponent);
                     $(".restricted").removeClass("restricted").addClass("unrestricted");
-                    
-                    sessionStorage("opponent", opponent);
-                    $(".start-button").on("click", function (e) {                
-                        alert("Challenge sent to " + opponent);
-                    });
+                    sessionStorage.setItem("opponent", opponent);
+                    sessionStorage.setItem("initiator", user.username);
                 }
                 else {
                     alert("You can't challenge yourself");
                 }
-               });
+            });
+
             break;
         case "/leaderboards.html":
             (() => {
