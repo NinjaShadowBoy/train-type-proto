@@ -469,6 +469,9 @@ $(document).ready(function () {
                             let difficulty = data[1]
                             let exoID = data[0]
                             conn.close()
+                            conn.send("ok")
+                            alert("Sent connection confirmation " + exoID + " " + difficulty)
+                            
                             setTimeout(() => {
                                 window.location.href = "./game.html"; // Add Jan 4 data
                             }, 500);
@@ -476,8 +479,6 @@ $(document).ready(function () {
                             sessionStorage.setItem("exoID", exoID);
                             sessionStorage.setItem("opponent", conn.peer)
                             sessionStorage.setItem("initiator", "")
-
-                            conn.send("ok")
                         }
                     });
 
