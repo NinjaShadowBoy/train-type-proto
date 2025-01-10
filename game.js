@@ -1,6 +1,5 @@
 import { DB, User, ExerciseDone } from "./model.js"
 
-
 let db = DB.load()
 let user = User.load()
 let exoID = Number(sessionStorage.getItem("exoID"))
@@ -8,7 +7,12 @@ let difficulty = sessionStorage.getItem("difficulty")
 let opponent = sessionStorage.getItem("opponent")
 let initiator = sessionStorage.getItem("initiator")
 
+let cursor = $("#cursor")
+let opponent_cursor = $("#opponent-cursor")
+
 let youCanStart = false
+
+let opponent_position = 0
 
 if (initiator) {
     var peer = new Peer(user.username);
@@ -22,10 +26,11 @@ if (initiator) {
         console.log(conn);
 
         conn.on('open', function () {
-            console.log(peer.id + " connected to " + opponent_id);
+            alert(peer.id + " connected to " + opponent_id);
+            youCanStart = true
 
             // Sending a message to op
-            conn.send("Hello from " + peer.id);
+            conn.send(exoID + " " + difficulty);
             runTimer()
 
             // Receiving a message from op
@@ -34,6 +39,15 @@ if (initiator) {
 
                 if (opponent) {
                     let opponent_cursor = $("#opponent-cursor")
+                }
+
+                if (data == "space") {
+                    opponent_position += 1
+
+                    let opponent_word = $("#words")[opponent_position]
+                    opponent_cursor
+                        .css("left", opponent_word.position().left - 3)
+                        .css("top", opponent_word.position().top + 3)
                 }
             });
         });
@@ -47,13 +61,24 @@ if (initiator) {
 
         p1.on('connection', function (conn) {
             alert(p1.id + " received connection from " + conn.peer);
+            youCanStart = true
 
             // Sending a message to the connected peer
             // conn.send("Hello from " + p1.id);
 
             // Receiving a message from the connected peer
             conn.on('data', (data) => {
-                alert(p1.id + " received: " + data);
+                console.log(p1.id + " received: " + data);
+
+
+                if (data == "space") {
+                    opponent_position += 1
+
+                    let opponent_word = $("#words")[opponent_position]
+                    opponent_cursor
+                        .css("left", opponent_word.position().left - 3)
+                        .css("top", opponent_word.position().top + 3)
+                }
             });
         });
     });
@@ -259,6 +284,12 @@ $("#game").keyup(function (event) {
             if (currentWord.next().length === 0) {
                 gameOver()
             }
+
+            if (!initiator && opponent) {
+                p1.send("space");
+            } else if (opponent) {
+                peer.send("space");
+            }
         } else if (isBackSpace) {
             // You cannot rectify a word you already entered
             if (!currentLetter.hasClass("firstLetterOfWord")) {
@@ -279,7 +310,7 @@ $("#game").keyup(function (event) {
         }
 
         // Move the cursor to the next letter
-        let cursor = $("#cursor")
+
         currentLetter = $(".letter.current")
         currentWord = $(".word.current")
         if (currentLetter.text()) {
@@ -287,6 +318,8 @@ $("#game").keyup(function (event) {
             cursor
                 .css("left", currentLetter.position().left - 3)
                 .css("top", currentLetter.position().top + 3)
+
+
             // console.log("cursor: ", cursor.position());
         } else {
             // If there is no current letter it means you are at the end of a word

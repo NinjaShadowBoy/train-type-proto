@@ -438,7 +438,49 @@ $(document).ready(function () {
         case "/challenge.html":
             let opponent
             // Declare conn outside the function
-            
+            var p1 = new Peer(user.username);
+
+            p1.on('open', function (id) {
+                console.log('My id is ' + id);
+                runTimer()
+
+                p1.on('connection', function (conn) {
+                    alert(p1.id + " received connection from " + conn.peer);
+                    youCanStart = true
+
+                    // Sending a message to the connected peer
+                    // conn.send("Hello from " + p1.id);
+
+                    // Receiving a message from the connected peer
+                    conn.on('data', (data) => {
+                        console.log(p1.id + " received: " + data);
+
+
+                        if (data == "space") {
+                            opponent_position += 1
+
+                            let opponent_word = $("#words")[opponent_position]
+                            opponent_cursor
+                                .css("left", opponent_word.position().left - 3)
+                                .css("top", opponent_word.position().top + 3)
+                        }
+
+                        if (data.length > 14) {
+                            data = data.split(" ")
+                            let difficulty = data[1]
+                            let exoID = data[0]
+
+                            setTimeout(() => {
+                                window.location.href = "./game.html"; // Add Jan 4 data
+                            }, 500);
+                            sessionStorage.setItem("difficulty", difficulty);
+                            sessionStorage.setItem("exoID", exoID);
+                        }
+                    });
+
+                });
+            });
+
             loadExercisesOnPage();
             $(".challenge-form").on("submit", function (e) {
                 e.preventDefault();
