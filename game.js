@@ -31,6 +31,7 @@ if (initiator) {
             // Sending a message to op
             conn.send(exoID + " " + difficulty);
 
+
             // runTimer() 
 
             // Receiving a message from op
@@ -54,6 +55,8 @@ if (initiator) {
                     conn.close()
                     peer.destroy()
 
+                    console.log("Closing preliminary connection")
+
                     peer = new Peer(user.username);
 
 
@@ -65,12 +68,9 @@ if (initiator) {
                         console.log(conn);
 
                         conn.on('open', function () {
-                            alert(peer.id + " connected to " + opponent_id);
+                            alert(peer.id + " connected to " + opponent_id + "For game. Sending level details ...");
                             youCanStart = true
-
-                            // Sending a message to op
-                            conn.send(exoID + " " + difficulty);
-                            runTimer()
+                            console.log("You can start")
 
                             // Receiving a message from op
                             conn.on('data', (data) => {
@@ -102,12 +102,14 @@ if (initiator) {
     });
 } else if (opponent) {
     var p1 = new Peer(user.username);
+    console.log("Waiting for connection to be confirmed ...")
 
     p1.on('open', function (id) {
         console.log('My id is ' + id);
         runTimer()
 
         p1.on('connection', function (conn) {
+            console.log("Connection to be confirmed. You can start!!!")
             alert(p1.id + " received connection from " + conn.peer);
             youCanStart = true
 
@@ -131,6 +133,7 @@ if (initiator) {
         });
     });
 } else {
+    opponent_cursor.css("display", "none")
     youCanStart = true
 }
 

@@ -474,6 +474,8 @@ $(document).ready(function () {
                             }, 500);
                             sessionStorage.setItem("difficulty", difficulty);
                             sessionStorage.setItem("exoID", exoID);
+                            sessionStorage.setItem("opponent", conn.peer)
+                            sessionStorage.setItem("initiator", "")
 
                             conn.send("ok")
                         }
