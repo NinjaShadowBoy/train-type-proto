@@ -30,7 +30,8 @@ if (initiator) {
 
             // Sending a message to op
             conn.send(exoID + " " + difficulty);
-            // runTimer()
+
+            // runTimer() 
 
             // Receiving a message from op
             conn.on('data', (data) => {
@@ -53,7 +54,6 @@ if (initiator) {
                     peer = new Peer(user.username);
 
 
-                    youCanStart = true
                     peer.on('open', function (id) {
                         console.log('My id is ' + id);
 
@@ -63,10 +63,11 @@ if (initiator) {
 
                         conn.on('open', function () {
                             alert(peer.id + " connected to " + opponent_id);
+                            youCanStart = true
 
                             // Sending a message to op
                             conn.send(exoID + " " + difficulty);
-                            // runTimer()
+                            runTimer()
 
                             // Receiving a message from op
                             conn.on('data', (data) => {
