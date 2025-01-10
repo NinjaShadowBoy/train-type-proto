@@ -475,6 +475,8 @@ $(document).ready(function () {
                             }, 500);
                             sessionStorage.setItem("difficulty", difficulty);
                             sessionStorage.setItem("exoID", exoID);
+
+                            conn.send("ok")
                         }
                     });
 

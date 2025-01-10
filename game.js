@@ -22,16 +22,15 @@ if (initiator) {
 
         // Connecting to op
         let opponent_id = opponent;
-        conn = peer.connect(opponent_id);
+        let conn = peer.connect(opponent_id);
         console.log(conn);
 
         conn.on('open', function () {
             alert(peer.id + " connected to " + opponent_id);
-            youCanStart = true
 
             // Sending a message to op
             conn.send(exoID + " " + difficulty);
-            runTimer()
+            // runTimer()
 
             // Receiving a message from op
             conn.on('data', (data) => {
@@ -48,6 +47,51 @@ if (initiator) {
                     opponent_cursor
                         .css("left", opponent_word.position().left - 3)
                         .css("top", opponent_word.position().top + 3)
+                }
+
+                if (data == "ok") {
+                    peer = new Peer(user.username);
+
+
+                    youCanStart = true
+                    peer.on('open', function (id) {
+                        console.log('My id is ' + id);
+
+                        // Connecting to op
+                        conn = peer.connect(opponent_id);
+                        console.log(conn);
+
+                        conn.on('open', function () {
+                            alert(peer.id + " connected to " + opponent_id);
+
+                            // Sending a message to op
+                            conn.send(exoID + " " + difficulty);
+                            // runTimer()
+
+                            // Receiving a message from op
+                            conn.on('data', (data) => {
+                                console.log(peer.id + " received:" + data);
+
+                                if (opponent) {
+                                    let opponent_cursor = $("#opponent-cursor")
+                                }
+
+                                if (data == "space") {
+                                    opponent_position += 1
+
+                                    let opponent_word = $("#words")[opponent_position]
+                                    opponent_cursor
+                                        .css("left", opponent_word.position().left - 3)
+                                        .css("top", opponent_word.position().top + 3)
+                                }
+
+                                if (data == "ok") {
+                                    peer = new Peer(user.username);
+                                    youCanStart = true
+                                }
+                            });
+                        });
+                    });
                 }
             });
         });
