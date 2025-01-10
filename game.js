@@ -51,6 +51,9 @@ if (initiator) {
                 }
 
                 if (data == "ok") {
+                    conn.close()
+                    peer.destroy()
+
                     peer = new Peer(user.username);
 
 

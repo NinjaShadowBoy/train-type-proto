@@ -442,11 +442,9 @@ $(document).ready(function () {
 
             p1.on('open', function (id) {
                 console.log('My id is ' + id);
-                runTimer()
 
                 p1.on('connection', function (conn) {
                     alert(p1.id + " received connection from " + conn.peer);
-                    youCanStart = true
 
                     // Sending a message to the connected peer
                     // conn.send("Hello from " + p1.id);
@@ -465,11 +463,12 @@ $(document).ready(function () {
                                 .css("top", opponent_word.position().top + 3)
                         }
 
-                        if (data.length > 14) {
+
+                        if (/\d/.test(data)) {
                             data = data.split(" ")
                             let difficulty = data[1]
                             let exoID = data[0]
-
+                            conn.close()
                             setTimeout(() => {
                                 window.location.href = "./game.html"; // Add Jan 4 data
                             }, 500);
