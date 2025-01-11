@@ -8,6 +8,8 @@ $(document).ready(function () {
     const tooltip_elements = document.querySelectorAll(".tooltip-element");
     const shrink_btn = document.querySelector(".shrink-btn");
     const logout_btn = $(".log-out");
+    const lightTheme = document.querySelector(".theme");
+    const darkTheme = document.querySelector(".theme1");
     let activeIndex;
 
     logout_btn.on("click", function () {
@@ -186,7 +188,7 @@ $(document).ready(function () {
 
                 let conn = p1.connect(opponent);
                 conn.on('open', function () {
-                    
+
                     console.log("Connection initiated with " + conn.peer);
                     let message = exoID + " " + difficulty;
                     conn.send(message);
@@ -409,7 +411,7 @@ $(document).ready(function () {
                 themetoggler.addEventListener("click", () => {
                     document.body.classList.toggle("dark-theme-variables");
 
-                    themetoggler.querySelector("span").classList.toggle("active");
+                    // themetoggler.querySelector("span").classList.toggle("active");
                 });
 
                 loadPerformanceOnDashboard();
@@ -641,7 +643,7 @@ $(document).ready(function () {
                             data = data.split(" ")
 
                             console.log(data);
-                            
+
                             let difficulty = data[2]
                             let exoID = data[1]
 
@@ -1082,3 +1084,17 @@ $(document).ready(function () {
             break;
     }
 });
+
+// themetoggler.addEventListener("click", () => {
+//     document.body.classList.toggle("dark-theme-variables");
+//     //themetoggler.querySelector("span").classList.toggle("active");
+// });
+
+function changetheme() {
+    lightTheme.classList.remove("active");
+    darkTheme.classList.add("active");
+}
+function Switch() {
+    lightTheme.classList.add("active");
+    darkTheme.classList.remove("active");
+}

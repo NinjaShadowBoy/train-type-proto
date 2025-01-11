@@ -36,11 +36,10 @@
         <div class="typing-logo"></div>
         <h3 class="hide">TRAIN<span class="danger">TYPE</span></h3>
       </div>
-
-      <div class="search">
-        <i class="bx bx-search"></i>
-        <input type="text" class="hide" placeholder="Quick Search ..." />
-      </div>
+        <div class="search">
+            <i class='bx bx-search'></i>
+            <input type="text" class="hide" placeholder="Quick Search ...">
+        </div>
 
       <div class="sidebar-links">
         <ul>
@@ -100,58 +99,7 @@
             <span>Leaderboard</span>
           </div>
         </ul>
-
-        <h4 class="hide">Shortcuts</h4>
-
-        <ul>
-          <li class="tooltip-element" data-tooltip="0">
-            <a href="#" data-active="5">
-              <div class="icon">
-                <i class="bx bxs-report"></i>
-                <i class="bx bxs-report"></i>
-              </div>
-              <span class="link hide">Reports</span>
-            </a>
-          </li>
-
-          <li class="tooltip-element" data-tooltip="1">
-            <a href="#" data-active="6">
-              <div class="icon">
-                <i class="bx bx-cog"></i>
-                <i class="bx bxs-cog"></i>
-              </div>
-              <span class="link hide">Settings</span>
-            </a>
-          </li>
-          <div class="tooltip">
-            <span class="show">Reports</span>
-            <span>Settings</span>
-          </div>
-        </ul>
       </div>
-
-      <div class="sidebar-footer">
-        <a href="#" class="account tooltip-element" data-tooltip="0">
-          <i class="bx bx-user"></i>
-        </a>
-        <div class="admin-user tooltip-element" data-tooltip="1">
-          <div class="admin-profile hide">
-            <img src="./images/face-1.png" alt="" />
-            <div class="admin-info">
-              <h3>Ahmad Amine</h3>
-              <h5>Admin</h5>
-            </div>
-          </div>
-          <a href="#" class="log-out">
-            <i class="bx bx-log-out"></i>
-          </a>
-        </div>
-        <div class="tooltip">
-          <span class="show">Ahmad Amine</span>
-          <span>Logout</span>
-        </div>
-      </div>
-    </nav>
 
     <div class="mother">
       <main>
@@ -235,9 +183,10 @@
             <span class="material-icons-outlined">menu</span>
           </button>
           <div class="theme-toggler">
-            <span class="material-icons-outlined active">light_mode</span>
-            <span class="material-icons-outlined">dark_mode</span>
-          </div>
+                <span class="material-icons-outlined active theme" onclick="Switch();" >light_mode</span>
+                <span class="material-icons-outlined theme1 " onclick=" changetheme();
+                ">dark_mode</span>
+            </div>
         </div>
         <!-- <div class="recommendations">
           <h2>Recomended Exercises</h2>
