@@ -31,7 +31,7 @@
     --card-padding: 1.8rem;
     --padding-1: 1.2rem;
 
-    --box-shadow: 0 2rem 3rem var(--color-light);
+    --box-shadow: 0 0rem 2rem var(--main-color-light);
 }
 
 /*----------------DARK THEME VARIABLES--------*/
@@ -44,7 +44,7 @@
     --color-dark-variant: #a3bdcc;
     --color-light: rgba(0, 0, 0.4);
     --text-color: #181a1e;
-    --box-shadow: 0 2rem 3rem var(--color-light);
+    --box-shadow: 0 0rem 3rem var(--main-color-dark);
 }
 
 *,
@@ -57,14 +57,12 @@
 
 body {
     font-family: "Poppins", sans-serif;
-    /* overflow-x: hidden; */
     background-color: var(--text-color);
     color: var(--main-color);
     min-height: 100vh;
     display: flex;
-    flex-wrap: wrap;
     position: relative;
-    /* flex-wrap: wrap; */
+    
     justify-content: space-between;
 }
 
@@ -100,11 +98,12 @@ nav::before {
 }
 
 main {
-    /* flex: 1; */
     padding: 2rem;
-    color:var(--color-dark);
+    color: var(--color-dark);
     display: flex;
     flex-direction: column;
+    /* justify-content: space-evenly; */
+    flex-wrap: wrap;
 }
 
 main h1 {
@@ -196,7 +195,7 @@ nav:hover .shrink-btn,
 }
 
 .sidebar-links a {
-    color:#ebf4f6 ;
+    color: #ebf4f6;
     font-weight: 400;
     font-size: 0.9rem;
     display: flex;
@@ -475,12 +474,12 @@ main .performance>div {
     padding: var(--card-padding);
     border-radius: var(--card-border-radius);
     margin-top: 1rem;
-    box-shadow: var(--box-shadow);
+    box-shadow: none;
     transition: all 300ms ease;
 }
 
 main .performance>div:hover {
-    box-shadow: none;
+    box-shadow: var(--box-shadow);
 }
 
 main .performance>div span,
@@ -533,10 +532,12 @@ main .chart .middle {
     border-radius: var(--card-border-radius);
     padding: var(--card-padding);
     text-align: center;
-    box-shadow: var(--box-shadow);
     transition: all 300ms ease;
 }
 
+main .chart .middle:hover {
+    box-shadow: var(--box-shadow);
+}
 
 
 /*======================ASIDE=====================*/
@@ -841,8 +842,10 @@ b {
 }
 
 .mother {
+    width: 100%;
+    /* overflow: hidden; */
     display: flex;
-    /* flex-wrap: wrap; */
+    justify-content: center;
 }
 
 .users,
@@ -915,7 +918,7 @@ b {
 }
 
 .errors {
-    height: 0rem;   
+    height: 0rem;
     display: flex;
     overflow-y: auto;
     margin-bottom: 1em;
