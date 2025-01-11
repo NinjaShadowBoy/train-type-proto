@@ -9,7 +9,7 @@ body, html {
 .container {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,7 +18,6 @@ body, html {
     z-index: 1;
     text-align: center;
     backdrop-filter: blur(10px) brightness(50%);
-    border-radius: 15px;
     padding: 20px;
 }
 
@@ -53,22 +52,23 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #1527af; /* Fallback to black color */
+    background-color: #1527af;
     background-size: cover;
-    background-position: center;
+    background-position: center; 
     z-index: 0;
-    transition: background-image 1s ease-in-out;
+    transition: background-image 1s ease-in-out, opacity 1s ease-in-out;
+    opacity: 0.7;
 }
 
-.background {
+
+.backgroundimage {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
+    right: 0;
+    bottom: 0;
     background-position: center;
-    z-index: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
     transition: background-image 1s ease-in-out;
 }
-

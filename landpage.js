@@ -1,22 +1,21 @@
-async function changeBackgroundImages() {
-    const images = await import('./images-folder/images.js');
+const images = [
+    'landing/16.jpeg',
+    'landing/17.jpeg',
+    'landing/18.webp',
+    'landing/19.jpg',
+    'landing/20.webp', // Ajoutez autant d'images que nécessaire
+];
 
-    let currentImageIndex = 0;
-    const backgroundElement = document.createElement('div');
-    backgroundElement.classList.add('background');
-    document.body.appendChild(backgroundElement);
-    backgroundElement.style.backgroundImage = `url(${images[currentImageIndex]})`;
+let currentIndex = 0;
 
-    function changeBackgroundImage() {
-        currentImageIndex = (currentImageIndex + 1) % images.length;
-        backgroundElement.style.backgroundImage = `url(${images[currentImageIndex]})`;
-    }
-
-    setInterval(changeBackgroundImage, 5000); // Change image every 5 seconds
+function changeBackgroundImage() {
+    const backgroundDiv = document.getElementById('container');    
+    backgroundDiv.style.backgroundImage = `url('${images[currentIndex]}')`;
+    currentIndex = (currentIndex + 1) % images.length; // Boucle au début
 }
 
-changeBackgroundImages();
-
+changeBackgroundImage(); // Changer d'image immédiatement
+setInterval(changeBackgroundImage, 5000); // Changer d'image toutes les 10 secondes
 
 
 
