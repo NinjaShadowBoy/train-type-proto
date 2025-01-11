@@ -1,17 +1,27 @@
 export class User {
-    constructor(username, password) {
+    constructor(username, password, e_mail = "", role = "User") {
         let now = (new Date()).getTime()
         this.username = username
         this.password = password
+        this.email = e_mail
         this.perf = []
         this.challenges = []
         this.customExos = []
+        this.join_date = now
+        this.last_login_date = now
+        this.theme = "light"
+        this.avatar_path = "/landing/16.jpeg"
+        this.bio = "Nothing about me yet"
+        this.role = role
     }
 
+    // This is used for the current user
     static load() {
         let jsonUserString = sessionStorage.getItem("user")
         let jsonUser = JSON.parse(jsonUserString)
-        return this.loadUser(jsonUser)
+        let user = User.loadUser(jsonUser)
+        user.last_login_date = new Date()
+        return user
     }
 
     addToPerformance(exoDone) {
@@ -26,13 +36,24 @@ export class User {
         this.customExos.push(new CustomExo(customText))
     }
 
+    // Used to construct all users in db
     static loadUser(obj) {
         let user = new User()
         user.username = obj.username
         user.password = obj.password
-        user.perf = obj.perf ? obj.perf : []
-        user.challenges = obj.challenges ? obj.challenges : []
-        user.customExos = obj.customExos ? obj.customExos : []
+        user.perf = obj.perf || []
+        user.challenges = obj.challenges || []
+        user.customExos = obj.customExos || []
+
+        let now = new Date()
+        user.email = obj.e_mail || "nobody@nothing.empty"
+        user.join_date = obj.join_date || user.perf[0]?.date || now
+        user.last_login_date = obj.last_login_date || now
+        user.theme = obj.theme || "light"
+        user.avatar_path = obj.avatar_path || "./landing/16.jpeg"
+        user.bio = obj.bio || "Nothing about me yet"
+        user.role = obj.role || "User"
+
         return user
     }
 
@@ -58,16 +79,20 @@ export class User {
 }
 
 export class DefaultExo {
-    constructor(exoID, text, duration, timesAttempted = 0) {
+    constructor(exoID, title, text, timesAttempted = 0) {
+        let now = new Date()
+        this.title = title || "No tile"
         this.exoID = exoID
         this.text = text ? text : "The quick fox jumps over the lazy dog"
-        this.duration = duration
         this.timesAttempted = timesAttempted
+        this.last_modified_date = now
     }
 }
 
 export class CustomExo {
-    constructor(text) {
+    constructor(title, text) {
+        this.date_created = new Date()
+        this.title = title
         this.text = text
     }
 }
@@ -96,11 +121,15 @@ export class Challenge {
 }
 
 export class DB {
-    constructor(users, exos) {
-        this.users = users ? users : {} // Dict K: username V: User
-        this.exos = exos ? exos : {} // Dict K: exoID V: ExerciseDone
+    constructor(obj) {
+        this.users = obj.users ? obj.users : {} // Dict K: username V: User
+        this.exos = obj.exos ? obj.exos : {} // Dict K: exoID V: ExerciseDone
         this.numExos = Object.keys(this.exos).length;
         this.numUser = Object.keys(this.users).length;
+        this.exercises_today = obj.exercises_today || 0
+        this.avg_speed = obj.avg_speed || 0
+        this.avg_speed = obj.avg_speed || 0
+        this.today_logins = obj.today_logins || 0
     }
     setUser(user) {
         this.users[user.username] = user
@@ -149,7 +178,7 @@ export class DB {
     static load() {
         let jsonDB = localStorage.getItem("DB")
         jsonDB = JSON.parse(jsonDB)
-        let db = new DB(jsonDB.users, jsonDB.exos)
+        let db = new DB(jsonDB)
         for (let user of Object.values(db.users)) {
             db.users[user.username] = User.loadUser(user)
         }
@@ -158,7 +187,7 @@ export class DB {
 }
 
 // The line below is to initialise the data Base. Uncomment it if it is the first time you use this
-localStorage.setItem("DB", `{"users":{"Alex":{"username":"Alex","password":"alex","perf":[{"date":1735376300664,"wpm":22,"exoID":1,"acc":0.95,"errors":{"a":11},"duration":60000},{"date":1735490125131,"wpm":15.523932729624839,"exoID":2,"acc":0.8333333333333334,"errors":{"M":1,"s":2,"w":2,"a":1," ":3,"I":1,"In":1,"ns":1,"b":1,"o":1},"duration":60000,"number_of_words":22},{"date":1735569990392,"wpm":18.566889047864645,"exoID":4,"acc":0.8817204301075269,"errors":{" ":3,"H":1,"Ha":1,"ew":1,"?":1,"Sa":1},"duration":60000,"number_of_words":29},{"date":1735572535274,"wpm":0.8839616213329404,"exoID":4,"acc":1,"errors":{"h":1,"s":3,"w":1,"b":1,".":1,"m":1,"S":1,"d":1,"p":1,"e":1,"I":1},"duration":60000,"number_of_words":20},{"date":1735572634996,"wpm":19.303802716462958,"exoID":4,"acc":0.9896907216494846,"errors":{"h":1,"s":3,"w":1,"b":1,".":1,"m":1,"S":1,"d":1,"p":1,"e":1,"I":1},"duration":60000,"number_of_words":50},{"date":1735577851413,"wpm":21.63121550791758,"exoID":3,"acc":1,"errors":{"S":1,"d":2," ":1,"l":1,"h":1,"e":1,"w":1,"q":1,"u":1,"O":1,"g":1,"s":1},"duration":180000,"number_of_words":97},{"date":1735578676451,"wpm":20.952736384719962,"exoID":4,"acc":0.9809160305343512,"errors":{"1":1,"T":2,"o":1,".":3,"H":1,"s":4,"k":1,"D":1,"e":1,"f":1,"a":6,"w":3," ":2,"S":3,"n":1,"t":1,",":1,"u":1,"m":1,"?":1},"duration":300000,"number_of_words":141},{"date":1735580947528,"wpm":16.973408326954438,"exoID":2,"acc":0.9764705882352941,"errors":{"M":5,"x":2," ":1,"I":2,"k":3,",":2,"t":2,"d":1,".":2,"l":2,"v":1,"m":1,"r":2,"“":8,"T":1},"duration":180000,"number_of_words":68},{"date":1735581066949,"wpm":20.763663588719744,"exoID":4,"acc":0.9903846153846154,"errors":{"e":1,"h":1," ":1,".":1,"s":1,"a":1,"w":1,"I":1},"duration":60000,"number_of_words":31},{"date":1735727562417,"wpm":24.483702413535706,"exoID":3,"acc":0.975609756097561,"errors":{"s":1,".":2,"H":1,"e":1},"duration":60000,"number_of_words":40},{"date":1735727672330,"wpm":20.762972698687342,"exoID":2,"acc":0.9711538461538461,"errors":{"b":2,".":2,"I":1,"f":1," ":1,"'":1},"duration":60000,"number_of_words":29},{"date":1735728079621,"wpm":23.59190011429409,"exoID":3,"acc":0.976271186440678,"errors":{"u":2,"t":3,".":3," ":5,"p":1,"h":1,"s":4,"w":6,"a":4,"e":2,"o":3,"I":2,"d":1,"k":1,"b":2,"i":1,"y":1},"duration":300000,"number_of_words":160},{"date":1735728292152,"wpm":24.953420282140005,"exoID":3,"acc":0.912,"errors":{"T":2,"a":3,"s":2,"h":1,"O":1," ":1,"?":2,"o":1,".":2,"H":1,"e":1,"w":1,"b":1},"duration":60000,"number_of_words":40},{"date":1735728663840,"wpm":25.75232892747403,"exoID":1,"acc":0.9772727272727273,"errors":{"3":1,"I":1,"N":1},"duration":60000,"number_of_words":13}],"challenges":[],"customExos":[]},"Paule":{"username":"Paule","password":"paule","perf":[{"date":1735491222052,"wpm":9.383578737209884,"exoID":1,"acc":0.9148936170212766,"errors":{"3":1," ":4,"H":2},"duration":60000,"number_of_words":12},{"date":1735491350597,"wpm":11.939110536265046,"exoID":2,"acc":0.95,"errors":{"h":1,"t":1,".":1,"I":1},"duration":60000,"number_of_words":18},{"date":1735491733869,"wpm":12.875622288421937,"exoID":2,"acc":0.8850931677018633,"errors":{"a":1,"o":3," ":8,"In":1,"It":1,".":1,",":2,"F":1,"h":1,"e":1,"Th":1,"Te":1,"t":1,"tt":1,"hr":1,"ea":1,"c":1,"u":1,"n":1,"“":1},"duration":300000,"number_of_words":81},{"date":1735523551326,"wpm":14.527363184079604,"exoID":3,"acc":0.958904109589041,"errors":{"d":2,"p":1," ":13,"C":1,"Sa":1},"duration":60000,"number_of_words":24}],"challenges":[],"customExos":[],"avg_speed":0,"avg_acc":0},"Nelson":{"username":"Nelson","password":"nelson","perf":[],"challenges":[],"customExos":[],"avg_speed":0,"avg_acc":0},"alera joe":{"username":"alera joe","password":"alera","perf":[{"date":1735578163920,"wpm":8.384628181666944,"exoID":1,"acc":0.5714285714285714,"errors":{"A":1,"I":2,"N":2,"G":1," ":2,"E":1,"a":1,"U":1,"S":1,"J":1,"C":1,".":1,"H":1,"e":1,"l":1,"s":1,"p":1,"m":1,"i":1},"duration":60000,"number_of_words":12},{"date":1735578285108,"wpm":6.568471337579619,"exoID":1,"acc":0.8787878787878788,"errors":{"3":1," ":1,".":2},"duration":60000,"number_of_words":11}],"challenges":[],"customExos":[]}},"exos":{"1":{"exoID":1,"text":"Alex is a boy in ING 3 EN at IUSJC. He likes programming","duration":60000,"timesAttempted":4},"2":{"exoID":2,"text":"Max saw a box. It was red. He had a key. Does it fit? He tried. It worked!  Inside the box, Max found a note. It said, 'Find the cave.' The map showed a path. Max felt brave. He grabbed his bag and left.  The trail was rocky, but Max kept going. He climbed a tall hill and looked around. In the distance, he saw a dark cave. “That must be the place,” he thought. Max walked for hours until he reached the entrance.  The cave was cold, damp, and silent—except for the sound of dripping water. Max used a flashlight (battery-powered) to explore. Suddenly, he saw a shiny object: a golden compass! The compass had strange symbols: @, #, &, and %. It pointed east, so Max followed.  “Who enters my cave?” a voice boomed. Startled, Max replied, “I’m just an explorer!”  “Then solve this riddle,” the voice said. “What is greater than gold, cannot be bought, but is free to give?”  Max thought hard. “Is it... friendship?”  “Correct!” the voice said. A hidden door opened, revealing a treasure chest. Inside were priceless gems and a scroll that read: Adventure is the true treasure. Share it with the world!  ","duration":300000,"timesAttempted":5},"3":{"exoID":3,"text":"Sam had a map. The map was old. It led to a hill. On the hill was a hut. Can Sam find it?  Sam set off on the path. The day was hot. He felt the wind blow. As he walked, he saw the hut. It was small but looked safe.  Sam went inside the hut. The room was dark and quiet. On the table was a locked box. He found a note next to it. The note said to find a key.  Sam searched the hut for the key. He moved the rug and saw a trapdoor. Inside was a chest with strange symbols. It had letters and numbers like a1b2 and c3d4. Sam tried many codes until one worked.  Inside the chest was another map. It showed a cave deep in the forest. Sam packed his bag and set out. The trail was marked with symbols @, #, and &. He kept walking until he saw a glowing light.","duration":300000,"timesAttempted":5},"4":{"exoID":4,"text":"Sam had a box. The box was red. It had a lid.  He saw a key. The key was small. Does it fit?  Sam tried the key. The lid opened. Inside was a map.  The map was old. It showed a trail. The trail led to a hut.  Sam walked fast. The path was flat. He saw the hut.  The hut had a door. Sam pushed the door. It was dark inside.  He lit a lamp. The room had a table. On the table was a note.  The note said, 'Find the code.' The code opens the chest.  Sam looked for the chest. He moved the rug. Under the rug was a trapdoor.  Sam opened the trapdoor. A chest was there. The chest had symbols on it.  The symbols were letters and numbers: a1, b2, c3. What could they mean?  Sam thought hard. He tried the code b2c3a1. The chest clicked open.  Inside the chest was another note. This note had strange shapes.  The shapes were like @, &, and %. Sam needed a clue.  He checked the map again. The map pointed to a cave in the woods.  Sam packed his bag. He walked through the woods. The path was narrow and rough.  The trees were tall, and the air was cool. Sam kept going.  Finally, he saw the cave. It was dark and quiet.  Sam used a flashlight. The cave walls had drawings.  One drawing showed a sun. Another showed a key.  Sam found a stone door in the cave. On the door were buttons.  The buttons had symbols: @, #, $, %, and &.  Sam pressed the buttons in the order on the note: @, %, &, and #.  The door opened slowly. Behind it was a glowing crystal.  The crystal was bright and warm. It filled the cave with light.  Sam smiled. He had solved the mystery. The journey was the real prize.","duration":300000,"timesAttempted":5}},"numExos":4,"numUser":4}`.replaceAll("\n", " "))
+// localStorage.setItem("DB", `{"users":{"Alex":{"username":"Alex","password":"alex","perf":[{"date":1735376300664,"wpm":22,"exoID":1,"acc":0.95,"errors":{"a":11},"duration":60000},{"date":1735490125131,"wpm":15.523932729624839,"exoID":2,"acc":0.8333333333333334,"errors":{"M":1,"s":2,"w":2,"a":1," ":3,"I":1,"In":1,"ns":1,"b":1,"o":1},"duration":60000,"number_of_words":22},{"date":1735569990392,"wpm":18.566889047864645,"exoID":4,"acc":0.8817204301075269,"errors":{" ":3,"H":1,"Ha":1,"ew":1,"?":1,"Sa":1},"duration":60000,"number_of_words":29},{"date":1735572535274,"wpm":0.8839616213329404,"exoID":4,"acc":1,"errors":{"h":1,"s":3,"w":1,"b":1,".":1,"m":1,"S":1,"d":1,"p":1,"e":1,"I":1},"duration":60000,"number_of_words":20},{"date":1735572634996,"wpm":19.303802716462958,"exoID":4,"acc":0.9896907216494846,"errors":{"h":1,"s":3,"w":1,"b":1,".":1,"m":1,"S":1,"d":1,"p":1,"e":1,"I":1},"duration":60000,"number_of_words":50},{"date":1735577851413,"wpm":21.63121550791758,"exoID":3,"acc":1,"errors":{"S":1,"d":2," ":1,"l":1,"h":1,"e":1,"w":1,"q":1,"u":1,"O":1,"g":1,"s":1},"duration":180000,"number_of_words":97},{"date":1735578676451,"wpm":20.952736384719962,"exoID":4,"acc":0.9809160305343512,"errors":{"1":1,"T":2,"o":1,".":3,"H":1,"s":4,"k":1,"D":1,"e":1,"f":1,"a":6,"w":3," ":2,"S":3,"n":1,"t":1,",":1,"u":1,"m":1,"?":1},"duration":300000,"number_of_words":141},{"date":1735580947528,"wpm":16.973408326954438,"exoID":2,"acc":0.9764705882352941,"errors":{"M":5,"x":2," ":1,"I":2,"k":3,",":2,"t":2,"d":1,".":2,"l":2,"v":1,"m":1,"r":2,"“":8,"T":1},"duration":180000,"number_of_words":68},{"date":1735581066949,"wpm":20.763663588719744,"exoID":4,"acc":0.9903846153846154,"errors":{"e":1,"h":1," ":1,".":1,"s":1,"a":1,"w":1,"I":1},"duration":60000,"number_of_words":31},{"date":1735727562417,"wpm":24.483702413535706,"exoID":3,"acc":0.975609756097561,"errors":{"s":1,".":2,"H":1,"e":1},"duration":60000,"number_of_words":40},{"date":1735727672330,"wpm":20.762972698687342,"exoID":2,"acc":0.9711538461538461,"errors":{"b":2,".":2,"I":1,"f":1," ":1,"'":1},"duration":60000,"number_of_words":29},{"date":1735728079621,"wpm":23.59190011429409,"exoID":3,"acc":0.976271186440678,"errors":{"u":2,"t":3,".":3," ":5,"p":1,"h":1,"s":4,"w":6,"a":4,"e":2,"o":3,"I":2,"d":1,"k":1,"b":2,"i":1,"y":1},"duration":300000,"number_of_words":160},{"date":1735728292152,"wpm":24.953420282140005,"exoID":3,"acc":0.912,"errors":{"T":2,"a":3,"s":2,"h":1,"O":1," ":1,"?":2,"o":1,".":2,"H":1,"e":1,"w":1,"b":1},"duration":60000,"number_of_words":40},{"date":1735728663840,"wpm":25.75232892747403,"exoID":1,"acc":0.9772727272727273,"errors":{"3":1,"I":1,"N":1},"duration":60000,"number_of_words":13}],"challenges":[],"customExos":[]},"Paule":{"username":"Paule","password":"paule","perf":[{"date":1735491222052,"wpm":9.383578737209884,"exoID":1,"acc":0.9148936170212766,"errors":{"3":1," ":4,"H":2},"duration":60000,"number_of_words":12},{"date":1735491350597,"wpm":11.939110536265046,"exoID":2,"acc":0.95,"errors":{"h":1,"t":1,".":1,"I":1},"duration":60000,"number_of_words":18},{"date":1735491733869,"wpm":12.875622288421937,"exoID":2,"acc":0.8850931677018633,"errors":{"a":1,"o":3," ":8,"In":1,"It":1,".":1,",":2,"F":1,"h":1,"e":1,"Th":1,"Te":1,"t":1,"tt":1,"hr":1,"ea":1,"c":1,"u":1,"n":1,"“":1},"duration":300000,"number_of_words":81},{"date":1735523551326,"wpm":14.527363184079604,"exoID":3,"acc":0.958904109589041,"errors":{"d":2,"p":1," ":13,"C":1,"Sa":1},"duration":60000,"number_of_words":24}],"challenges":[],"customExos":[],"avg_speed":0,"avg_acc":0},"Nelson":{"username":"Nelson","password":"nelson","perf":[],"challenges":[],"customExos":[],"avg_speed":0,"avg_acc":0},"alera joe":{"username":"alera joe","password":"alera","perf":[{"date":1735578163920,"wpm":8.384628181666944,"exoID":1,"acc":0.5714285714285714,"errors":{"A":1,"I":2,"N":2,"G":1," ":2,"E":1,"a":1,"U":1,"S":1,"J":1,"C":1,".":1,"H":1,"e":1,"l":1,"s":1,"p":1,"m":1,"i":1},"duration":60000,"number_of_words":12},{"date":1735578285108,"wpm":6.568471337579619,"exoID":1,"acc":0.8787878787878788,"errors":{"3":1," ":1,".":2},"duration":60000,"number_of_words":11}],"challenges":[],"customExos":[]}},"exos":{"1":{"exoID":1,"text":"Alex is a boy in ING 3 EN at IUSJC. He likes programming","duration":60000,"timesAttempted":4},"2":{"exoID":2,"text":"Max saw a box. It was red. He had a key. Does it fit? He tried. It worked!  Inside the box, Max found a note. It said, 'Find the cave.' The map showed a path. Max felt brave. He grabbed his bag and left.  The trail was rocky, but Max kept going. He climbed a tall hill and looked around. In the distance, he saw a dark cave. “That must be the place,” he thought. Max walked for hours until he reached the entrance.  The cave was cold, damp, and silent—except for the sound of dripping water. Max used a flashlight (battery-powered) to explore. Suddenly, he saw a shiny object: a golden compass! The compass had strange symbols: @, #, &, and %. It pointed east, so Max followed.  “Who enters my cave?” a voice boomed. Startled, Max replied, “I’m just an explorer!”  “Then solve this riddle,” the voice said. “What is greater than gold, cannot be bought, but is free to give?”  Max thought hard. “Is it... friendship?”  “Correct!” the voice said. A hidden door opened, revealing a treasure chest. Inside were priceless gems and a scroll that read: Adventure is the true treasure. Share it with the world!  ","duration":300000,"timesAttempted":5},"3":{"exoID":3,"text":"Sam had a map. The map was old. It led to a hill. On the hill was a hut. Can Sam find it?  Sam set off on the path. The day was hot. He felt the wind blow. As he walked, he saw the hut. It was small but looked safe.  Sam went inside the hut. The room was dark and quiet. On the table was a locked box. He found a note next to it. The note said to find a key.  Sam searched the hut for the key. He moved the rug and saw a trapdoor. Inside was a chest with strange symbols. It had letters and numbers like a1b2 and c3d4. Sam tried many codes until one worked.  Inside the chest was another map. It showed a cave deep in the forest. Sam packed his bag and set out. The trail was marked with symbols @, #, and &. He kept walking until he saw a glowing light.","duration":300000,"timesAttempted":5},"4":{"exoID":4,"text":"Sam had a box. The box was red. It had a lid.  He saw a key. The key was small. Does it fit?  Sam tried the key. The lid opened. Inside was a map.  The map was old. It showed a trail. The trail led to a hut.  Sam walked fast. The path was flat. He saw the hut.  The hut had a door. Sam pushed the door. It was dark inside.  He lit a lamp. The room had a table. On the table was a note.  The note said, 'Find the code.' The code opens the chest.  Sam looked for the chest. He moved the rug. Under the rug was a trapdoor.  Sam opened the trapdoor. A chest was there. The chest had symbols on it.  The symbols were letters and numbers: a1, b2, c3. What could they mean?  Sam thought hard. He tried the code b2c3a1. The chest clicked open.  Inside the chest was another note. This note had strange shapes.  The shapes were like @, &, and %. Sam needed a clue.  He checked the map again. The map pointed to a cave in the woods.  Sam packed his bag. He walked through the woods. The path was narrow and rough.  The trees were tall, and the air was cool. Sam kept going.  Finally, he saw the cave. It was dark and quiet.  Sam used a flashlight. The cave walls had drawings.  One drawing showed a sun. Another showed a key.  Sam found a stone door in the cave. On the door were buttons.  The buttons had symbols: @, #, $, %, and &.  Sam pressed the buttons in the order on the note: @, %, &, and #.  The door opened slowly. Behind it was a glowing crystal.  The crystal was bright and warm. It filled the cave with light.  Sam smiled. He had solved the mystery. The journey was the real prize.","duration":300000,"timesAttempted":5}},"numExos":4,"numUser":4}`.replaceAll("\n", " "))
 let jsonDB = localStorage.getItem("DB")
 // jsonDB = JSON.parse(jsonDB)
 console.log(jsonDB);
