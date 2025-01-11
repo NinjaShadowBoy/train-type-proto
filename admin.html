@@ -10,17 +10,45 @@
 </head>
 
 <body>
-    <div class="dashboard">
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <h2 id="authTitle">Login</h2>
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" id="authUsername" required>
+        </div>
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="authPassword" required>
+        </div>
+        <div id="registerFields" style="display: none;">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="authEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password:</label>
+                <input type="password" id="authConfirmPassword" required>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="handleAuth()" id="authButton">Login</button>
+        <div class="auth-error" id="authError"></div>
+        <div class="auth-toggle">
+            <span onclick="toggleAuthMode()" id="authToggle">Don't have an account? Register</span>
+        </div>
+    </div>
+    <div id="dashboardContainer" class="dashboard" style="display:none;">
         <div class="sidebar">
             <h2>Admin Dashboard</h2>
             <div class="nav-item active" data-section="dashboard">Dashboard</div>
+            <div class="nav-item" data-section="profile">My Profile</div>
             <div class="nav-item" data-section="users">Users</div>
             <div class="nav-item" data-section="exercises">Exercises</div>
             <div class="nav-item" data-section="statistics">Statistics</div>
+            <div class="nav-item logout-btn" onclick="logout()">logout</div>
         </div>
 
         <div class="main-content">
-            <div id="alertBox" class="alert"></div>
             <!-- Dashboard Section -->
             <div class="content-section active" id="dashboard">
                 <h2>Dashboard Overview</h2>
@@ -47,22 +75,7 @@
             <!-- Users Section -->
             <div class="content-section" id="users">
                 <h2>User Management</h2>
-                <button class="btn btn-primary" id="addUserBtn">Add New User</button>
-
-                <div class="user-form" id="userForm" style="display: none;">
-                    <div class="form-group">
-                        <label>Username:</label>
-                        <input type="text" id="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" id="userEmail" required>
-                    </div>
-                    <input type="hidden" id="userId">
-                    <button class="btn btn-primary" id="saveUserBtn">Save User</button>
-                    <button class="btn btn-danger" id="cancelUserBtn">Cancel</button>
-                </div>
-
+                <button class="btn btn-primary" onclick="showAddUserForm()">Add New User</button>
                 <table id="usersTable">
                     <thead>
                         <tr>
@@ -75,32 +88,66 @@
                     <tbody></tbody>
                 </table>
             </div>
+            <div class="modal-backdrop" id="userModalBackdrop"></div>
+            <div class="form-modal" id="userForm">
+                <h3 id="userFormTitle">Add New User</h3>
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <button class="btn btn-primary" onclick="saveUser()">Save</button>
+                <button class="btn btn-danger" onclick="closeUserForm()">Cancel</button>
+            </div>
 
             <!-- Exercises Section -->
             <div class="content-section" id="exercises">
-                <h2>Exercise Management</h2>
-                <button class="btn btn-primary" id="addExerciseBtn">Add New Exercise</button>
+                <div class="section-header">
+                    <h2>Exercise Management</h2>
+                    <button class="btn btn-primary" id="addExerciseBtn">Add New Exercise</button>
+                </div>
 
                 <div class="exercise-form" id="exerciseForm" style="display: none;">
+                    <h3>Add/Edit Exercise</h3>
                     <div class="form-group">
                         <label>Title:</label>
-                        <input type="text" id="exerciseTitle" required>
+                        <input type="text" id="exerciseTitle" class="form-control" required>
                     </div>
                     <div class="form-group">
                         <label>Content:</label>
-                        <textarea id="exerciseContent" rows="4" required></textarea>
+                        <textarea id="exerciseContent" class="form-control" rows="6" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Difficulty Level:</label>
-                        <select id="exerciseDifficulty">
+                        <select id="exerciseDifficulty" class="form-control">
                             <option value="easy">Easy</option>
                             <option value="medium">Medium</option>
                             <option value="hard">Hard</option>
                         </select>
                     </div>
                     <input type="hidden" id="exerciseId">
-                    <button class="btn btn-primary" id="saveExerciseBtn">Save Exercise</button>
-                    <button class="btn btn-danger" id="cancelExerciseBtn">Cancel</button>
+                    <div class="exercise-actions">
+                        <button class="btn btn-primary" id="saveExerciseBtn">Save Exercise</button>
+                        <button class="btn btn-danger" id="cancelExerciseBtn">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="exercise-stats">
+                    <div class="exercise-card">
+                        <h4>Total Exercises</h4>
+                        <p id="totalExercisesCount">0</p>
+                    </div>
+                    <div class="exercise-card">
+                        <h4>Most Used Exercise</h4>
+                        <p id="mostUsedExercise">-</p>
+                    </div>
+                    <div class="exercise-card">
+                        <h4>Average Usage</h4>
+                        <p id="averageExerciseUsage">0</p>
+                    </div>
                 </div>
 
                 <table id="exercisesTable">
@@ -109,6 +156,7 @@
                             <th>Title</th>
                             <th>Difficulty</th>
                             <th>Times Used</th>
+                            <th>Last Modified</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -130,9 +178,17 @@
                     </div>
                 </div>
             </div>
+            <!-- Add Profile Section -->
+            <div class="content-section" id="profile">
+                <div class="profile-header">
+                    <h2>My Profile</h2>
+                    <button class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
+                </div>
+                <div class="profile-section" id="profileContent">
+                    <!-- Profile content will be populated by JavaScript -->
+                </div>
+            </div>
         </div>
     </div>
     <script src="./admin.js"></script>
 </body>
-
-</html>
