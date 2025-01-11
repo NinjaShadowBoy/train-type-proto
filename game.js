@@ -1,153 +1,34 @@
 import { DB, User, ExerciseDone } from "./model.js"
 
 let db = DB.load()
+console.log(db);
+
 let user = User.load()
 let exoID = Number(sessionStorage.getItem("exoID"))
 let difficulty = sessionStorage.getItem("difficulty")
 let opponent = sessionStorage.getItem("opponent")
 let initiator = sessionStorage.getItem("initiator")
 
-let cursor = $("#cursor")
-let opponent_cursor = $("#opponent-cursor")
-
+window.timer = null;
+window.gameStart = null;
+let speed = 0
+let acc = 0
+let pauseTime = 0
+let offset = 0
+let number_of_words = 0
+let number_of_wrong_words = 0
+let date = 0
 let youCanStart = false
+let duration = 0; // 0 minute
+const errors = {};
 
-let opponent_position = 0
+let connection;
 
-if (initiator) {
-    console.log("I initiated a connection");
-
-    var peer = new Peer(user.username);
-
-    peer.on('open', function (id) {
-        console.log('My id is ' + id);
-
-        // Connecting to op
-        let opponent_id = opponent;
-        let conn = peer.connect(opponent_id);
-        console.log(conn);
-
-        conn.on('open', function () {
-            alert(peer.id + " connected to " + opponent_id);
-
-            // Sending a message to op
-            conn.send(exoID + " " + difficulty);
-
-
-            // runTimer() 
-
-            // Receiving a message from op
-            conn.on('data', (data) => {
-                console.log(peer.id + " received:" + data);
-
-                if (opponent) {
-                    let opponent_cursor = $("#opponent-cursor")
-                }
-
-                if (data == "space") {
-                    opponent_position += 1
-
-                    let opponent_word = $("#words")[opponent_position]
-                    opponent_cursor
-                        .css("left", opponent_word.position().left - 3)
-                        .css("top", opponent_word.position().top + 3)
-                }
-
-                if (data == "ok") {
-                    conn.close()
-                    peer.destroy()
-
-                    console.log("Closing preliminary connection")
-
-                    peer = new Peer(user.username);
-
-
-                    peer.on('open', function (id) {
-                        console.log('My id is ' + id);
-
-                        // Connecting to op
-                        conn = peer.connect(opponent_id);
-                        console.log(conn);
-
-                        conn.on('open', function () {
-                            alert(peer.id + " connected to " + opponent_id + "For game. Sending level details ...");
-                            youCanStart = true
-                            console.log("You can start")
-
-                            // Receiving a message from op
-                            conn.on('data', (data) => {
-                                console.log(peer.id + " received:" + data);
-
-                                if (opponent) {
-                                    let opponent_cursor = $("#opponent-cursor")
-                                }
-
-                                if (data == "space") {
-                                    opponent_position += 1
-
-                                    let opponent_word = $("#words")[opponent_position]
-                                    opponent_cursor
-                                        .css("left", opponent_word.position().left - 3)
-                                        .css("top", opponent_word.position().top + 3)
-                                }
-
-                                if (data == "ok") {
-                                    peer = new Peer(user.username);
-                                    youCanStart = true
-                                }
-                            });
-                        });
-                    });
-                }
-            });
-        });
-    });
-} else if (opponent) {
-    console.log("I am recieving a connection");
-
-    var p1 = new Peer(user.username);
-    console.log("Waiting for connection to be confirmed ...")
-
-    p1.on('open', function (id) {
-        console.log('My id is ' + id);
-        runTimer()
-
-        p1.on('connection', function (conn) {
-            console.log("Connection to be confirmed. You can start!!!")
-            alert(p1.id + " received connection from " + conn.peer);
-            youCanStart = true
-
-            // Sending a message to the connected peer
-            // conn.send("Hello from " + p1.id);
-
-            // Receiving a message from the connected peer
-            conn.on('data', (data) => {
-                console.log(p1.id + " received: " + data);
-
-
-                if (data == "space") {
-                    opponent_position += 1
-
-                    let opponent_word = $("#words")[opponent_position]
-                    opponent_cursor
-                        .css("left", opponent_word.position().left - 3)
-                        .css("top", opponent_word.position().top + 3)
-                }
-            });
-        });
-    });
-} else {
-    console.log("I am playing on my own");
-    opponent_cursor.css("display", "none")
-    youCanStart = true
-}
-
-
+let opponent_position = 2
 // Generate interesting words for the game
 const words = db.getExo(exoID).text.split(/\s+/)
 console.log(words);
 
-let duration = 0; // 0 minute
 switch (difficulty) {
     case "hard":
         duration = 5 * 60000 // 5 minutes
@@ -159,6 +40,93 @@ switch (difficulty) {
         duration = 1 * 60000 // 1 minute
         break;
 }
+
+if (initiator) {
+    console.log("I initiated a connection");
+
+    var peer = new Peer(user.username);
+
+    peer.on('open', function () {
+        // Connecting to op
+        let opponent_id = opponent;
+        let conn = peer.connect(opponent_id);
+
+        connection = conn
+
+        conn.on('open', function () {
+            alert(peer.id + " connected to " + opponent_id);
+            conn.send("ok")
+            console.log("Connection to be confirmed. You can start!!!")
+            youCanStart = true
+            runTimer()
+
+            // Sending a message to op
+
+            // Receiving a message from op
+            conn.on('data', (data) => {
+                console.log(peer.id + " received:" + data);
+                if (data == "ok") {
+                    youCanStart = true
+                    runTimer()
+                }
+                if (data == "space") {
+                    opponent_position += 1
+
+                    let opponent_word = $("#words").children().eq(opponent_position)
+
+                    console.log(opponent_word, opponent_position);
+
+                    let opponent_cursor = $("#opponent-cursor")
+                    opponent_cursor
+                        .css("left", opponent_word.position().left)
+                        .css("top", opponent_word.position().top + 6)
+                }
+            });
+        });
+    });
+} else if (opponent && !initiator) {
+    console.log("I am recieving a connection");
+    var p1 = new Peer(user.username);
+
+    p1.on('open', function (id) {
+        console.log("Waiting for connection to be confirmed ...")
+        console.log('My id is ' + id);
+
+        p1.on('connection', function (conn) {
+            connection = conn
+            console.log("Connection to be confirmed. You can start!!!")
+            alert(p1.id + " received connection from " + conn.peer);
+            conn.send("ok")
+            // Receiving a message from the connected peer
+            conn.on('data', (data) => {
+                console.log(p1.id + " received: " + data);
+                if (data == "ok") {
+                    youCanStart = true
+                    runTimer()
+                }
+                if (data == "space") {
+                    opponent_position += 1
+
+                    let opponent_word = $("#words").children().eq(opponent_position)
+
+                    console.log(opponent_word, opponent_position);
+
+                    let opponent_cursor = $("#opponent-cursor")
+                    opponent_cursor
+                        .css("left", opponent_word.position().left)
+                        .css("top", opponent_word.position().top + 6)
+                }
+            });
+        });
+    });
+} else {
+    console.log("I am playing on my own");
+    let opponent_cursor = $("#opponent-cursor")
+    opponent_cursor.css("display", "none")
+    youCanStart = true
+}
+
+
 
 $("#Type-again-button").on("click", () => {
     speed = 0
@@ -172,17 +140,7 @@ $("#Type-again-button").on("click", () => {
 
 $(".timer").text(`Exercise time: ${Math.round(duration / 1000)}s`)
 
-window.timer = null;
-window.gameStart = null;
-let speed = 0
-let acc = 0
-let pauseTime = 0
-let offset = 0
-let number_of_words = 0
-let number_of_wrong_words = 0
-let date = 0
 
-const errors = {};
 
 function newGame() {
     $(".results").css("visibility", "hidden")
@@ -341,10 +299,8 @@ $("#game").keyup(function (event) {
                 gameOver()
             }
 
-            if (!initiator && opponent) {
-                p1.send("space");
-            } else if (opponent) {
-                peer.send("space");
+            if (opponent) {
+                connection.send("space");
             }
         } else if (isBackSpace) {
             // You cannot rectify a word you already entered
@@ -366,7 +322,7 @@ $("#game").keyup(function (event) {
         }
 
         // Move the cursor to the next letter
-
+        let cursor = $("#cursor")
         currentLetter = $(".letter.current")
         currentWord = $(".word.current")
         if (currentLetter.text()) {
@@ -374,9 +330,10 @@ $("#game").keyup(function (event) {
             cursor
                 .css("left", currentLetter.position().left - 3)
                 .css("top", currentLetter.position().top + 3)
+            console.log(currentLetter.position().left - 3);
+            console.log(currentLetter.position().top - 3);
 
-
-            // console.log("cursor: ", cursor.position());
+            console.log("cursor: ", cursor.position());
         } else {
             // If there is no current letter it means you are at the end of a word
             // so place the cursor at end of the current word

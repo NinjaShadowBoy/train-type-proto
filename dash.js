@@ -80,6 +80,7 @@ $(document).ready(function () {
         Array.from(spans).forEach((sp) => sp.classList.remove("show"));
         spans[tooltipIndex].classList.add("show");
 
+        // console.log(p);
         tooltip.style.top = `${(100 / (spans.length * 2)) * (tooltipIndex * 2 + 1)
             }%`;
     }
@@ -112,8 +113,7 @@ $(document).ready(function () {
             });
         }
         $(".start-button").on("click", function (e) {
-            console.log(e);
-            console.log($(this).parent().parent().attr("data-exoID"));
+            let Initiating_challenge = "/challenge.html" == window.location.pathname
             $(this).css({
                 margin: "0",
                 padding: "0",
@@ -124,14 +124,119 @@ $(document).ready(function () {
                 width: "100vw",
                 height: "100vh",
             });
-            setTimeout(() => {
-                window.location.href = "./game.html"; // Add Jan 4 data
-            }, 500);
-            sessionStorage.setItem("difficulty", $(this).attr("difficulty"));
-            sessionStorage.setItem(
-                "exoID",
-                $(this).parent().parent().attr("data-exoID")
-            );
+            console.log(e);
+
+
+            let exoID = $(this).parent().parent().attr("data-exoID");
+            let difficulty = $(this).attr("difficulty")
+
+            console.log(Initiating_challenge);
+            let opponent = sessionStorage.getItem("opponent");
+            console.log("opponent", opponent);
+
+
+            if (Initiating_challenge) {
+                // var p = new Peer(user.username)
+
+
+                // p.on("open", function () {
+                //     console.log("Initiator peer created");
+
+                //     let conn = p.connect(opponent);
+                //     conn.on('open', function () {
+                //         console.log("Connection initiated with " + conn.peer);
+                //         let message = exoID + " " + difficulty
+                //         conn.send(message);
+                //         console.log("Sending " + message + " to " + conn.peer);
+
+                //         conn.on('data', (data) => {
+                //             console.log("Recieved " + data);
+
+                //             if (data == "ok") {
+                //                 sessionStorage.setItem("difficulty", difficulty);
+                //                 sessionStorage.setItem("exoID", exoID);
+                //                 setTimeout(() => {
+                //                     window.location.href = "./game.html"; // Add Jan 4 data
+                //                 }, 500);
+                //             }
+                //         });
+
+                //         conn.on("disconnect", function () {
+                //             sessionStorage.setItem("difficulty", difficulty);
+                //             sessionStorage.setItem("exoID", exoID);
+                //             setTimeout(() => {
+                //                 window.location.href = "./game.html"; // Add Jan 4 data
+                //             }, 500);
+                //         })
+                //     })
+                // })
+                //  p1 = new Peer(user.username, {
+                //     debug: 2
+                // }); // Including debug level 2 for more detailed logs
+                console.log(p1);
+
+                // p1.on("open", function (id) {
+                console.log("Initiator peer created with ID: " + p1.id);
+
+                let opponent = sessionStorage.getItem("opponent");
+                if (!opponent) {
+                    console.error("No opponent found in session storage.");
+                    return;
+                }
+
+                let conn = p1.connect(opponent);
+                conn.on('open', function () {
+                    
+                    console.log("Connection initiated with " + conn.peer);
+                    let message = exoID + " " + difficulty;
+                    conn.send(message);
+                    console.log("Sending " + message + " to " + conn.peer);
+
+                    conn.on('data', (data) => {
+                        console.log("Received " + data);
+
+                        if (data === "ok") {
+                            sessionStorage.setItem("difficulty", difficulty);
+                            sessionStorage.setItem("exoID", exoID);
+                            setTimeout(() => {
+                                window.location.href = "./game.html";
+                            }, 500);
+                        }
+                    });
+
+                    conn.on("close", function () {
+                        console.log("Preliminary Connection closed with " + conn.peer);
+                        sessionStorage.setItem("difficulty", difficulty);
+                        sessionStorage.setItem("exoID", exoID);
+                        setTimeout(() => {
+                            window.location.href = "./game.html";
+                        }, 500);
+                    });
+
+                    conn.on("error", function (err) {
+                        console.error("Connection error: ", err);
+                    });
+                });
+
+                conn.on("error", function (err) {
+                    console.error("Connection error: ", err);
+                });
+                // });
+
+                p1.on("error", function (err) {
+                    console.error("Peer error: ", err);
+                });
+
+            } else {
+                setTimeout(() => {
+                    window.location.href = "./game.html"; // Add Jan 4 data
+                }, 500);
+                sessionStorage.setItem("difficulty", difficulty);
+                sessionStorage.setItem(
+                    "exoID",
+                    exoID
+                );
+            }
         });
 
         $(".start-button").on("mouseenter", function () {
@@ -245,12 +350,12 @@ $(document).ready(function () {
                                 <h4>
                                     <span>${(() => {
                         let num_of_errors = 0;
-                    let errors = Object.values(p.errors)
-                    console.log(errors);
-                    
+                        let errors = Object.values(p.errors)
+                        console.log(errors);
+
                         for (const num of errors) {
                             num_of_errors += num
-                    }
+                        }
                         return num_of_errors
                     })()}</span> Mistyped characters
                                 </h4>
@@ -258,7 +363,7 @@ $(document).ready(function () {
                                     ${(() => {
                         let number_of_errors = 0;
                         console.log(p.errors);
-                    let string = ""
+                        let string = ""
                         let chars = Object.keys(p.errors)
                         for (const c of chars) {
                             string += `<p>'${c}' : ${p.errors[c]} times</p>`
@@ -518,45 +623,32 @@ $(document).ready(function () {
             activeIndex = 3;
 
             moveActiveTab();
-            let opponent
             // Declare conn outside the function
             var p1 = new Peer(user.username);
 
             p1.on('open', function (id) {
-                console.log('My id is ' + id);
+                console.log('Reciever peer id is ' + id);
 
                 p1.on('connection', function (conn) {
                     alert(p1.id + " received connection from " + conn.peer);
-
-                    // Sending a message to the connected peer
-                    // conn.send("Hello from " + p1.id);
+                    conn.send("ok")
 
                     // Receiving a message from the connected peer
                     conn.on('data', (data) => {
-                        console.log(p1.id + " received: " + data);
-
-
-                        if (data == "space") {
-                            opponent_position += 1
-
-                            let opponent_word = $("#words")[opponent_position]
-                            opponent_cursor
-                                .css("left", opponent_word.position().left - 3)
-                                .css("top", opponent_word.position().top + 3)
-                        }
-
+                        console.log(p1.id + " received: " + data + " from " + conn.peer);
 
                         if (/\d/.test(data)) {
                             data = data.split(" ")
-                            let difficulty = data[1]
-                            let exoID = data[0]
-                            conn.close()
-                            conn.send("ok")
+
+                            console.log(data);
+                            
+                            let difficulty = data[2]
+                            let exoID = data[1]
 
                             setTimeout(() => {
-                                alert("Sent connection confirmation " + exoID + " " + difficulty)
+                                console.log("Sent connection confirmation " + exoID + " " + difficulty)
                                 window.location.href = "./game.html"; // Add Jan 4 data
-                            }, 10000);
+                            }, 5000);
                             sessionStorage.setItem("difficulty", difficulty);
                             sessionStorage.setItem("exoID", exoID);
                             sessionStorage.setItem("opponent", conn.peer)
@@ -566,17 +658,20 @@ $(document).ready(function () {
 
                 });
             });
+            p1.on("error", function (err) {
+                console.error("Peer error: ", err);
+            });
 
-            loadExercisesOnPage();
             $(".challenge-form").on("submit", function (e) {
                 e.preventDefault();
-                opponent = $(".username").val();
+                let opponent = $(".username").val();
                 if (opponent != user.username) {
                     opponent = $(".username").val();
                     alert("Challenge will be sent to " + opponent);
                     $(".restricted").removeClass("restricted").addClass("unrestricted");
                     sessionStorage.setItem("opponent", opponent);
                     sessionStorage.setItem("initiator", user.username);
+                    loadExercisesOnPage();
                 }
                 else {
                     alert("You can't challenge yourself");
