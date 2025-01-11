@@ -114,7 +114,7 @@ $(document).ready(function () {
                 );
             });
         }
-        
+
         $(".start-button").on("click", function (e) {
             let Initiating_challenge = "/challenge.html" == window.location.pathname
             $(this).css({
