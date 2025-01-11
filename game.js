@@ -15,6 +15,8 @@ let youCanStart = false
 let opponent_position = 0
 
 if (initiator) {
+    console.log("I initiated a connection");
+
     var peer = new Peer(user.username);
 
     peer.on('open', function (id) {
@@ -101,6 +103,8 @@ if (initiator) {
         });
     });
 } else if (opponent) {
+    console.log("I am recieving a connection");
+
     var p1 = new Peer(user.username);
     console.log("Waiting for connection to be confirmed ...")
 
@@ -133,6 +137,7 @@ if (initiator) {
         });
     });
 } else {
+    console.log("I am playing on my own");
     opponent_cursor.css("display", "none")
     youCanStart = true
 }

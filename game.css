@@ -291,6 +291,6 @@ div#game {
 .errors {
     margin: 0;
     height: 8rem;
-    overflow-y: scroll;
+    overflow-y: auto;
     line-height: 10px;
 }

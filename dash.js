@@ -58,6 +58,9 @@ $(document).ready(function () {
                 case 4:
                     location = "/leaderboards.html";
                     break;
+                case 5:
+                    location = "/statistics.html"
+                    break;
                 default:
                     break;
             }
@@ -143,9 +146,10 @@ $(document).ready(function () {
         });
     }
 
-    function loadPerformanceOnPage() {
+    function loadPerformanceOnDashboard() {
         let exercises = $(".exercises-done");
-        for (const p of user.perf) {
+        for (let i = 0; i < user.perf.length && i < 5; i++) {
+            let p = user.perf[i];
             exercises.html(function (_, old) {
                 console.log(p);
                 let difficulty = ""
@@ -178,10 +182,6 @@ $(document).ready(function () {
                                 <h4>ACC%</h4>
                                 <p>${Math.round(p.acc * 100)}</p>
                             </div>
-                            <div class="user-stat">
-                                <h4>Words</h4>
-                                <p>${(() => { return p.number_of_words || 0; })()}</p>
-                            </div>
                             <div>
                                 <h4>AWPM</h4>
                                 <p>${(() => { return Math.round(p.acc * p.wpm) || 0; })()}</p>
@@ -193,10 +193,89 @@ $(document).ready(function () {
         }
     }
 
+    function loadPerformanceStatistics() {
+        let exercises = $(".exercises-done");
+        for (let i = 0; i < user.perf.length; i++) {
+            let p = user.perf[i];
+            exercises.html(function (_, old) {
+                let difficulty = ""
+                if (p.duration == 60000) {
+                    difficulty = "easy"
+                }
+                else if (p.duration == 3 * 60000) {
+                    difficulty = "medium"
+                }
+                else if (p.duration == 5 * 60000) {
+                    difficulty = "hard"
+                }
+                let date = (new Date(p.date))
+
+                let dateString = date.toLocaleDateString() + " at " + date.toLocaleTimeString()
+
+
+                return (`
+                    <div class="exercise-done">
+                        <div class="exo-head">
+                        <h3 class="">Exo ${p.exoID} for <span style="border-radius: 10px;" class="${difficulty}"></span></h3>
+                        <p>${dateString}</p>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <h4>WPM</h4>
+                                <p>${Math.round(p.wpm)}</p>
+                            </div>
+                            <div class="user-stat">
+                                <h4>ACC%</h4>
+                                <p>${Math.round(p.acc * 100)}</p>
+                            </div>
+                            <div class="user-stat">
+                                <h4>Words</h4>
+                                <p>${(() => { return p.number_of_words || 0 })()}</p>
+                            </div>
+                            <div>
+                                <h4>AWPM</h4>
+                                <p>${(() => { return Math.round(p.acc * p.wpm) || 0; })()}</p>
+                            </div>
+                            <div>
+                                <h4>Errors</h4>
+                                <p>${(() => { return Math.round(p.acc * p.wpm) || 0; })()}</p>
+                            </div>
+                        </div>
+                            <div class="errors">
+                                <h4>
+                                    <span>${(() => {
+                        let num_of_errors = 0;
+                    let errors = Object.values(p.errors)
+                    console.log(errors);
+                    
+                        for (const num of errors) {
+                            num_of_errors += num
+                    }
+                        return num_of_errors
+                    })()}</span> Mistyped characters
+                                </h4>
+                                <div class="errors-details">
+                                    ${(() => {
+                        let number_of_errors = 0;
+                        console.log(p.errors);
+                    let string = ""
+                        let chars = Object.keys(p.errors)
+                        for (const c of chars) {
+                            string += `<p>'${c}' : ${p.errors[c]} times</p>`
+                        }
+                        return string
+                    })()}
+                                </div>
+                        </div>
+                    </div>` + old
+                );
+            });
+        }
+    }
+
     function loadUserOnPage() {
         $(".admin-info h3").text(`${user.username}`);
         $(".admin-info h5").text(`${user.role}`);
-        $(".tooltip .show").text(`${user.username}`);
     }
 
     let user = User.load();
@@ -228,7 +307,7 @@ $(document).ready(function () {
                     themetoggler.querySelector("span").classList.toggle("active");
                 });
 
-                loadPerformanceOnPage();
+                loadPerformanceOnDashboard();
                 loadUserOnPage();
 
                 initializeGauge(".avg-speed");
@@ -436,6 +515,9 @@ $(document).ready(function () {
             })();
             break;
         case "/challenge.html":
+            activeIndex = 3;
+
+            moveActiveTab();
             let opponent
             // Declare conn outside the function
             var p1 = new Peer(user.username);
@@ -470,11 +552,11 @@ $(document).ready(function () {
                             let exoID = data[0]
                             conn.close()
                             conn.send("ok")
-                            alert("Sent connection confirmation " + exoID + " " + difficulty)
-                            
+
                             setTimeout(() => {
+                                alert("Sent connection confirmation " + exoID + " " + difficulty)
                                 window.location.href = "./game.html"; // Add Jan 4 data
-                            }, 500);
+                            }, 10000);
                             sessionStorage.setItem("difficulty", difficulty);
                             sessionStorage.setItem("exoID", exoID);
                             sessionStorage.setItem("opponent", conn.peer)
@@ -568,6 +650,339 @@ $(document).ready(function () {
                     });
                 }
             })();
+            break;
+        case "/statistics.html":
+            (() => {
+                $("main>h1").text(`History and Statistics`);
+                activeIndex = 5;
+                moveActiveTab();
+
+                loadPerformanceStatistics();
+                loadUserOnPage();
+
+                initializeGauge(".avg-speed");
+                initializeGauge(".avg-acc");
+                initializeGauge(".avg-aspeed");
+
+                function randomChanges() {
+                    setValue(Math.random(), 70, ".avg-speed");
+                    setValue(Math.random(), 100, ".avg-acc");
+                    setValue(Math.random(), 100, ".avg-aspeed");
+                    setTimeout(randomChanges, 1000);
+                }
+
+                setValue(user.avg_speed() / 70, 70, ".avg-speed");
+                setValue(user.avg_acc(), 100, ".avg-acc");
+                setValue((user.avg_acc() * user.avg_speed()) / 70, 70, ".avg-aspeed");
+                // randomChanges()
+
+                // Example data
+                let timestamps = [];
+                let speeds = []; // Typing speed in WPM
+                let accuracies = []; // Accuracy in percentage
+                let aspeeds = [];
+
+                // Convert timestamps to readable dates
+                const formattedDates = timestamps.map((ts) => {
+                    const date = new Date(ts);
+                    return date.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                    });
+                });
+
+                // Initialize Chart.js
+                const ctx = document
+                    .getElementById("typingPerformanceChart")
+                    .getContext("2d");
+
+                const typingPerformanceChart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: formattedDates, // X-axis: Dates
+                        datasets: [
+                            {
+                                label: "Typing Speed (WPM)",
+                                data: speeds, // Y-axis: Typing speeds
+                                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                                borderColor: "rgba(75, 192, 192, 1)",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(180, 48.10%, 40%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone", // Smooth line
+                                tension: 0.4, // Adds some tension to the curve
+                                yAxisID: "ySpeed",
+                            },
+                            {
+                                label: "Accuracy (%)",
+                                data: accuracies, // Y-axis: Accuracies
+                                backgroundColor: "rgba(255, 159, 64, 0.2)",
+                                borderColor: "rgba(255, 159, 64, 1)",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(30, 100.00%, 40%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone",
+                                tension: 0.1,
+                                yAxisID: "yAccuracy",
+                            },
+                            {
+                                label: "Ajusted Typing Speed (WPM)",
+                                data: aspeeds, // Y-axis: Adjusted typing speed
+                                backgroundColor: "rgb(251, 50, 50, 0.2)",
+                                borderColor: "#fb3232ff",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone",
+                                tension: 0.4,
+                                yAxisID: "yASpeed",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    // Display both metrics in the tooltip
+                                    title: (context) => `Date: ${context[0].label}`,
+                                    label: (context) => {
+                                        const datasetLabel = context.dataset.label;
+                                        const value = context.raw;
+                                        return `${datasetLabel}: ${value}`;
+                                    },
+                                },
+                            },
+                            legend: {
+                                position: "top", // Move legend to the top
+                                labels: {
+                                    boxWidth: 20,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Typing Speed (WPM)",
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Date",
+                                },
+                            },
+                            // y: {
+                            //   // Explicitly defining only two Y-axes
+                            ySpeed: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "Typing Speed (WPM)",
+                                },
+                            },
+                            yAccuracy: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "right",
+                                title: {
+                                    display: true,
+                                    text: "Accuracy (%)",
+                                },
+                                grid: {
+                                    drawOnChartArea: false, // Prevent grid lines from overlapping
+                                },
+                            },
+                            yASpeed: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    // text: "Ajusted Typing Speed (WPM)",
+                                },
+                                grid: {
+                                    drawOnChartArea: false, // Prevent grid lines from overlapping
+                                },
+                            },
+                            // },
+                        },
+                    },
+                });
+
+                // Dynamically update the chart
+                function addData(newTimestamp, newSpeed, newAccuracy) {
+                    const newDate = new Date(newTimestamp).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                    });
+                    typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
+                    typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
+                    typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
+                    typingPerformanceChart.data.datasets[2].data.push(
+                        (newAccuracy * newSpeed) / 100
+                    ); // Add new accuracy to accuracy dataset
+                    typingPerformanceChart.update(); // Refresh the chart
+                }
+
+                // setTimeout(() => {
+                //     $("canvas")[0].$chartjs
+                //     console.log("Chart height", $("canvas").attr({
+                //         "height": "200",
+                //         "width": "400",
+                //     }).parent().html());
+                // }, 3000)
+
+                timestamps = user.perf.map((elt) => elt.date);
+                speeds = user.perf.map((elt) => elt.wpm); // Typing speed in WPM
+                accuracies = user.perf.map((elt) => elt.acc * 100); // Accuracy in percentage
+
+                // Example: Adding a new point dynamically
+                for (let i = 0; i < timestamps.length; i++) {
+                    const newTimestamp = timestamps[i];
+                    const newSpeed = speeds[i];
+                    const newAccuracy = accuracies[i];
+                    setTimeout(() => {
+                        addData(newTimestamp, newSpeed, newAccuracy); // Add Jan 4 data
+                    }, (i * 3000) / (timestamps.length + 1));
+                }
+
+
+                // Data containers for the chart
+                let characters = []; // Array of characters
+                let number_of_errors = []; // Array of number of errors
+
+                // Initialize Chart.js
+                const error_ctx = document
+                    .getElementById("typingErrorsChart")
+                    .getContext("2d");
+
+                const typingErrorsChart = new Chart(error_ctx, {
+                    type: "bar",
+                    data: {
+                        labels: characters, // X-axis: Dates
+                        datasets: [
+                            {
+                                label: "Character",
+                                data: number_of_errors, // Y-axis: number of errors
+                                backgroundColor: "rgb(251, 50, 50, 0.2)",
+                                borderColor: "#fb3232ff",
+                                borderWidth: 1,
+                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
+                                yAxisID: "ynum_of_errors",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                enabled: true,
+                                callbacks: {
+                                    // Display metrics in the tooltip
+                                    label: (context) => {
+                                        const datasetLabel = context.dataset.label;
+                                        const value = context.raw;
+                                        return `Errors: ${value}`;
+                                    },
+                                },
+                            },
+                            legend: {
+                                position: "top", // Move legend to the top
+                                labels: {
+                                    boxWidth: 20,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Number of Errors",
+                                },
+                                ticks: { maxRotation: 0, minRotation: 0 }
+                            },
+
+                            // Defining the y axis
+                            ynum_of_errors: {
+                                beginAtZero: true,
+                                type: "linear",
+                                position: "left",
+                                title: {
+                                    display: true,
+                                    text: "Number of Errors",
+                                },
+                            },
+                        },
+                    },
+                });
+
+                // Dynamically update the chart
+                function addErrorData(newCharacter, newNumber) {
+                    typingErrorsChart.data.labels.push(`'${newCharacter}'`); // Add new date to x-axis
+                    typingErrorsChart.data.datasets[0].data.push(newNumber); // Add new speed to speed dataset
+                    // Add new number to number of errors dataset
+                    typingErrorsChart.update(); // Refresh the chart
+                }
+
+                // setTimeout(() => {
+                //     $("canvas")[0].$chartjs
+                //     console.log("Chart height", $("canvas").attr({
+                //         "height": "200",
+                //         "width": "400",
+                //     }).parent().html());
+                // }, 3000)
+
+                // Retrieve all characters from the user's performance
+                characters = (() => {
+
+                    let chars = new Set();
+                    for (let p of user.perf) {
+                        for (const char of Object.keys(p.errors)) {
+                            chars.add(char)
+                        }
+                    }
+                    chars = Array.from(chars).sort()
+                    return chars
+                })()
+
+                // Retrive the corresponding numbers of errors for each character
+                number_of_errors = (() => {
+                    let result = Array(characters.length).fill(0)
+                    console.log(characters.length);
+                    let errors_array = user.perf.map((elt) => elt.errors);
+                    for (let i = 0; i < result.length; i++) {
+                        for (const e of errors_array) {
+                            for (const c of Object.keys(e)) {
+                                if (c == characters[i]) {
+                                    result[i] += e[c] // Add the number of errors of the character
+                                }
+                            }
+                        }
+                    }
+                    console.log(result);
+
+                    return result
+                })()
+
+                // Example: Adding a new point dynamically
+                for (let i = 0; i < characters.length; i++) {
+                    console.log("dsfsdaf");
+
+                    const char = characters[i];
+                    const num = number_of_errors[i];
+                    setTimeout(() => {
+                        addErrorData(char, num); // Add a char and a num
+                    }, (i * 3000) / (characters.length + 1));
+                }
+            })()
+            break
         default:
             break;
     }

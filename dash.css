@@ -902,12 +902,26 @@ b {
 .user-stats,
 .user {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     padding: 1rem;
 }
 
 .user-stats {
     gap: 1rem;
+}
+
+.errors {
+    height: 0rem;   
+    display: flex;
+    overflow-y: auto;
+    margin-bottom: 1em;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.exercise-done:hover .errors {
+    height: 8rem;
 }
 
 #current-user {
