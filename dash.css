@@ -56,13 +56,14 @@
 }
 
 body {
+    width: 100%;
     font-family: "Poppins", sans-serif;
     background-color: var(--text-color);
     color: var(--main-color);
     min-height: 100vh;
     display: flex;
     position: relative;
-    
+
     justify-content: space-between;
 }
 
@@ -554,17 +555,20 @@ aside {
     margin-top: 1.4rem;
 }
 
-.right .top, main .top {
+.right .top,
+main .top {
     display: flex;
     justify-content: end;
     gap: 2rem;
 }
 
-.right .top button, main .top button {
+.right .top button,
+main .top button {
     display: none;
 }
 
-.right .theme-toggler, main .theme-toggler {
+.right .theme-toggler,
+main .theme-toggler {
     background: var(--color-light);
     display: flex;
     justify-content: space-between;
@@ -575,7 +579,8 @@ aside {
     border-radius: var(--border-radius-1);
 }
 
-.right .theme-toggler span, main .theme-toggler span {
+.right .theme-toggler span,
+main .theme-toggler span {
     font-size: 1.2rem;
     width: 50%;
     height: 100%;
@@ -584,7 +589,8 @@ aside {
     justify-content: center;
 }
 
-.right .theme-toggler span.active, main .theme-toggler span.active {
+.right .theme-toggler span.active,
+main .theme-toggler span.active {
     background: var(--main-color-light);
     color: white;
     border-radius: var(--border-radius-1);
@@ -1023,3 +1029,4 @@ b {
     visibility: visible;
 }
 
+/* Settings page */

@@ -394,6 +394,7 @@ $(document).ready(function () {
         $(".admin-info h3").text(`${user.username}`);
         $(".admin-info h5").text(`${user.role}`);
         $(".sidebar-footer .show").text(`${user.username}`);
+        $(".admin-profile img").attr("src", `${user.avatar_path}`)
 
         if (user.role == "Admin") {
             $(".sidebar-footer .show").text(`${user.username} Goto Dashboard`);
@@ -1115,10 +1116,12 @@ $(document).ready(function () {
                 moveActiveTab();
                 function displayProfile() {
                     let user = User.load()
+
                     const profileContent = document.getElementById('profileContent');
+                    profileContent.classList+= " active"
                     const defaultTheme = 'light';
                     profileContent.innerHTML = `
-                <div class="profile-header">
+                <div class="profile-header active">
                 <div class="profile-picture-container">
                     <img id="profilePicture" src="${user.profilePicture || './landing/16.jpeg'}"
                          alt="Profile Picture" class="profile-picture">
@@ -1156,27 +1159,14 @@ $(document).ready(function () {
                         <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Notification Preferences:</label>
-                    <div class="checkbox-group">
-                        <label>
-                            <input type="checkbox" id="emailNotifications"
-                                   ${user.notifications?.email ? 'checked' : ''}>
-                            Email Notifications
-                        </label>
-                        <label>
-                            <input type="checkbox" id="systemNotifications"
-                                   ${user.notifications?.system ? 'checked' : ''}>
-                            System Notifications
-                        </label>
-                    </div>
-                </div>
+               
                 <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
             </div>
             
             <div class="recent-activity">
                 <h3>Recent Activity</h3>
                 <div class="activity-timeline" id="activityTimeline">
+                Signup <br>
                     Login
                 </div>
             </div>
