@@ -9,13 +9,15 @@ const images = [
 let currentIndex = 0;
 
 function changeBackgroundImage() {
-    const backgroundDiv = document.getElementById('container');    
+    const backgroundDiv = document.getElementById('container');
     backgroundDiv.style.backgroundImage = `url('${images[currentIndex]}')`;
     currentIndex = (currentIndex + 1) % images.length; // Boucle au début
 }
 
 changeBackgroundImage(); // Changer d'image immédiatement
 setInterval(changeBackgroundImage, 5000); // Changer d'image toutes les 10 secondes
-
+$("#startGameButton").on("click", () => {
+    window.location.href = "/Login.html"
+})
 
 

@@ -1205,8 +1205,7 @@ $(document).ready(function () {
                 }
                 displayProfile()
 
-                $("head").html($("head").html() +`
-    <link rel="stylesheet" href="./admin.css"/>`)
+                $("head").html($("head").html() +`<link rel="stylesheet" href="./admin.css"/>`)
             })()
             break
         default:

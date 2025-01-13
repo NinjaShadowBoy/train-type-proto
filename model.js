@@ -13,6 +13,7 @@ export class User {
         this.avatar_path = "/landing/16.jpeg"
         this.bio = "Nothing about me yet"
         this.role = role
+        this.recommendations = ["Focus on accuracy not on speed", "Try not to look on your keyboard even if your speed drops"]
     }
 
     // This is used for the current user
