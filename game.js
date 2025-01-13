@@ -138,6 +138,13 @@ $("#Type-again-button").on("click", () => {
     newGame()
 })
 
+$("#Go-back-button").on("click", () => {
+    $("body").css("transform", "translateX(100vw)")
+    setTimeout(() => {
+        window.location.href = "/dash.html"
+    }, 600)
+})
+
 $(".timer").text(`Exercise time: ${Math.round(duration / 1000)}s`)
 
 

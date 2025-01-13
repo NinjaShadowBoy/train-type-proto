@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="speedometer.css" />
     <link rel="stylesheet" href="logo.css" />
     <link rel="stylesheet" href="./dash.css" />
+    <link rel="stylesheet" href="./admin.css"/>
   </head>
 
   <body class="shrink">
@@ -76,8 +77,10 @@
             <a href="#" data-active="3">
               <div class="icon">
                 <span class="material-symbols-outlined">swords</span>
+                <!-- <i class="bx bx-bell"></i>
+                <i class="bx bxs-bell"></i> -->
               </div>
-              <span class="link hide">Challenges</span>
+              <span class="link hide">Challenge</span>
             </a>
           </li>
           <li class="tooltip-element" data-tooltip="4">
@@ -89,11 +92,12 @@
               <span class="link hide">Leaderboard</span>
             </a>
           </li>
+
           <div class="tooltip">
             <span class="show">Home</span>
             <span>Dashboard</span>
             <span>Exercises</span>
-            <span>Challenges</span>
+            <span>Challenge</span>
             <span>Leaderboard</span>
           </div>
         </ul>
@@ -129,14 +133,14 @@
 
       <div class="sidebar-footer">
         <a href="#" class="account tooltip-element" data-tooltip="0">
-          <i class="bx bx-user"></i>
+          <i class="bx bx-user admin-panel-button"></i>
         </a>
         <div class="admin-user tooltip-element" data-tooltip="1">
           <div class="admin-profile hide">
             <img src="./images/face-1.png" alt="" />
             <div class="admin-info">
               <h3>Ahmad Amine</h3>
-              <h5>Admin</h5>
+              <h5 >Admin</h5>
             </div>
           </div>
           <a href="#" class="log-out">
@@ -149,6 +153,7 @@
         </div>
       </div>
     </nav>
+
     <div class="mother">
       <main>
         <div class="top">
@@ -157,38 +162,28 @@
             <span class="material-icons-outlined theme1">dark_mode</span>
           </div>
         </div>
-        <h1>Leaderboards</h1>
-        <div class="users">
-          <div><a class="user" href="#current-user">Find me</a></div>
-          <div class="user">
-            <div class="user-info">
-              <img src="./images/face-1.png" alt="" />
-              <div class="user-details">
-                <h3>Ahmad Amine</h3>
-                <h5>Admin</h5>
-              </div>
-            </div>
-            <div class="user-stats">
-              <div class="user-stat">
-                <h4>WPM</h4>
-                <p>120</p>
-              </div>
-              <div class="user-stat">
-                <h4>ACC%</h4>
-                <p>98</p>
-              </div>
-            </div>
+        <!-- Add Profile Section -->
+        <div class="content-section" id="profile">
+          <div class="profile-header">
+            <h2>My Profile</h2>
+            <button class="btn btn-primary" onclick="editProfile()">
+              Edit Profile
+            </button>
+          </div>
+          <div class="profile-section" id="profileContent">
+            <!-- Profile content will be populated by JavaScript -->
           </div>
         </div>
       </main>
     </div>
+
     <script src="jquery-3.7.1.min.js"></script>
-    <script type="module" src="peerjs.min.js"></script>
     <script type="module" src="model.js"></script>
     <script src="logo.js"></script>
     <script src="speedometer.js"></script>
-    <!-- <script src="chart.js"></script> -->
+    <script type="module" src="peerjs.min.js"></script>
     <script type="module" src="./dash.js"></script>
+    <script src="chart.js"></script>
     <script></script>
   </body>
 </html>

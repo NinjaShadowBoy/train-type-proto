@@ -8,8 +8,14 @@ $(document).ready(function () {
     const tooltip_elements = document.querySelectorAll(".tooltip-element");
     const shrink_btn = document.querySelector(".shrink-btn");
     const logout_btn = $(".log-out");
-    const lightTheme = document.querySelector(".theme");
-    const darkTheme = document.querySelector(".theme1");
+    const search = document.querySelector(".search");
+
+    $(".theme-toggler").on("click", function () {
+        document.body.classList.toggle("dark-theme-variables");
+        $(".theme").toggleClass("active");
+        $(".theme1").toggleClass("active");
+    })
+
     let activeIndex;
 
     logout_btn.on("click", function () {
@@ -63,6 +69,9 @@ $(document).ready(function () {
                 case 5:
                     location = "/statistics.html"
                     break;
+                case 6:
+                    location = "/settings.html"
+                    break;
                 default:
                     break;
             }
@@ -101,7 +110,7 @@ $(document).ready(function () {
                     old +
                     `<div class="exercise" data-exoID=" ${exo[0]}">
               <div class="exo-head">
-                <h3 class="exo-title">Exo ${exo[0]}</h4>
+                <h3 class="exo-title">${exo[0]}:${exo[1].title}</h4>
                 <p>Attempted <b>${exo[1].timesAttempted}</b> times</p>
               </div>
               <p class="exo-content-preview">${exo[1].text.slice(0, 80)}...</p>
@@ -384,6 +393,15 @@ $(document).ready(function () {
     function loadUserOnPage() {
         $(".admin-info h3").text(`${user.username}`);
         $(".admin-info h5").text(`${user.role}`);
+        $(".sidebar-footer .show").text(`${user.username}`);
+
+        if (user.role == "Admin") {
+            $(".sidebar-footer .show").text(`${user.username} Goto Dashboard`);
+            $(".sidebar-footer .account").attr('href', "/admin.html")
+            $(".sidebar-footer .admin-profile").on('click', () => {
+                window.location.href = "/admin.html"
+            })
+        }
     }
 
     let user = User.load();
@@ -399,21 +417,26 @@ $(document).ready(function () {
             (() => {
                 $("main h1").text(`Welcome ${user.username} !`);
 
+                let adminPhotos = Object.values(db.users).filter((user) => {
+                    return user.role == "Admin"
+                }).map(usr => usr.avatar_path)
+                $(".updates").html("")
+                for (const r of user.recommendations) {
+                    $(".updates").html($(".updates").html() + `
+                        <div class="update">
+                  <div class="profile-photo">
+                    <img src="${(() => {
+                        return adminPhotos[Math.round(Math.random()*adminPhotos.length)]
+                    })()}" />
+                  </div>
+                  <div class="message">
+                    <p>${r}</p>
+                  </div>
+                </div>
+                    `)
+                }
                 activeIndex = 1;
                 moveActiveTab();
-
-                const search = document.querySelector(".search");
-                const themetoggler = document.querySelector(".theme-toggler");
-
-                search.addEventListener("click", () => {
-                    document.body.classList.remove("shrink");
-                    search.lastElementChild.focus();
-                });
-                themetoggler.addEventListener("click", () => {
-                    document.body.classList.toggle("dark-theme-variables");
-
-                    // themetoggler.querySelector("span").classList.toggle("active");
-                });
 
                 loadPerformanceOnDashboard();
                 loadUserOnPage();
@@ -1021,6 +1044,9 @@ $(document).ready(function () {
                     },
                 });
 
+                $("#typingErrorsChart")
+                    .parent().parent().parent().css("margin-bottom", "2em")
+
                 // Dynamically update the chart
                 function addErrorData(newCharacter, newNumber) {
                     typingErrorsChart.data.labels.push(`'${newCharacter}'`); // Add new date to x-axis
@@ -1081,21 +1107,111 @@ $(document).ready(function () {
                 }
             })()
             break
+        
+        case "/settings.html":
+            (() => {
+                $("main>h1").text(`History and Statistics`);
+                activeIndex = 6;
+                moveActiveTab();
+                function displayProfile() {
+                    let user = User.load()
+                    const profileContent = document.getElementById('profileContent');
+                    const defaultTheme = 'light';
+                    profileContent.innerHTML = `
+                <div class="profile-header">
+                <div class="profile-picture-container">
+                    <img id="profilePicture" src="${user.profilePicture || './landing/16.jpeg'}"
+                         alt="Profile Picture" class="profile-picture">
+                    <div class="profile-picture-overlay">
+                        <label for="profilePictureInput" class="upload-label">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </label>
+                        <input type="file" id="profilePictureInput" accept="image/*"
+                               style="display: none" onchange="handleProfilePictureUpload(event)">
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <h3>${user.username}</h3>
+                    <p>${user.email}</p>
+                    <p class="user-role">${user.isAdmin ? 'Administrator' : 'User'}</p>
+                </div>
+            </div>
+            
+            <div class="profile-customization">
+                <h3>Profile Settings</h3>
+                <div class="form-group">
+                    <label>Display Name:</label>
+                    <input type="text" id="displayName" value="${user.displayName || user.username}"
+                           class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Bio:</label>
+                    <textarea id="userBio" class="form-control" rows="3">${user.bio || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Theme:</label>
+                    <select id="userTheme" class="form-control">
+                        <option value="light" ${user.theme === 'light' ? 'selected' : ''}>Light</option>
+                        <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>Dark</option>
+                        <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notification Preferences:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="emailNotifications"
+                                   ${user.notifications?.email ? 'checked' : ''}>
+                            Email Notifications
+                        </label>
+                        <label>
+                            <input type="checkbox" id="systemNotifications"
+                                   ${user.notifications?.system ? 'checked' : ''}>
+                            System Notifications
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
+            </div>
+            
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div class="activity-timeline" id="activityTimeline">
+                    Login
+                </div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-card">
+                    <h3>Join Date</h3>
+                    <p>${new Date(user.join_date).toDateString()}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Login Count</h3>
+                    <p>${user.loginCount || 0}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Last Active</h3>
+                    <p>${new Date(user.last_login_date).toDateString()}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Exercises Completed</h3>
+                    <p>${user.perf.length || 0}</p>
+                </div>
+            </div>
+            `;
+                    // Apply theme
+                    // applyTheme(user.theme || defaultTheme);
+                }
+                displayProfile()
+
+                $("head").html($("head").html() +`
+    <link rel="stylesheet" href="./admin.css"/>`)
+            })()
+            break
         default:
             break;
     }
 });
 
-// themetoggler.addEventListener("click", () => {
-//     document.body.classList.toggle("dark-theme-variables");
-//     //themetoggler.querySelector("span").classList.toggle("active");
-// });
 
-function changetheme() {
-    lightTheme.classList.remove("active");
-    darkTheme.classList.add("active");
-}
-function Switch() {
-    lightTheme.classList.add("active");
-    darkTheme.classList.remove("active");
-}

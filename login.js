@@ -20,7 +20,7 @@ $(document).ready(function () {
                 setTimeout(function () {
                     window.location.href = "dash.html"
                     console.log(user);
-                }, 1000)
+                }, 800)
             }
         } else {
             db.addUser(new User(username, password))

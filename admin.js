@@ -1,7 +1,26 @@
+import { DB, User } from "./model.js"
+
+let db = DB.load()
+
 
 let isLoginMode = true;
 let currentUser = null;
 // Initialize local storage with default data if empty
+
+$(".auth-container button").on("click", handleAuth)
+$(".nav-item .logout-btn").on("click", logout)
+$("#showAddUserForm").on("click", showAddUserForm)
+$("#userForm .btn-primary").on("click", saveUser)
+$("#userForm .btn-danger").on("click", closeUserForm)
+$("#profile .profile-header button").on("click", editProfile)
+$(".logout-btn").on("click", logout)
+$(".profile-header button").on("click", editProfile)
+
+$("#saveProfileSettings").ready(() => {
+    $("#saveProfileSettings").on("click", saveProfileSettings)
+})
+
+
 function initializeLocalStorage() {
     if (!localStorage.getItem('users')) {
         localStorage.setItem('users', JSON.stringify([
@@ -88,7 +107,8 @@ function handleAuth() {
     if (isLoginMode) {
         // Login
         const users = getUsers();
-        const user = users.find(u => u.username === username && u.password === password);
+        // const user = users.find(u => u.username === username && u.password === password);
+        let user = db.authenticateUser(username, password)
 
         if (user) {
             // Update login statistics
@@ -100,7 +120,8 @@ function handleAuth() {
             saveSession(user);
             updateLoginStats();
 
-            if (user.isAdmin) {
+
+            if (user.role == "Admin") {
                 showDashboard();
             } else {
                 error.textContent = 'Access denied. Admin privileges required.';
@@ -124,6 +145,7 @@ function handleAuth() {
         }
 
         const users = getUsers();
+
         if (users.some(u => u.username === username)) {
             error.textContent = 'Username already exists';
             return;
@@ -155,15 +177,15 @@ function updateLoginStats() {
     const today = new Date().toISOString().split('T')[0];
 
     // Update active users and today's logins
-    stats.activeUsers = getUsers().filter(u => {
-        const lastLogin = new Date(u.lastLogin);
-        const diff = new Date() - lastLogin;
-        return diff < 24 * 60 * 60 * 1000; // Active within last 24 hours
-    }).length;
+    // stats.activeUsers = getUsers().filter(u => {
+    //     const lastLogin = new Date(u.lastLogin);
+    //     const diff = new Date() - lastLogin;
+    //     return diff < 24 * 60 * 60 * 1000; // Active within last 24 hours
+    // }).length;
 
-    stats.todayLogins = getUsers().filter(u =>
-        u.lastLogin && u.lastLogin.startsWith(today)
-    ).length;
+    // stats.todayLogins = getUsers().filter(u =>
+    //     u.lastLogin && u.lastLogin.startsWith(today)
+    // ).length;
 
     saveStatistics(stats);
     updateDashboardStats();
@@ -185,12 +207,12 @@ function showExerciseForm(exerciseId = null) {
     const difficulty = document.getElementById('exerciseDifficulty');
 
     if (exerciseId) {
+        let db = DB.load()
         // Edit mode
-        const exercises = getExercises();
-        const exercise = exercises.find(e => e.id === exerciseId);
+        const exercise = db.exos[exerciseId];
         if (exercise) {
-            title.value = exercise.title;
-            content.value = exercise.content;
+            title.value = `${exercise.title}`;
+            content.value = exercise.text;
             difficulty.value = exercise.difficulty;
             document.getElementById('exerciseId').value = exerciseId;
         }
@@ -216,22 +238,19 @@ function saveExercise() {
         return;
     }
 
-    let exercises = getExercises();
+    let db = DB.load()
+    let exercises = db.exos;
 
     if (exerciseId) {
         // Update existing exercise
-        const index = exercises.findIndex(e => e.id === exerciseId);
-        if (index !== -1) {
-            exercises[index] = {
-                ...exercises[index],
-                title,
-                content,
-                difficulty,
-                lastModified: new Date().toISOString()
-            };
-        }
+        exercises[exerciseId].title = title
+        exercises[exerciseId].text = content
+
     } else {
         // Add new exercise
+        exercises[exerciseId] = {}
+        exercises[exerciseId].title = title
+        exercises[exerciseId].text = content
         const newExercise = {
             id: Date.now().toString(),
             title,
@@ -243,6 +262,9 @@ function saveExercise() {
         };
         exercises.push(newExercise);
     }
+    db.save()
+    console.log();
+
 
     saveExercises(exercises);
     populateExercisesTable();
@@ -251,10 +273,9 @@ function saveExercise() {
 
 function deleteExercise(exerciseId) {
     if (confirm('Are you sure you want to delete this exercise?')) {
-        let exercises = getExercises();
-        exercises = exercises.filter(exercise => exercise.id !== exerciseId);
-        saveExercises(exercises);
-        populateExercisesTable();
+        let db = DB.load()
+        delete db.exos[exerciseId]
+        db.save()
     }
 }
 
@@ -263,34 +284,60 @@ function closeExerciseForm() {
 }
 
 function populateExercisesTable() {
+    let db = DB.load()
+    $(`#totalExercisesCount`).text(`${Object.keys(db.exos).length}`)
+    $(`#averageExerciseUsage`).text(`${(() => {
+        let total = 0
+        let exoIDs = Object.keys(db.exos)
+        for (const exoID of exoIDs) {
+            total += db.exos[exoID].timesAttempted || 0
+        }
+        return (total / exoIDs.length).toFixed(1)
+    })()}`)
     const tbody = document.querySelector('#exercisesTable tbody');
     tbody.innerHTML = '';
-
-    const exercises = getExercises();
-    exercises.forEach(exercise => {
+    const exercises = Object.values(db.exos);
+    exercises.forEach((exercise, i) => {
         const row = tbody.insertRow();
+        i = i + 1
         row.innerHTML = `
             <td>${exercise.title}</td>
-            <td>${exercise.difficulty}</td>
-            <td>${exercise.timesUsed}</td>
+            <td>${exercise.timesAttempted}</td>
+            <td>${new Date(exercise.last_modified_date).toDateString()}</td>
             <td>
-                <button class="btn btn-primary" onclick="showExerciseForm('${exercise.id}')">Edit</button>
-                <button class="btn btn-danger" onclick="deleteExercise('${exercise.id}')">Delete</button>
-                <button class="btn btn-primary" onclick="previewExercise('${exercise.id}')">Preview</button>
+                <button class="btn btn-primary" id="editExo${i}">Edit</button>
+                <button class="btn btn-danger" id="delete${i}">Delete</button>
+                <button class="btn btn-primary" id="previewExo${i}">Preview</button>
             </td>
         `;
+
+        $(`#editExo${i}`).ready(function () {
+            $(`#editExo${i}`).on("click", () => {
+                showExerciseForm(i)
+            })
+        })
+        $(`#delete${i}`).ready(function () {
+            $(`#delete${i}`).on("click", () => {
+                deleteExercise(i)
+            })
+        })
+        $(`#previewExo${i}`).ready(function () {
+            $(`#previewExo${i}`).on("click", () => {
+                previewExercise(i)
+            })
+        })
     });
 }
 
 function previewExercise(exerciseId) {
-    const exercises = getExercises();
-    const exercise = exercises.find(e => e.id === exerciseId);
+    let db = DB.load()
+    const exercise = db.exos[exerciseId];
     if (exercise) {
         const previewWindow = window.open('', '_blank');
         previewWindow.document.write(`
             <html>
                 <head>
-                    <title>Exercise Preview - ${exercise.title}</title>
+                    <title>Exercise Preview - Exo ${exerciseId}</title>
                     <style>
                         body { font-family: Arial, sans-serif; padding: 20px; }
                         .preview-container { max-width: 800px; margin: 0 auto; }
@@ -300,9 +347,8 @@ function previewExercise(exerciseId) {
                 </head>
                 <body>
                     <div class="preview-container">
-                        <h1>${exercise.title}</h1>
-                        <div class="difficulty">Difficulty: ${exercise.difficulty}</div>
-                        <div class="content">${exercise.content}</div>
+                        <h1> Exo ${exerciseId} ${exercise.title}</h1>
+                        <div class="content">${exercise.text}</div>
                     </div>
                 </body>
             </html>
@@ -361,17 +407,34 @@ function showAddUserForm() {
 }
 
 function showEditUserForm(username) {
-    const users = getUsers();
-    const user = users.find(u => u.username === username);
+    let db = DB.load()
+    const users = db.users;
+    const user = db.users[username];
     if (user) {
         document.getElementById('userFormTitle').textContent = 'Edit User';
         document.getElementById('username').value = user.username;
         document.getElementById('email').value = user.email;
+        document.getElementById('role').value = user.role;
+        let existing_recommendations = user.recommendations || ["Focus on accuracy not on speed", "Try not to look on your keyboard even if your speed drops"]
+        user.recommendations = existing_recommendations
+        for (let i = 0; i < existing_recommendations.length; i++) {
+            const r = existing_recommendations[i];
+            $(".recommendations-inputs").html($(".recommendations-inputs").html() +
+                `
+                <div class="form-group">
+            <label>Recommendation${i + 1}</label>
+            <input type="text" id="recommendation${i + 1}" value="${r}"/>
+          </div>
+            `)
+        }
+        document.getElementById('recommendations').value = "";
         document.getElementById('username').setAttribute('data-original-username', username);
         document.getElementById('userForm').style.display = 'block';
         document.getElementById('userModalBackdrop').style.display = 'block';
     }
 }
+
+$("#userForm .btn-primary").on("click", saveUser)
 
 function closeUserForm() {
     document.getElementById('userForm').style.display = 'none';
@@ -380,23 +443,42 @@ function closeUserForm() {
 }
 
 function saveUser() {
+    let db = DB.load()
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
+    const role = document.getElementById('role').value;
+    const lastRecom = document.getElementById('recommendations').value;
     const originalUsername = document.getElementById('username').getAttribute('data-original-username');
 
     if (!username || !email) {
         alert('Please fill in all fields');
         return;
     }
+    let userAdded = true
 
-    let users = getUsers();
+    let users = db.users;
+    if (!db.users[username]) {
+        let n = new User(username, 1234)
+        userAdded = db.addUser(n)
+    }
 
-    if (originalUsername) {
+    if (username && userAdded) {
         // Editing existing user
-        const index = users.findIndex(u => u.username === originalUsername);
-        if (index !== -1) {
-            users[index] = { ...users[index], username, email };
+        let user = users[username]
+        user.username = username
+        user.email = email
+        user.role = role
+        let existing = user.recommendations
+        user.recommendations = []
+        for (let i = 0; i < existing.length; i++) {
+            let r = document.getElementById(`recommendation${i + 1}`).value
+            if (r) {
+                user.recommendations.push(r)
+            }
         }
+        user.recommendations.push(lastRecom)
+        console.log(db);
+        closeUserForm();
     } else {
         // Adding new user
         if (users.some(u => u.username === username)) {
@@ -410,9 +492,10 @@ function saveUser() {
         });
     }
 
+    db.save()
+
     saveUsers(users);
     populateUsersTable();
-    closeUserForm();
 }
 
 function deleteUser(username) {
@@ -426,46 +509,115 @@ function deleteUser(username) {
 
 // Update UI functions
 function updateDashboardStats() {
-    const stats = getStatistics();
-    const users = getUsers();
-    stats.totalUsers = users.length;
+    // const stats = getStatistics();
+    // const users = getUsers();
+    // stats.totalUsers = users.length;
 
-    document.getElementById('totalUsers').textContent = stats.totalUsers;
-    document.getElementById('totalExercises').textContent = stats.totalExercises;
-    document.getElementById('avgWPM').textContent = stats.avgWPM;
-    document.getElementById('exercisesToday').textContent = stats.exercisesToday;
+    // document.getElementById('totalUsers').textContent = stats.totalUsers;
+    // document.getElementById('totalExercises').textContent = stats.totalExercises;
+    // document.getElementById('avgWPM').textContent = stats.avgWPM;
+    // document.getElementById('exercisesToday').textContent = stats.exercisesToday;
     // Add new stats to dashboard
     const statsGrid = document.querySelector('.stats-grid');
-    statsGrid.innerHTML += `
+    statsGrid.innerHTML = `
+    <div class="stat-card">
+             <h3>Total Users</h3>
+             <p>${(() => {
+            let users = Object.values(db.users)
+            return users.length
+        })()}</p>
+         </div>
          <div class="stat-card">
              <h3>Active Users (24h)</h3>
-             <p>${stats.activeUsers}</p>
+             <p>${(() => {
+            let users = Object.values(db.users)
+            return users.filter(user => user.last_login_date > today()).length
+        })()}</p>
          </div>
          <div class="stat-card">
-             <h3>Today's Logins</h3>
-             <p>${stats.todayLogins}</p>
+             <h3>Active Exercises</h3>
+             <p>${db.numExos}</p>
+         </div>
+         <div class="stat-card">
+             <h3>Exercises done</h3>
+             <p>${(() => {
+            let total = 0
+            let users = Object.values(db.users)
+            for (const user of users) {
+                total += user.perf.length
+            }
+            return total
+        })()}</p>
+         </div>
+          <div class="stat-card">
+             <h3>Exercises today</h3>
+             <p>${(() => {
+            let total = 0
+            let users = Object.values(db.users)
+            for (const user of users) {
+                total += user.perf.filter(p => p.date > today()).length
+            }
+            return total
+        })()}</p>
+         </div>
+         <div class="stat-card">
+             <h3>Avg. WPM</h3>
+             <p>${(() => {
+            let total = 0
+            let users = Object.values(db.users)
+            for (const user of users) {
+                total += user.perf.reduce(function (total, perf) {
+                    return total + perf.wpm
+                }, 0) / (user.perf.length || 1)
+            }
+            return (total / users.length).toFixed(2)
+        })()}</p>
+         </div>
+         <div class="stat-card">
+             <h3>Avg. Accuracy</h3>
+             <p>${(() => {
+            let total = 0
+            let users = Object.values(db.users)
+            for (const user of users) {
+                total += user.perf.reduce(function (total, perf) {
+                    return total + perf.acc
+                }, 0) / (user.perf.length || 1)
+            }
+            return (total / users.length * 100).toFixed(2)
+        })()}%</p>
          </div>
      `;
-
-    saveStatistics(stats);
 }
-
+function today() {
+    return new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+}
 function populateUsersTable() {
+    let db = DB.load()
     const tbody = document.querySelector('#usersTable tbody');
     tbody.innerHTML = '';
 
-    const users = getUsers();
+    const users = Object.values(db.users);
     users.forEach(user => {
         const row = tbody.insertRow();
         row.innerHTML = `
             <td>${user.username}</td>
             <td>${user.email}</td>
-            <td>${user.joinDate}</td>
+            <td>${(new Date(user.join_date)).toDateString()}</td>
             <td>
-                <button class="btn btn-primary" onclick="showEditUserForm('${user.username}')">Edit</button>
-                <button class="btn btn-danger" onclick="deleteUser('${user.username}')">Delete</button>
+                <button class="btn btn-primary" id="showEditUserForm${user.username}">Edit</button>
+                <button class="btn btn-danger" id="deleteUser${user.username}">Delete</button>
             </td>
         `;
+        $(`#showEditUserForm${user.username}`).ready(() => {
+            $(`#showEditUserForm${user.username}`).on("click", () => {
+                showEditUserForm(user.username)
+            })
+        })
+        $(`#deleteUser${user.username}`).ready(() => {
+            $(`#deleteUser${user.username}`).on("click", () => {
+                deleteUser(user.username)
+            })
+        })
     });
 }
 
@@ -492,18 +644,18 @@ function loadSectionData(section) {
             updateDashboardStats();
             break;
         case 'users':
-            populateUsersTable();
+            // populateUsersTable();
             break;
         case 'exercises':
             populateExercisesTable();
             break;
         case 'statistics':
             break;
-
     }
 }
 // Profile Management
 function updateProfile(profileData) {
+
     const users = getUsers();
     const userIndex = users.findIndex(u => u.username === currentUser.username);
 
@@ -518,12 +670,13 @@ function updateProfile(profileData) {
 }
 
 function displayProfile() {
+    let user = User.load()
     const profileContent = document.getElementById('profileContent');
     const defaultTheme = 'light';
     profileContent.innerHTML = `
     <div class="profile-header">
     <div class="profile-picture-container">
-        <img id="profilePicture" src="${currentUser.profilePicture || '/default-avatar.png'}"
+        <img id="profilePicture" src="${user.profilePicture || './landing/16.jpeg'}"
              alt="Profile Picture" class="profile-picture">
         <div class="profile-picture-overlay">
             <label for="profilePictureInput" class="upload-label">
@@ -534,9 +687,9 @@ function displayProfile() {
         </div>
     </div>
     <div class="profile-info">
-        <h3>${currentUser.username}</h3>
-        <p>${currentUser.email}</p>
-        <p class="user-role">${currentUser.isAdmin ? 'Administrator' : 'User'}</p>
+        <h3>${user.username}</h3>
+        <p>${user.email}</p>
+        <p class="user-role">${user.isAdmin ? 'Administrator' : 'User'}</p>
     </div>
 </div>
 
@@ -544,19 +697,19 @@ function displayProfile() {
     <h3>Profile Settings</h3>
     <div class="form-group">
         <label>Display Name:</label>
-        <input type="text" id="displayName" value="${currentUser.displayName || currentUser.username}"
+        <input type="text" id="displayName" value="${user.displayName || user.username}"
                class="form-control">
     </div>
     <div class="form-group">
         <label>Bio:</label>
-        <textarea id="userBio" class="form-control" rows="3">${currentUser.bio || ''}</textarea>
+        <textarea id="userBio" class="form-control" rows="3">${user.bio || ''}</textarea>
     </div>
     <div class="form-group">
         <label>Theme:</label>
         <select id="userTheme" class="form-control">
-            <option value="light" ${currentUser.theme === 'light' ? 'selected' : ''}>Light</option>
-            <option value="dark" ${currentUser.theme === 'dark' ? 'selected' : ''}>Dark</option>
-            <option value="custom" ${currentUser.theme === 'custom' ? 'selected' : ''}>Custom</option>
+            <option value="light" ${user.theme === 'light' ? 'selected' : ''}>Light</option>
+            <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>Dark</option>
+            <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
         </select>
     </div>
     <div class="form-group">
@@ -564,17 +717,17 @@ function displayProfile() {
         <div class="checkbox-group">
             <label>
                 <input type="checkbox" id="emailNotifications"
-                       ${currentUser.notifications?.email ? 'checked' : ''}>
+                       ${user.notifications?.email ? 'checked' : ''}>
                 Email Notifications
             </label>
             <label>
                 <input type="checkbox" id="systemNotifications"
-                       ${currentUser.notifications?.system ? 'checked' : ''}>
+                       ${user.notifications?.system ? 'checked' : ''}>
                 System Notifications
             </label>
         </div>
     </div>
-    <button class="btn btn-primary" onclick="saveProfileSettings()">Save Settings</button>
+    <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
 </div>
 
 <div class="recent-activity">
@@ -587,24 +740,24 @@ function displayProfile() {
 <div class="profile-stats">
     <div class="stat-card">
         <h3>Join Date</h3>
-        <p>${new Date(currentUser.joinDate).toLocaleDateString()}</p>
+        <p>${new Date(user.join_date).toDateString()}</p>
     </div>
     <div class="stat-card">
         <h3>Login Count</h3>
-        <p>${currentUser.loginCount || 0}</p>
+        <p>${user.loginCount || 0}</p>
     </div>
     <div class="stat-card">
         <h3>Last Active</h3>
-        <p>${new Date(currentUser.lastLogin).toLocaleString()}</p>
+        <p>${new Date(user.last_login_date).toDateString()}</p>
     </div>
     <div class="stat-card">
         <h3>Exercises Completed</h3>
-        <p>${currentUser.exercisesCompleted || 0}</p>
+        <p>${user.perf.length || 0}</p>
     </div>
 </div>
 `;
     // Apply theme
-    applyTheme(currentUser.theme || defaultTheme);
+    applyTheme(user.theme || defaultTheme);
 }
 
 function generateActivityTimeline() {
@@ -646,6 +799,7 @@ function formatTimeAgo(timestamp) {
 }
 
 function saveProfileSettings() {
+    let db = DB.load()
     const profileData = {
         displayName: document.getElementById('displayName').value,
         bio: document.getElementById('userBio').value,
@@ -708,10 +862,14 @@ function editProfile() {
                 <label>Confirm New Password:</label>
                 <input type="password" id="confirmPassword">
             </div>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-primary">Save Changes</button>
             <button type="button" class="btn btn-danger" onclick="displayProfile()">Cancel</button>
         </form>
     `;
+
+    $("#profileForm button").ready(function () {
+        $("#profileForm .btn-danger").on("click", displayProfile)
+    })
 }
 
 function saveProfileChanges(event) {
@@ -750,7 +908,7 @@ function saveProfileChanges(event) {
 function handleProfilePictureUpload(event) {
     const file = event.target.files[0];
     if (file) {
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        if (file.size > 10 * 1024 * 1024) { // 5MB limit
             alert('File size must be less than 5MB');
             return;
         }
@@ -791,7 +949,7 @@ function getUserActivities(username, limit = 10) {
 
 //session management functions
 function saveSession(user) {
-    sessionStorage.setItem('currentUser', JSON.stringify(user));
+    sessionStorage.setItem('user', JSON.stringify(user));
 }
 
 function clearSession() {
@@ -799,13 +957,13 @@ function clearSession() {
 }
 
 function getSession() {
-    const savedUser = sessionStorage.getItem('currentUser');
+    const savedUser = sessionStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
 }
 
 function logout() {
     currentUser = null;
-    clearSession();
+    // clearSession();
     document.getElementById('dashboardContainer').style.display = 'none';
     document.getElementById('authContainer').style.display = 'block';
 }
