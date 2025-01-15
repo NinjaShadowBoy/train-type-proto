@@ -105,11 +105,9 @@ main {
     color: var(--color-dark);
     display: flex;
     flex-direction: column;
-    /* justify-content: space-evenly; */
-    flex-wrap: wrap;
 }
 
- h1 {
+h1 {
     margin-bottom: 1rem;
 }
 
@@ -545,9 +543,7 @@ main .chart .middle:hover {
 
 /*======================ASIDE=====================*/
 aside {
-    width: auto;
     display: flex;
-    flex: 1;
     flex-direction: column;
     gap: 2rem;
     color: var(--color-dark);
@@ -849,10 +845,15 @@ b {
 }
 
 .mother {
-    /* width: 100%; */
-    /* overflow: hidden; */
+    width: 100%;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
+}
+
+aside,
+main {
+    padding: 2rem;
 }
 
 .users,
@@ -884,7 +885,7 @@ b {
     width: 100%;
 }
 
-.btn-primary{
+.btn-primary {
     background-color: #3498db !important;
 }
 

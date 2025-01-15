@@ -427,6 +427,7 @@ $(document).ready(function () {
         case "/dash.html":
             (() => {
                 $("main h1").text(`Welcome ${user.username} !`);
+                $("main, aside").css("flex", "1")
 
                 let adminPhotos = Object.values(db.users).filter((user) => {
                     return user.role == "Admin"
