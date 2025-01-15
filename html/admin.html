@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin</title>
+    <link rel="stylesheet" href="../css/admin.css" />
+  </head>
+
+  <body>
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+      <h2 id="authTitle">Login</h2>
+      <div class="form-group">
+        <label>Username:</label>
+        <input type="text" id="authUsername" required />
+      </div>
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" id="authPassword" required />
+      </div>
+      <div id="registerFields" style="display: none">
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" id="authEmail" required />
+        </div>
+        <div class="form-group">
+          <label>Confirm Password:</label>
+          <input type="password" id="authConfirmPassword" required />
+        </div>
+      </div>
+      <button class="btn btn-primary" id="authButton">Login</button>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-toggle">
+        <span onclick="toggleAuthMode()" id="authToggle"
+          >Don't have an account? Register</span
+        >
+      </div>
+    </div>
+    <div id="dashboardContainer" class="dashboard" style="display: none">
+      <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <div class="nav-item active" data-section="dashboard">Dashboard</div>
+        <div class="nav-item" data-section="profile">My Profile</div>
+        <div class="nav-item" data-section="users">Users</div>
+        <div class="nav-item" data-section="exercises">Exercises</div>
+        <div class="nav-item" data-section="statistics">Statistics</div>
+        <div class="logout-btn" data-section="dashboard" onclick="logout()">
+          logout
+        </div>
+      </div>
+
+      <div class="main-content">
+        <!-- Dashboard Section -->
+        <div class="content-section active" id="dashboard">
+          <h2>Dashboard Overview</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Users</h3>
+              <p id="totalUsers">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Active Exercises</h3>
+              <p id="totalExercises">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Avg. WPM</h3>
+              <p id="avgWPM">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Exercises Today</h3>
+              <p id="exercisesToday">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="content-section" id="users">
+          <h2>User Management</h2>
+          <button class="btn btn-primary" id="showAddUserForm">
+            Add New User
+          </button>
+          <table id="usersTable">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Join Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="modal-backdrop" id="userModalBackdrop"></div>
+        <div class="form-modal" id="userForm">
+          <h3 id="userFormTitle">Add New User</h3>
+          <div class="form-group">
+            <label>Username:</label>
+            <input type="text" id="username" required />
+          </div>
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="email" required />
+          </div>
+          <div class="form-group">
+              <div class="recommendations-inputs"></div>
+              <label>Recommendations</label>
+            <input type="text" id="recommendations" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <input type="text" id="role" required />
+          </div>
+          <button class="btn btn-primary" onclick="saveUser()">Save</button>
+          <button class="btn btn-danger" onclick="closeUserForm()">
+            Cancel
+          </button>
+        </div>
+
+        <!-- Exercises Section -->
+        <div class="content-section" id="exercises">
+          <div class="section-header">
+            <h2>Exercise Management</h2>
+            <button class="btn btn-primary" id="addExerciseBtn">
+              Add New Exercise
+            </button>
+          </div>
+
+          <div class="exercise-form" id="exerciseForm" style="display: none">
+            <h3>Add/Edit Exercise</h3>
+            <div class="form-group">
+              <label>Title:</label>
+              <input
+                type="text"
+                id="exerciseTitle"
+                class="form-control"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Content:</label>
+              <textarea
+                id="exerciseContent"
+                class="form-control"
+                rows="6"
+                required
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Difficulty Level:</label>
+              <select id="exerciseDifficulty" class="form-control">
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <input type="hidden" id="exerciseId" />
+            <div class="exercise-actions">
+              <button class="btn btn-primary" id="saveExerciseBtn">
+                Save Exercise
+              </button>
+              <button class="btn btn-danger" id="cancelExerciseBtn">
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <div class="exercise-stats">
+            <div class="exercise-card">
+              <h4>Total Exercises</h4>
+              <p id="totalExercisesCount">0</p>
+            </div>
+            <div class="exercise-card">
+              <h4>Most Used Exercise</h4>
+              <p id="mostUsedExercise">-</p>
+            </div>
+            <div class="exercise-card">
+              <h4>Average Usage</h4>
+              <p id="averageExerciseUsage">0</p>
+            </div>
+          </div>
+
+          <table id="exercisesTable">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Times Used</th>
+                <th>Last Modified</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="content-section" id="statistics">
+          <h2>Platform Statistics</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Total Exercises Completed</h3>
+              <p id="totalCompleted">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Average Accuracy</h3>
+              <p id="avgAccuracy">0%</p>
+            </div>
+          </div>
+        </div>
+        <!-- Add Profile Section -->
+        <div class="content-section" id="profile">
+          <div class="profile-header">
+            <h2>My Profile</h2>
+            <button class="btn btn-primary" onclick="editProfile()">
+              Edit Profile
+            </button>
+          </div>
+          <div class="profile-section" id="profileContent">
+            <!-- Profile content will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="../js/jquery-3.7.1.min.js"></script>
+    <script type="module" src="../js/model.js"></script>
+    <script type="module" src="../js/admin.js"></script>
+  </body>
+</html>
+

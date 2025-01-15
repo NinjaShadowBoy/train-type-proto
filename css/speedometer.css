@@ -1,11 +1,11 @@
 @font-face {
     font-family: "Open Sans";
-    src: url("./fonts/OpenSans-VariableFont_wdth\,wght.ttf");
+    src: url("./../fonts/OpenSans-VariableFont_wdth\,wght.ttf");
 }
 
 @font-face {
     font-family: "Poppins";
-    src: url("./fonts/Poppins/Poppins-Medium.ttf");
+    src: url("./../fonts/Poppins/Poppins-Medium.ttf");
 }
 
 .gauge {
