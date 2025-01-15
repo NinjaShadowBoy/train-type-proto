@@ -496,11 +496,25 @@ $(document).ready(function () {
                     .getElementById("typingPerformanceChart")
                     .getContext("2d");
 
+                // Chart.defaults.font.size = 15
                 const typingPerformanceChart = new Chart(ctx, {
                     type: "line",
                     data: {
                         labels: formattedDates, // X-axis: Dates
                         datasets: [
+                            {
+                                label: "Ajusted Typing Speed (WPM)",
+                                data: aspeeds, // Y-axis: Adjusted typing speed
+                                backgroundColor: "rgb(251, 50, 50, 0.2)",
+                                borderColor: "#fb3232ff",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone",
+                                tension: 0.4,
+                                yAxisID: "ySpeed",
+                            },
                             {
                                 label: "Typing Speed (WPM)",
                                 data: speeds, // Y-axis: Typing speeds
@@ -526,19 +540,6 @@ $(document).ready(function () {
                                 cubicInterpolationMode: "monotone",
                                 tension: 0.1,
                                 yAxisID: "yAccuracy",
-                            },
-                            {
-                                label: "Ajusted Typing Speed (WPM)",
-                                data: aspeeds, // Y-axis: Adjusted typing speed
-                                backgroundColor: "rgb(251, 50, 50, 0.2)",
-                                borderColor: "#fb3232ff",
-                                borderWidth: 2,
-                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                cubicInterpolationMode: "monotone",
-                                tension: 0.4,
-                                yAxisID: "yASpeed",
                             },
                         ],
                     },
@@ -574,10 +575,13 @@ $(document).ready(function () {
                                 title: {
                                     display: true,
                                     text: "Date",
+                                    font: {
+                                        size: 15,
+                                        weight: "bold",
+                                        family: "Poppins"
+                                    },
                                 },
                             },
-                            // y: {
-                            //   // Explicitly defining only two Y-axes
                             ySpeed: {
                                 beginAtZero: true,
                                 type: "linear",
@@ -585,6 +589,9 @@ $(document).ready(function () {
                                 title: {
                                     display: true,
                                     text: "Typing Speed (WPM)",
+                                    font: {
+                                        family: "Poppins"
+                                    },
                                 },
                             },
                             yAccuracy: {
@@ -594,24 +601,19 @@ $(document).ready(function () {
                                 title: {
                                     display: true,
                                     text: "Accuracy (%)",
+                                    font: {
+                                        family: "Poppins"
+                                    },
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "Poppins"
+                                    },
                                 },
                                 grid: {
                                     drawOnChartArea: false, // Prevent grid lines from overlapping
                                 },
                             },
-                            yASpeed: {
-                                beginAtZero: true,
-                                type: "linear",
-                                position: "left",
-                                title: {
-                                    display: true,
-                                    // text: "Ajusted Typing Speed (WPM)",
-                                },
-                                grid: {
-                                    drawOnChartArea: false, // Prevent grid lines from overlapping
-                                },
-                            },
-                            // },
                         },
                     },
                 });
@@ -623,9 +625,9 @@ $(document).ready(function () {
                         day: "numeric",
                     });
                     typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
-                    typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
-                    typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
-                    typingPerformanceChart.data.datasets[2].data.push(
+                    typingPerformanceChart.data.datasets[2].data.push(newAccuracy); // Add new speed to speed dataset
+                    typingPerformanceChart.data.datasets[1].data.push(newSpeed); // Add new accuracy to accuracy dataset
+                    typingPerformanceChart.data.datasets[0].data.push(
                         (newAccuracy * newSpeed) / 100
                     ); // Add new accuracy to accuracy dataset
                     typingPerformanceChart.update(); // Refresh the chart
@@ -829,10 +831,7 @@ $(document).ready(function () {
                 // Convert timestamps to readable dates
                 const formattedDates = timestamps.map((ts) => {
                     const date = new Date(ts);
-                    return date.toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                    });
+                    return date.toDateString();
                 });
 
                 // Initialize Chart.js
@@ -845,6 +844,19 @@ $(document).ready(function () {
                     data: {
                         labels: formattedDates, // X-axis: Dates
                         datasets: [
+                            {
+                                label: "Ajusted Typing Speed (WPM)",
+                                data: aspeeds, // Y-axis: Adjusted typing speed
+                                backgroundColor: "rgb(251, 50, 50, 0.2)",
+                                borderColor: "#fb3232ff",
+                                borderWidth: 2,
+                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                cubicInterpolationMode: "monotone",
+                                tension: 0.4,
+                                yAxisID: "ySpeed",
+                            },
                             {
                                 label: "Typing Speed (WPM)",
                                 data: speeds, // Y-axis: Typing speeds
@@ -870,19 +882,6 @@ $(document).ready(function () {
                                 cubicInterpolationMode: "monotone",
                                 tension: 0.1,
                                 yAxisID: "yAccuracy",
-                            },
-                            {
-                                label: "Ajusted Typing Speed (WPM)",
-                                data: aspeeds, // Y-axis: Adjusted typing speed
-                                backgroundColor: "rgb(251, 50, 50, 0.2)",
-                                borderColor: "#fb3232ff",
-                                borderWidth: 2,
-                                pointBackgroundColor: "hsl(0, 96.20%, 40.00%)",
-                                pointRadius: 5,
-                                pointHoverRadius: 7,
-                                cubicInterpolationMode: "monotone",
-                                tension: 0.4,
-                                yAxisID: "yASpeed",
                             },
                         ],
                     },
@@ -910,18 +909,20 @@ $(document).ready(function () {
                         },
                         scales: {
                             x: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: "Typing Speed (WPM)",
+                                ticks: {
+                                    font: {
+                                        family: "Poppins"
+                                    },
                                 },
                                 title: {
                                     display: true,
                                     text: "Date",
+                                    font: {
+                                        size: 15,
+                                        family: "Poppins"
+                                    },
                                 },
                             },
-                            // y: {
-                            //   // Explicitly defining only two Y-axes
                             ySpeed: {
                                 beginAtZero: true,
                                 type: "linear",
@@ -929,6 +930,9 @@ $(document).ready(function () {
                                 title: {
                                     display: true,
                                     text: "Typing Speed (WPM)",
+                                    font: {
+                                        family: "Poppins"
+                                    },
                                 },
                             },
                             yAccuracy: {
@@ -938,24 +942,19 @@ $(document).ready(function () {
                                 title: {
                                     display: true,
                                     text: "Accuracy (%)",
+                                    font: {
+                                        family: "Poppins"
+                                    },
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "Poppins"
+                                    },
                                 },
                                 grid: {
                                     drawOnChartArea: false, // Prevent grid lines from overlapping
                                 },
                             },
-                            yASpeed: {
-                                beginAtZero: true,
-                                type: "linear",
-                                position: "left",
-                                title: {
-                                    display: true,
-                                    // text: "Ajusted Typing Speed (WPM)",
-                                },
-                                grid: {
-                                    drawOnChartArea: false, // Prevent grid lines from overlapping
-                                },
-                            },
-                            // },
                         },
                     },
                 });
@@ -967,9 +966,9 @@ $(document).ready(function () {
                         day: "numeric",
                     });
                     typingPerformanceChart.data.labels.push(newDate); // Add new date to x-axis
-                    typingPerformanceChart.data.datasets[0].data.push(newSpeed); // Add new speed to speed dataset
-                    typingPerformanceChart.data.datasets[1].data.push(newAccuracy); // Add new accuracy to accuracy dataset
-                    typingPerformanceChart.data.datasets[2].data.push(
+                    typingPerformanceChart.data.datasets[2].data.push(newAccuracy); // Add new speed to speed dataset
+                    typingPerformanceChart.data.datasets[1].data.push(newSpeed); // Add new accuracy to accuracy dataset
+                    typingPerformanceChart.data.datasets[0].data.push(
                         (newAccuracy * newSpeed) / 100
                     ); // Add new accuracy to accuracy dataset
                     typingPerformanceChart.update(); // Refresh the chart
@@ -1048,9 +1047,19 @@ $(document).ready(function () {
                             x: {
                                 title: {
                                     display: true,
-                                    text: "Number of Errors",
+                                    text: "Character",
+                                    font: {
+                                        size: 15,
+                                        weight: "bold",
+                                        family: "Poppins"
+                                    },
                                 },
-                                ticks: { maxRotation: 0, minRotation: 0 }
+                                ticks: {
+                                    font: {
+                                        family: "Poppins"
+                                    },
+                                    maxRotation: 0, minRotation: 0,
+                                }
                             },
 
                             // Defining the y axis
@@ -1061,6 +1070,14 @@ $(document).ready(function () {
                                 title: {
                                     display: true,
                                     text: "Number of Errors",
+                                    font: {
+                                        family: "Poppins"
+                                    },
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "Poppins"
+                                    },
                                 },
                             },
                         },
@@ -1136,34 +1153,90 @@ $(document).ready(function () {
                 activeIndex = 6;
                 moveActiveTab();
 
+                function saveProfileChanges(event) {
+                    event.preventDefault();
+
+                    const email = document.getElementById('profileEmail').value;
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+
+                    let user = User.load()
+                    let db = DB.load()
+                    if (currentPassword) {
+                        if (currentPassword != user.password) {
+                            alert('Current password is incorrect');
+                            return;
+                        }
+                        if (newPassword != confirmPassword) {
+                            alert('New passwords do not match');
+                            return;
+                        }
+                        user.password = newPassword
+                        db.users[user.username] = user
+                        sessionStorage.setItem("user", JSON.stringify(user))
+                        db.save()
+                        alert("Password changed")
+                    }
+                }
+
                 function editProfile() {
+                    let user = User.load()
                     const profileContent = document.getElementById('profileContent');
                     profileContent.innerHTML = `
-        <form id="profileForm" onsubmit="saveProfileChanges(event)">
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="profileEmail" value="${user.email}" required>
-            </div>
-            <div class="form-group">
-                <label>Current Password:</label>
-                <input type="password" id="currentPassword">
-            </div>
-            <div class="form-group">
-                <label>New Password:</label>
-                <input type="password" id="newPassword">
-            </div>
-            <div class="form-group">
-                <label>Confirm New Password:</label>
-                <input type="password" id="confirmPassword">
-            </div>
-            <button type="button" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-danger" onclick="displayProfile()">Cancel</button>
-        </form>
-    `;
+                        <form id="profileForm" onsubmit="saveProfileChanges(event)">
+                            <div class="form-group">
+                                <label>Email:</label>
+                                <input type="email" id="profileEmail" value="${user.email}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Current Password:</label>
+                                <input type="password" id="currentPassword">
+                            </div>
+                            <div class="form-group">
+                                <label>New Password:</label>
+                                <input type="password" id="newPassword">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password:</label>
+                                <input type="password" id="confirmPassword">
+                            </div>
+                            <button type="button"  class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-danger">Cancel</button>
+                        </form>
+                    `;
 
                     $("#profileForm button").ready(function () {
                         $("#profileForm .btn-danger").on("click", displayProfile)
                     })
+                    $("#profileForm button").ready(function () {
+                        $("#profileForm .btn-primary").on("click", saveProfileChanges)
+                    })
+                }
+
+                function saveProfileSettings() {
+                    let db = DB.load()
+                    const profileData = {
+                        bio: document.getElementById('userBio').value,
+                        theme: document.getElementById('userTheme').value,
+                    };
+
+                    let user = User.load()
+                    user.bio = profileData.bio
+                    user.theme = profileData.theme
+                    db.users[user.username] = user
+                    db.save()
+                    sessionStorage.setItem("user", JSON.stringify(user))
+                    console.log("Settings saved");
+                    
+
+                    // if (updateProfile(profileData)) {
+                    //     logUserActivity('profile_update', 'Updated profile settings');
+                    //     alert('Profile settings saved successfully');
+                    //     displayProfile();
+                    // } else {
+                    //     alert('Failed to save profile settings');
+                    // }
                 }
                 // Profile picture handling
                 function handleProfilePictureUpload(event) {
@@ -1201,7 +1274,7 @@ $(document).ready(function () {
                     const profileContent = document.getElementById('profileContent');
                     const defaultTheme = 'light';
                     profileContent.innerHTML = `
-                    <div class="profile-header active">
+                    <div class="profile-header">
                     <div class="profile-picture-container">
                         <img id="profilePicture" src="${user.avatar_path || '../landing/16.jpeg'}"
                              alt="Profile Picture" class="profile-picture">
@@ -1209,7 +1282,7 @@ $(document).ready(function () {
                             <label for="profilePictureInput" class="upload-label">
                                 <i class="fas fa-camera"></i> Change Photo
                             </label>
-                            <input type="file" id="profilePictureInput" accept="image/*" style="display: none">
+                            <input type="file" id="profilePictureInput" accept="image/*" onchange="console.log('fjfgjhfjhfhjfhfhj')" style="display: none">
                         </div>
                     </div>
                     <div class="profile-info">
@@ -1222,56 +1295,23 @@ $(document).ready(function () {
                 <div class="profile-customization">
                     <h3>Profile Settings</h3>
                     <div class="form-group">
-                        <label>Display Name:</label>
-                        <input type="text" id="displayName" value="${user.displayName || user.username}"
-                               class="form-control">
-                    </div>
-                    <div class="form-group">
                         <label>Bio:</label>
                         <textarea id="userBio" class="form-control" rows="3">${user.bio || ''}</textarea>
                     </div>
                     <div class="form-group">
                         <label>Theme:</label>
                         <select id="userTheme" class="form-control">
-                            <option value="light" ${user.theme === 'light' ? 'selected' : ''}>Light</option>
-                            <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>Dark</option>
-                            <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Notification Preferences:</label>
-                        <div class="checkbox-group">
-                            <label>
-                                <input type="checkbox" id="emailNotifications"
-                                       ${user.notifications?.email ? 'checked' : ''}>
-                                Email Notifications
-                            </label>
-                            <label>
-                                <input type="checkbox" id="systemNotifications"
-                                       ${user.notifications?.system ? 'checked' : ''}>
-                                System Notifications
-                            </label>
-                        </div>
-                    </div>
                     <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
-                </div>
-                
-                <div class="recent-activity">
-                    <h3>Recent Activity</h3>
-                    <div class="activity-timeline" id="activityTimeline">
-                        Signup <br>
-                        Login
-                    </div>
                 </div>
                 
                 <div class="profile-stats">
                     <div class="stat-card">
                         <h3>Join Date</h3>
                         <p>${new Date(user.join_date).toDateString()}</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Login Count</h3>
-                        <p>${user.loginCount || 0}</p>
                     </div>
                     <div class="stat-card">
                         <h3>Last Active</h3>
@@ -1283,6 +1323,10 @@ $(document).ready(function () {
                     </div>
                 </div>
                 `;
+
+                    $("#saveProfileSettings").ready(() => {
+                        $("#saveProfileSettings").on("click", saveProfileSettings)
+                    })
 
                     console.log($("#profilePictureInput"));
                     $("#profilePictureInput").ready(() => {
@@ -1297,7 +1341,6 @@ $(document).ready(function () {
                     })
                     // Apply theme
                     applyTheme(user.theme || defaultTheme);
-
                 }
                 displayProfile()
 

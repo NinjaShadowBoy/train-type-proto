@@ -3,6 +3,7 @@ import { DB, User } from "./model.js"
 let db = DB.load()
 
 
+let exerciseId = 0
 let isLoginMode = true;
 let currentUser = null;
 let loggedInAsAdmin = ""
@@ -140,19 +141,21 @@ function showDashboard() {
     displayProfile();
 }
 //manage exercises
-function showExerciseForm(exerciseId = null) {
+function showExerciseForm(exoID) {
+    exerciseId = exoID
+    console.log("ExoID", exerciseId);
+
     const form = document.getElementById('exerciseForm');
     const title = document.getElementById('exerciseTitle');
     const content = document.getElementById('exerciseContent');
 
-    if (exerciseId) {
+    if (exoID) {
         let db = DB.load()
         // Edit mode
-        const exercise = db.exos[exerciseId];
+        const exercise = db.exos[exoID];
         if (exercise) {
             title.value = `${exercise.title}`;
             content.value = exercise.text;
-            document.getElementById('exerciseId').value = exerciseId;
         }
     } else {
         // Add mode
@@ -162,12 +165,9 @@ function showExerciseForm(exerciseId = null) {
 
     form.style.display = 'block';
 }
-
 function saveExercise() {
     const title = document.getElementById('exerciseTitle').value;
     const content = document.getElementById('exerciseContent').value;
-    const difficulty = document.getElementById('exerciseDifficulty').value;
-    const exerciseId = document.getElementById('exerciseId').value;
 
     if (!title || !content) {
         alert('Please fill in all fields');
@@ -175,37 +175,22 @@ function saveExercise() {
     }
 
     let db = DB.load()
-    let exercises = db.exos;
 
-    if (exerciseId) {
+    if (exerciseId != 0) {
         // Update existing exercise
-        exercises[exerciseId].title = title
-        exercises[exerciseId].text = content
-
+        db.exos[exerciseId].title = title
+        db.exos[exerciseId].text = content
+        db.exos[exerciseId].last_modified_date = (new Date()).getTime()
+        console.log("Modified");
+        console.log("Exercise id", exerciseId);
     } else {
         // Add new exercise
-        console.log("Exercise id", exerciseId);
-
-        // exercises[exerciseId] = {}
-        // exercises[exerciseId].title = title
-        // exercises[exerciseId].text = content
         db.addExo(title, content)
-        // const newExercise = {
-        //     id: Date.now().toString(),
-        //     title,
-        //     content,
-        //     difficulty,
-        //     timesUsed: 0,
-        //     dateCreated: new Date().toISOString(),
-        //     lastModified: new Date().toISOString()
-        // };
-        // exercises.push(newExercise);
     }
     db.save()
     console.log(db);
 
 
-    saveExercises(exercises);
     populateExercisesTable();
     closeExerciseForm();
 }
@@ -220,6 +205,7 @@ function deleteExercise(exerciseId) {
 }
 
 function closeExerciseForm() {
+    exerciseId = 0
     document.getElementById('exerciseForm').style.display = 'none';
 }
 
@@ -413,7 +399,7 @@ function saveUser() {
     }
 
     let users = db.users;
-    if (username) {
+    if (!username) {
         // Editing existing user
         let user = users[username]
         user.username = username
@@ -440,7 +426,12 @@ function saveUser() {
         closeUserForm();
     } else {
         // Adding new user
-        db.addUser(new User(username, 1234, role, email))
+        if (db.addUser(new User(username, 1234, role, email))) {
+            lastRecom = lastRecom.trim()
+            if (lastRecom) {
+                db.users[username].recommendations.push(lastRecom)
+            }
+        }
     }
 
     db.save()
@@ -626,14 +617,14 @@ function updateDashboardStats() {
             },
             scales: {
                 x: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Typing Speed (WPM)",
-                    },
                     title: {
                         display: true,
                         text: "User Performance",
+                        font: {
+                            size: 25,
+                            weight: "bold",
+                            family: "Poppins"
+                        },
                     },
                 },
                 ySpeed: {
@@ -791,55 +782,23 @@ function displayProfile() {
 <div class="profile-customization">
     <h3>Profile Settings</h3>
     <div class="form-group">
-        <label>Display Name:</label>
-        <input type="text" id="displayName" value="${user.displayName || user.username}"
-               class="form-control">
-    </div>
-    <div class="form-group">
         <label>Bio:</label>
         <textarea id="userBio" class="form-control" rows="3">${user.bio || ''}</textarea>
     </div>
     <div class="form-group">
         <label>Theme:</label>
         <select id="userTheme" class="form-control">
-            <option value="light" ${user.theme === 'light' ? 'selected' : ''}>Light</option>
-            <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>Dark</option>
-            <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
         </select>
     </div>
-    <div class="form-group">
-        <label>Notification Preferences:</label>
-        <div class="checkbox-group">
-            <label>
-                <input type="checkbox" id="emailNotifications"
-                       ${user.notifications?.email ? 'checked' : ''}>
-                Email Notifications
-            </label>
-            <label>
-                <input type="checkbox" id="systemNotifications"
-                       ${user.notifications?.system ? 'checked' : ''}>
-                System Notifications
-            </label>
-        </div>
-    </div>
     <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
-</div>
-
-<div class="recent-activity">
-    <h3>Recent Activity</h3>
-    <div class="activity-timeline" id="activityTimeline">
-        ${generateActivityTimeline()}
-    </div>
 </div>
 
 <div class="profile-stats">
     <div class="stat-card">
         <h3>Join Date</h3>
         <p>${new Date(user.join_date).toDateString()}</p>
-    </div>
-    <div class="stat-card">
-        <h3>Login Count</h3>
-        <p>${user.loginCount || 0}</p>
     </div>
     <div class="stat-card">
         <h3>Last Active</h3>
@@ -851,6 +810,9 @@ function displayProfile() {
     </div>
 </div>
 `;
+    $("#saveProfileSettings").ready(() => {
+        $("#saveProfileSettings").on("click", saveProfileSettings)
+    })
 
     console.log($("#profilePictureInput"));
     $("#profilePictureInput").ready(() => {
@@ -909,22 +871,26 @@ function formatTimeAgo(timestamp) {
 function saveProfileSettings() {
     let db = DB.load()
     const profileData = {
-        displayName: document.getElementById('displayName').value,
         bio: document.getElementById('userBio').value,
         theme: document.getElementById('userTheme').value,
-        notifications: {
-            email: document.getElementById('emailNotifications').checked,
-            system: document.getElementById('systemNotifications').checked
-        }
     };
 
-    if (updateProfile(profileData)) {
-        logUserActivity('profile_update', 'Updated profile settings');
-        alert('Profile settings saved successfully');
-        displayProfile();
-    } else {
-        alert('Failed to save profile settings');
-    }
+    let user = User.load()
+    user.bio = profileData.bio
+    user.theme = profileData.theme
+    db.users[user.username] = user
+    db.save()
+    sessionStorage.setItem("user", JSON.stringify(user))
+    console.log("Settings saved");
+
+    
+    // if (updateProfile(profileData)) {
+    //     logUserActivity('profile_update', 'Updated profile settings');
+    //     alert('Profile settings saved successfully');
+    //     displayProfile();
+    // } else {
+    //     alert('Failed to save profile settings');
+    // }
 }
 
 function applyTheme(theme) {
@@ -951,12 +917,13 @@ function applyTheme(theme) {
 }
 
 function editProfile() {
+    let user = User.load()
     const profileContent = document.getElementById('profileContent');
     profileContent.innerHTML = `
         <form id="profileForm" onsubmit="saveProfileChanges(event)">
             <div class="form-group">
                 <label>Email:</label>
-                <input type="email" id="profileEmail" value="${currentUser.email}" required>
+                <input type="email" id="profileEmail" value="${user.email}" required>
             </div>
             <div class="form-group">
                 <label>Current Password:</label>
@@ -970,13 +937,16 @@ function editProfile() {
                 <label>Confirm New Password:</label>
                 <input type="password" id="confirmPassword">
             </div>
-            <button type="button" class="btn btn-primary">Save Changes</button>
+            <button type="button"  class="btn btn-primary">Save Changes</button>
             <button type="button" class="btn btn-danger">Cancel</button>
         </form>
     `;
 
     $("#profileForm button").ready(function () {
         $("#profileForm .btn-danger").on("click", displayProfile)
+    })
+    $("#profileForm button").ready(function () {
+        $("#profileForm .btn-primary").on("click", saveProfileChanges)
     })
 }
 
@@ -991,27 +961,20 @@ function saveProfileChanges(event) {
     let user = User.load()
     let db = DB.load()
     if (currentPassword) {
-        if (currentPassword !== user.password) {
+        if (currentPassword != user.password) {
             alert('Current password is incorrect');
             return;
         }
-        if (newPassword !== confirmPassword) {
+        if (newPassword != confirmPassword) {
             alert('New passwords do not match');
             return;
         }
+        user.password = newPassword
+        db.users[user.username] = user
+        sessionStorage.setItem("user", JSON.stringify(user))
+        db.save()
+        alert("Password changed")
     }
-
-    // const profileData = {
-    //     email,
-    //     password: newPassword || user.password
-    // };
-
-    // if (updateProfile(profileData)) {
-    //     alert('Profile updated successfully');
-    //     displayProfile();
-    // } else {
-    //     alert('Failed to update profile');
-    // }
 }
 
 // Profile picture handling
