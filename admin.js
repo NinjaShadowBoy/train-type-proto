@@ -248,22 +248,25 @@ function saveExercise() {
 
     } else {
         // Add new exercise
-        exercises[exerciseId] = {}
-        exercises[exerciseId].title = title
-        exercises[exerciseId].text = content
-        const newExercise = {
-            id: Date.now().toString(),
-            title,
-            content,
-            difficulty,
-            timesUsed: 0,
-            dateCreated: new Date().toISOString(),
-            lastModified: new Date().toISOString()
-        };
-        exercises.push(newExercise);
+        console.log("Exercise id",exerciseId);
+        
+        // exercises[exerciseId] = {}
+        // exercises[exerciseId].title = title
+        // exercises[exerciseId].text = content
+        db.addExo(title, content)
+        // const newExercise = {
+        //     id: Date.now().toString(),
+        //     title,
+        //     content,
+        //     difficulty,
+        //     timesUsed: 0,
+        //     dateCreated: new Date().toISOString(),
+        //     lastModified: new Date().toISOString()
+        // };
+        // exercises.push(newExercise);
     }
     db.save()
-    console.log();
+    console.log(db);
 
 
     saveExercises(exercises);
@@ -276,6 +279,7 @@ function deleteExercise(exerciseId) {
         let db = DB.load()
         delete db.exos[exerciseId]
         db.save()
+        populateExercisesTable()
     }
 }
 
@@ -387,6 +391,7 @@ function getExercises() {
 function saveUsers(users) {
     localStorage.setItem('users', JSON.stringify(users));
     updateDashboardStats();
+    populateUsersTable()
 }
 
 function saveStatistics(stats) {
@@ -676,20 +681,19 @@ function displayProfile() {
     profileContent.innerHTML = `
     <div class="profile-header">
     <div class="profile-picture-container">
-        <img id="profilePicture" src="${user.profilePicture || './landing/16.jpeg'}"
+        <img id="profilePicture" src="${user.avatar_path || './landing/16.jpeg'}"
              alt="Profile Picture" class="profile-picture">
         <div class="profile-picture-overlay">
             <label for="profilePictureInput" class="upload-label">
                 <i class="fas fa-camera"></i> Change Photo
             </label>
-            <input type="file" id="profilePictureInput" accept="image/*"
-                   style="display: none" onchange="handleProfilePictureUpload(event)">
+            <input type="file" id="profilePictureInput" accept="image/*" onchange="console.log('fjfgjhfjhfhjfhfhj')" style="display: none">
         </div>
     </div>
     <div class="profile-info">
         <h3>${user.username}</h3>
         <p>${user.email}</p>
-        <p class="user-role">${user.isAdmin ? 'Administrator' : 'User'}</p>
+        <p class="user-role">${user.role == "Admin" ? 'Administrator' : 'User'}</p>
     </div>
 </div>
 
@@ -756,9 +760,22 @@ function displayProfile() {
     </div>
 </div>
 `;
+    
+    console.log($("#profilePictureInput"));
+    $("#profilePictureInput").ready(() => {
+        console.log($("#profilePictureInput"));
+
+        $("#profilePictureInput").change(function (e) {
+            e.preventDefault();
+            console.log(e);
+
+            handleProfilePictureUpload(e)
+        });
+    })
     // Apply theme
     applyTheme(user.theme || defaultTheme);
 }
+
 
 function generateActivityTimeline() {
     const activities = getUserActivities(currentUser.username);
@@ -880,8 +897,10 @@ function saveProfileChanges(event) {
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
+    let user = User.load()
+    let db = DB.load()
     if (currentPassword) {
-        if (currentPassword !== currentUser.password) {
+        if (currentPassword !== user.password) {
             alert('Current password is incorrect');
             return;
         }
@@ -891,23 +910,25 @@ function saveProfileChanges(event) {
         }
     }
 
-    const profileData = {
-        email,
-        password: newPassword || currentUser.password
-    };
+    // const profileData = {
+    //     email,
+    //     password: newPassword || user.password
+    // };
 
-    if (updateProfile(profileData)) {
-        alert('Profile updated successfully');
-        displayProfile();
-    } else {
-        alert('Failed to update profile');
-    }
+    // if (updateProfile(profileData)) {
+    //     alert('Profile updated successfully');
+    //     displayProfile();
+    // } else {
+    //     alert('Failed to update profile');
+    // }
 }
 
 // Profile picture handling
 function handleProfilePictureUpload(event) {
     const file = event.target.files[0];
     if (file) {
+        console.log(file);
+        
         if (file.size > 10 * 1024 * 1024) { // 5MB limit
             alert('File size must be less than 5MB');
             return;
@@ -915,9 +936,19 @@ function handleProfilePictureUpload(event) {
 
         const reader = new FileReader();
         reader.onload = function (e) {
+            console.log(e);
+            
             const base64Image = e.target.result;
-            updateProfile({ profilePicture: base64Image });
+            console.log(base64Image);
+            
+            // updateProfile({ profilePicture: base64Image });
+            let user = User.load()
+            user.avatar_path = base64Image
             document.getElementById('profilePicture').src = base64Image;
+            let db = DB.load()
+            db.users[user.username] = user
+            db.save()
+            console.log(db);
         };
         reader.readAsDataURL(file);
     }

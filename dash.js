@@ -411,6 +411,7 @@ $(document).ready(function () {
     active_tab.style.visibility = "visible";
     sessionStorage.setItem("opponent", "");
     sessionStorage.setItem("initiator", "");
+    applyTheme(user.theme)
 
     loadUserOnPage();
     switch (window.location.pathname) {
@@ -427,8 +428,8 @@ $(document).ready(function () {
                         <div class="update">
                   <div class="profile-photo">
                     <img src="${(() => {
-                        return adminPhotos[Math.round(Math.random()*adminPhotos.length)]
-                    })()}" />
+                            return adminPhotos[Math.round(Math.random() * adminPhotos.length)]
+                        })()}" />
                   </div>
                   <div class="message">
                     <p>${r}</p>
@@ -714,29 +715,30 @@ $(document).ready(function () {
                 console.log("yeah!");
                 let db = DB.load();
                 let users = Object.values(db.users);
-                $(".users").html("");
+                // $(".users").html("");
                 users = users.map((user) => User.loadUser(user));
                 let currentUser = User.load();
 
-                users.sort((a, b) => b.avg_speed() - a.avg_speed());
+                users.sort((a, b) => b.avg_aspeed() - a.avg_aspeed());
                 for (let user of users) {
                     $(".users").html(function (i, old) {
-                        return (
-                            old +
-                            `
-                    <div class="user" id="${currentUser.username == user.username
-                                ? "current-user"
-                                : ""
-                            }">
+                        return (old + `
+                            <div class="user" id="${currentUser.username == user.username
+                                ? " current-user" : ""}">
+          <div class="user-data-container">
             <div class="user-info">
-              <img src="./images/face-1.png" alt="" />
+              <img src="${user.avatar_path}" alt="" />
               <div class="user-details">
                 <h3>${currentUser.username == user.username ? "You" : user.username
                             }</h3>
-                <h5>User</h5>
+                <h5>${user.role}</h5>
               </div>
             </div>
             <div class="user-stats">
+              <div class="user-stat">
+                <h4>AWPM</h4>
+                <p>${Math.round(user.avg_aspeed())}</p>
+              </div>
               <div class="user-stat">
                 <h4>WPM</h4>
                 <p>${Math.round(user.avg_speed())}</p>
@@ -767,8 +769,12 @@ $(document).ready(function () {
               </div>
             </div>
           </div>
-                    `
-                        );
+          <div class="user-bio">
+            <h4>Bio</h4>
+            <p>${user.bio}</p>
+          </div>
+        </div>
+                            `);
                     });
                 }
             })();
@@ -1108,98 +1114,200 @@ $(document).ready(function () {
                 }
             })()
             break
-        
+
         case "/settings.html":
             (() => {
-                $("main>h1").text(`History and Statistics`);
                 activeIndex = 6;
                 moveActiveTab();
+
+                function editProfile() {
+                    const profileContent = document.getElementById('profileContent');
+                    profileContent.innerHTML = `
+        <form id="profileForm" onsubmit="saveProfileChanges(event)">
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="profileEmail" value="${user.email}" required>
+            </div>
+            <div class="form-group">
+                <label>Current Password:</label>
+                <input type="password" id="currentPassword">
+            </div>
+            <div class="form-group">
+                <label>New Password:</label>
+                <input type="password" id="newPassword">
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password:</label>
+                <input type="password" id="confirmPassword">
+            </div>
+            <button type="button" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-danger" onclick="displayProfile()">Cancel</button>
+        </form>
+    `;
+
+                    $("#profileForm button").ready(function () {
+                        $("#profileForm .btn-danger").on("click", displayProfile)
+                    })
+                }
+                // Profile picture handling
+                function handleProfilePictureUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        console.log(file);
+
+                        if (file.size > 10 * 1024 * 1024) { // 5MB limit
+                            alert('File size must be less than 5MB');
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            console.log(e);
+
+                            const base64Image = e.target.result;
+                            console.log(base64Image);
+
+                            // updateProfile({ profilePicture: base64Image });
+                            let user = User.load()
+                            user.avatar_path = base64Image
+                            document.getElementById('profilePicture').src = base64Image;
+                            let db = DB.load()
+                            db.users[user.username] = user
+                            db.save()
+                            console.log(db);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
                 function displayProfile() {
                     let user = User.load()
-
                     const profileContent = document.getElementById('profileContent');
-                    profileContent.classList+= " active"
                     const defaultTheme = 'light';
                     profileContent.innerHTML = `
-                <div class="profile-header active">
-                <div class="profile-picture-container">
-                    <img id="profilePicture" src="${user.profilePicture || './landing/16.jpeg'}"
-                         alt="Profile Picture" class="profile-picture">
-                    <div class="profile-picture-overlay">
-                        <label for="profilePictureInput" class="upload-label">
-                            <i class="fas fa-camera"></i> Change Photo
-                        </label>
-                        <input type="file" id="profilePictureInput" accept="image/*"
-                               style="display: none" onchange="handleProfilePictureUpload(event)">
+                    <div class="profile-header active">
+                    <div class="profile-picture-container">
+                        <img id="profilePicture" src="${user.avatar_path || './landing/16.jpeg'}"
+                             alt="Profile Picture" class="profile-picture">
+                        <div class="profile-picture-overlay">
+                            <label for="profilePictureInput" class="upload-label">
+                                <i class="fas fa-camera"></i> Change Photo
+                            </label>
+                            <input type="file" id="profilePictureInput" accept="image/*" style="display: none">
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h3>${user.username}</h3>
+                        <p>${user.email}</p>
+                        <p class="user-role">${user.role == "Admin" ? 'Administrator' : 'User'}</p>
                     </div>
                 </div>
-                <div class="profile-info">
-                    <h3>${user.username}</h3>
-                    <p>${user.email}</p>
-                    <p class="user-role">${user.isAdmin ? 'Administrator' : 'User'}</p>
+                
+                <div class="profile-customization">
+                    <h3>Profile Settings</h3>
+                    <div class="form-group">
+                        <label>Display Name:</label>
+                        <input type="text" id="displayName" value="${user.displayName || user.username}"
+                               class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio:</label>
+                        <textarea id="userBio" class="form-control" rows="3">${user.bio || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Theme:</label>
+                        <select id="userTheme" class="form-control">
+                            <option value="light" ${user.theme === 'light' ? 'selected' : ''}>Light</option>
+                            <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>Dark</option>
+                            <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Notification Preferences:</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="emailNotifications"
+                                       ${user.notifications?.email ? 'checked' : ''}>
+                                Email Notifications
+                            </label>
+                            <label>
+                                <input type="checkbox" id="systemNotifications"
+                                       ${user.notifications?.system ? 'checked' : ''}>
+                                System Notifications
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
                 </div>
-            </div>
-            
-            <div class="profile-customization">
-                <h3>Profile Settings</h3>
-                <div class="form-group">
-                    <label>Display Name:</label>
-                    <input type="text" id="displayName" value="${user.displayName || user.username}"
-                           class="form-control">
+                
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-timeline" id="activityTimeline">
+                        Signup <br>
+                        Login
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Bio:</label>
-                    <textarea id="userBio" class="form-control" rows="3">${user.bio || ''}</textarea>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <h3>Join Date</h3>
+                        <p>${new Date(user.join_date).toDateString()}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Login Count</h3>
+                        <p>${user.loginCount || 0}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Last Active</h3>
+                        <p>${new Date(user.last_login_date).toDateString()}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Exercises Completed</h3>
+                        <p>${user.perf.length || 0}</p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Theme:</label>
-                    <select id="userTheme" class="form-control">
-                        <option value="light" ${user.theme === 'light' ? 'selected' : ''}>Light</option>
-                        <option value="dark" ${user.theme === 'dark' ? 'selected' : ''}>Dark</option>
-                        <option value="custom" ${user.theme === 'custom' ? 'selected' : ''}>Custom</option>
-                    </select>
-                </div>
-               
-                <button class="btn btn-primary" id="saveProfileSettings">Save Settings</button>
-            </div>
-            
-            <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                <div class="activity-timeline" id="activityTimeline">
-                Signup <br>
-                    Login
-                </div>
-            </div>
-            
-            <div class="profile-stats">
-                <div class="stat-card">
-                    <h3>Join Date</h3>
-                    <p>${new Date(user.join_date).toDateString()}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Login Count</h3>
-                    <p>${user.loginCount || 0}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Last Active</h3>
-                    <p>${new Date(user.last_login_date).toDateString()}</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Exercises Completed</h3>
-                    <p>${user.perf.length || 0}</p>
-                </div>
-            </div>
-            `;
+                `;
+
+                    console.log($("#profilePictureInput"));
+                    $("#profilePictureInput").ready(() => {
+                        console.log($("#profilePictureInput"));
+
+                        $("#profilePictureInput").change(function (e) {
+                            e.preventDefault();
+                            console.log(e);
+
+                            handleProfilePictureUpload(e)
+                        });
+                    })
                     // Apply theme
-                    // applyTheme(user.theme || defaultTheme);
+                    applyTheme(user.theme || defaultTheme);
+
                 }
                 displayProfile()
 
-                $("head").html($("head").html() +`<link rel="stylesheet" href="./admin.css"/>`)
+                $("#editProfile").on("click", editProfile)
+
+                $("head").html($("head").html() + `<link rel="stylesheet" href="./admin.css"/>`)
             })()
             break
         default:
             break;
+    }
+
+    function applyTheme(theme) {
+        let light = $(".theme")
+        if (theme == "light") {
+            if (!light.hasClass("active")) {
+                document.body.classList.toggle("dark-theme-variables");
+                $(".theme").toggleClass("active");
+                $(".theme1").toggleClass("active");
+            }
+        } else {
+            if (light.hasClass("active")) {
+                document.body.classList.toggle("dark-theme-variables");
+                $(".theme").toggleClass("active");
+                $(".theme1").toggleClass("active");
+            }
+        }
     }
 });
 

@@ -16,8 +16,8 @@
     --color-background: #f6f6f9;
     --main-color: #071952;
     --main-color-dark: #088395;
-    --main-color-light: #37b7c3;
-    --text-color: #ebf4f6;
+    --main-color-light: #37bac6;
+    --bg-color: #ebf4f6;
     --first-color: #F2A20C;
     --white-color: #E9EAEC;
     --dark-color: #272D40;
@@ -30,6 +30,7 @@
 
     --card-padding: 1.8rem;
     --padding-1: 1.2rem;
+    --title-color: var(--main-color);
 
     --box-shadow: 0 0rem 2rem var(--main-color-light);
 }
@@ -39,11 +40,12 @@
     --color-background: #181a1e;
     --color-white: #202528;
     --color-dark: #edeffd;
-    --main-color-light: #37b7c3;
+    --main-color-light: var(--main-color-dark);
     --main-color-dark: #088395;
     --color-dark-variant: #a3bdcc;
     --color-light: rgba(0, 0, 0.4);
-    --text-color: #181a1e;
+    --bg-color: #181a1e;
+    --title-color: var(--main-color-light);
     --box-shadow: 0 0rem 3rem var(--main-color-dark);
 }
 
@@ -58,7 +60,7 @@
 body {
     width: 100%;
     font-family: "Poppins", sans-serif;
-    background-color: var(--text-color);
+    background-color: var(--bg-color);
     color: var(--main-color);
     min-height: 100vh;
     display: flex;
@@ -107,7 +109,7 @@ main {
     flex-wrap: wrap;
 }
 
-main h1 {
+ h1 {
     margin-bottom: 1rem;
 }
 
@@ -183,7 +185,7 @@ nav:hover .shrink-btn,
 }
 
 .search input::placeholder {
-    color: var(--text-color);
+    color: var(--bg-color);
 }
 
 .sidebar-links ul {
@@ -488,7 +490,7 @@ main .chart>span {
     background: var(--main-color-light);
     padding: 0.5rem;
     border-radius: 50%;
-    color: var(--text-color);
+    color: var(--bg-color);
     font-size: 1.5rem;
 }
 
@@ -665,7 +667,7 @@ main .theme-toggler span.active {
     display: block;
     width: 100%;
     padding: 1.125rem 2rem;
-    background-color: var(--main-color-dark);
+    background-color: var(--main-color);
     color: var(--white-color);
     border-radius: .5rem;
     font-weight: 600;
@@ -859,7 +861,7 @@ b {
 .exercises-done {
     display: flex;
     flex-direction: column;
-    background-color: lightblue;
+    background-color: var(--main-color-light);
     border-radius: 1rem;
     padding: 1rem;
     gap: 1em;
@@ -868,22 +870,32 @@ b {
 
 .exercise-done .exo-head {
     padding: 1em;
-    border-bottom: solid lightblue 3px;
+    border-bottom: solid var(--main-color-light) 3px;
 }
 
 .user,
 .exercise,
-.exercise-done {
-    background-color: white;
+.exercise-done,
+.user-data-container,
+#profile,
+#profileContent,
+#profile>*>* {
+    background-color: var(--color-white);
     border-radius: 1em;
     width: 100%;
 }
 
+.btn-primary{
+    background-color: #3498db !important;
+}
+
+
+/* Leader boards */
 .user-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 0.5rem;
     gap: 1em;
 }
 
@@ -913,10 +925,28 @@ b {
 }
 
 .user-stats,
-.user {
+.user,
+.user-data-container {
     display: flex;
-    justify-content: space-around;
-    padding: 1rem;
+    justify-content: space-between;
+    padding: 0.5rem;
+}
+
+.user {
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.user-bio {
+    opacity: 0;
+    align-self: center;
+    height: 0;
+    transition: all 0.3s ease;
+}
+
+.user:hover .user-bio {
+    opacity: 1;
+    height: 3rem;
 }
 
 .user-stats {
