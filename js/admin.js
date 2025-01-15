@@ -5,6 +5,8 @@ let db = DB.load()
 
 let isLoginMode = true;
 let currentUser = null;
+let loggedInAsAdmin = ""
+let userPerfromanceChart
 // Initialize local storage with default data if empty
 
 $(".auth-container button").on("click", handleAuth)
@@ -20,67 +22,6 @@ $("#saveProfileSettings").ready(() => {
 })
 
 
-function initializeLocalStorage() {
-    if (!localStorage.getItem('users')) {
-        localStorage.setItem('users', JSON.stringify([
-            {
-                username: 'john_doe', password: '1234', email: 'john@example.com', joinDate: '2024-01-01', isAdmin: false,
-                lastLogin: null,
-                loginCount: 0
-            },
-            {
-                username: 'jane_smith', password: '12345', email: 'jane@example.com', joinDate: '2024-01-15', isAdmin: false,
-                lastLogin: null,
-                loginCount: 0
-            },
-            {
-                username: 'amine',
-                password: 'admin123',
-                email: 'admin@example.com',
-                joinDate: '2024-01-01',
-                isAdmin: true,
-                lastLogin: null,
-                loginCount: 0
-            }
-        ]));
-    }
-
-    if (!localStorage.getItem('statistics')) {
-        localStorage.setItem('statistics', JSON.stringify({
-            totalUsers: 3,
-            totalExercises: 15,
-            avgWPM: 65,
-            exercisesToday: 89,
-            totalCompleted: 1520,
-            avgAccuracy: 94,
-            activeUsers: 0,
-            todayLogins: 0
-        }));
-    }
-
-    if (!localStorage.getItem('exercises')) {
-        localStorage.setItem('exercises', JSON.stringify([
-            {
-                id: '1',
-                title: 'Basic Typing',
-                content: 'The quick brown fox jumps over the lazy dog.',
-                difficulty: 'easy',
-                timesUsed: 150,
-                dateCreated: '2024-01-01T00:00:00.000Z',
-                lastModified: '2024-01-01T00:00:00.000Z'
-            },
-            {
-                id: '2',
-                title: 'Speed Challenge',
-                content: 'Pack my box with five dozen liquor jugs.',
-                difficulty: 'hard',
-                timesUsed: 75,
-                dateCreated: '2024-01-01T00:00:00.000Z',
-                lastModified: '2024-01-01T00:00:00.000Z'
-            }
-        ]));
-    }
-}
 // Toggle between login and register modes
 function toggleAuthMode() {
     isLoginMode = !isLoginMode;
@@ -119,8 +60,8 @@ function handleAuth() {
             saveSession(user);
             updateLoginStats();
 
-
             if (user.role == "Admin") {
+                sessionStorage.setItem("loggedInAsAdmin", "yes")
                 showDashboard();
             } else {
                 error.textContent = 'Access denied. Admin privileges required.';
@@ -463,7 +404,7 @@ function saveUser() {
     let email = document.getElementById('email').value;
     let role = document.getElementById('role').value;
     console.log("Role", role);
-    
+
     let lastRecom = document.getElementById('recommendations').value;
 
     if (!username || !email) {
@@ -518,14 +459,6 @@ function deleteUser(username) {
 
 // Update UI functions
 function updateDashboardStats() {
-    // const stats = getStatistics();
-    // const users = getUsers();
-    // stats.totalUsers = users.length;
-
-    // document.getElementById('totalUsers').textContent = stats.totalUsers;
-    // document.getElementById('totalExercises').textContent = stats.totalExercises;
-    // document.getElementById('avgWPM').textContent = stats.avgWPM;
-    // document.getElementById('exercisesToday').textContent = stats.exercisesToday;
     // Add new stats to dashboard
     const statsGrid = document.querySelector('.stats-grid');
     statsGrid.innerHTML = `
@@ -596,6 +529,161 @@ function updateDashboardStats() {
         })()}%</p>
          </div>
      `;
+
+    // Initialize Chart.js
+    userPerfromanceChart?.destroy()
+
+    let usernames = Array.from(Object.keys(db.users))
+    let speeds = usernames.map(u => db.users[u].avg_speed())
+    let aspeeds = usernames.map(u => db.users[u].avg_aspeed())
+    let accuracies = usernames.map(u => db.users[u].avg_acc() * 100)
+    let num_words = usernames.map(u => (() => {
+        let num = 0;
+        for (const p of db.users[u].perf) {
+            num += p.number_of_words || 0;
+        }
+        return (num / 1000).toFixed(1);
+    })())
+    let time_spent = usernames.map(u => (() => {
+        let num = 0;
+        for (const p of db.users[u].perf) {
+            num += p.duration || 0;
+        }
+        return ((num / 1000) / 60).toFixed(1);
+    })())
+    const ctx = document.getElementById("userPerfromanceChart").getContext("2d");
+
+    Chart.defaults.font.size = 20
+    userPerfromanceChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: usernames, // X-axis: Dates
+            datasets: [
+                {
+                    label: "Typing Speed (WPM)",
+                    data: speeds, // Y-axis: Typing speeds
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 4,
+                    pointBackgroundColor: "hsl(180, 48.10%, 40%)",
+                    yAxisID: "ySpeed",
+                },
+                {
+                    label: "Accuracy (%)",
+                    data: accuracies, // Y-axis: Accuracies
+                    backgroundColor: "rgba(255, 159, 64, 0.2)",
+                    borderColor: "rgba(255, 159, 64, 1)",
+                    borderWidth: 4,
+                    yAxisID: "yAccuracy",
+                },
+                {
+                    label: "Ajusted Typing Speed (WPM)",
+                    data: aspeeds, // Y-axis: Adjusted typing speed
+                    backgroundColor: "rgb(251, 50, 50, 0.2)",
+                    borderColor: "#fb3232ff",
+                    borderWidth: 4,
+                    yAxisID: "ySpeed",
+                },
+                {
+                    label: "Number of words(WPM)",
+                    data: num_words, // Y-axis: Adjusted typing speed
+                    backgroundColor: "rgb(112, 224, 102, 0.2)",
+                    borderColor: "rgb(112, 224, 102)",
+                    borderWidth: 4,
+                    yAxisID: "yNumWords",
+                },
+                {
+                    label: "Time Spent (min)",
+                    data: time_spent, // Y-axis: Adjusted typing speed
+                    backgroundColor: "rgb(24, 75, 137, 0.2)",
+                    borderColor: "rgb(24, 75, 137)",
+                    borderWidth: 4,
+                    yAxisID: "yTimeSpent",
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        // Display both metrics in the tooltip
+                        title: (context) => `${context[0].label}`,
+                        label: (context) => {
+                            const datasetLabel = context.dataset.label;
+                            const value = context.raw;
+                            return `${datasetLabel}: ${value}`;
+                        },
+                    },
+                },
+                legend: {
+                    position: "top", // Move legend to the top
+                    labels: {
+                        boxWidth: 20,
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Typing Speed (WPM)",
+                    },
+                    title: {
+                        display: true,
+                        text: "User Performance",
+                    },
+                },
+                ySpeed: {
+                    beginAtZero: true,
+                    type: "linear",
+                    position: "left",
+                    title: {
+                        display: true,
+                        text: "Typing Speed (WPM)",
+                    },
+                },
+                yAccuracy: {
+                    beginAtZero: true,
+                    type: "linear",
+                    position: "left",
+                    title: {
+                        display: true,
+                        text: "Accuracy (%)",
+                    },
+                    grid: {
+                        drawOnChartArea: false, // Prevent grid lines from overlapping
+                    },
+                },
+                yNumWords: {
+                    beginAtZero: true,
+                    type: "linear",
+                    position: "right",
+                    title: {
+                        display: true,
+                        text: "Number of words(1k)",
+                    },
+                    grid: {
+                        drawOnChartArea: false, // Prevent grid lines from overlapping
+                    },
+                },
+                yTimeSpent: {
+                    beginAtZero: true,
+                    type: "linear",
+                    position: "right",
+                    title: {
+                        display: true,
+                        text: "Time Spent (mins)",
+                    },
+                    grid: {
+                        drawOnChartArea: false, // Prevent grid lines from overlapping
+                    },
+                },
+            },
+        },
+    });
 }
 function today() {
     return new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
@@ -652,7 +740,7 @@ function loadSectionData(section) {
             updateDashboardStats();
             break;
         case 'users':
-            // populateUsersTable();
+            populateUsersTable();
             break;
         case 'exercises':
             populateExercisesTable();
@@ -996,24 +1084,26 @@ function getSession() {
 }
 
 function logout() {
+    userPerfromanceChart?.destroy()
     currentUser = null;
-    // clearSession();
+    clearSession();
+    sessionStorage.removeItem("loggedInAsAdmin")
+
     document.getElementById('dashboardContainer').style.display = 'none';
     document.getElementById('authContainer').style.display = 'block';
 }
 
 // this is to check session on page load
 document.addEventListener('DOMContentLoaded', () => {
-    initializeLocalStorage();
+    userPerfromanceChart?.destroy()
 
     // Check for existing session
     const savedUser = getSession();
+    loggedInAsAdmin = sessionStorage.getItem("loggedInAsAdmin")
     if (savedUser) {
         currentUser = savedUser;
-        if (savedUser.isAdmin) {
+        if (savedUser.role == "Admin" && loggedInAsAdmin) {
             showDashboard();
         }
     }
 });
-// Initialize the application
-initializeLocalStorage();
