@@ -672,7 +672,6 @@ main .theme-toggler span.active {
     border-radius: .5rem;
     font-weight: 600;
     transition: .2s;
-    opacity: 0;
 }
 
 .card__button:hover {

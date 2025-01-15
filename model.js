@@ -49,7 +49,7 @@ export class User {
         user.email = obj.e_mail || "nobody@nothing.empty"
         user.join_date = obj.join_date || user.perf[0]?.date || now
         user.last_login_date = obj.last_login_date || now
-        user.theme = obj.theme || "light"
+        user.theme = obj.theme || "dark"
         user.avatar_path = obj.avatar_path || "./landing/16.jpeg"
         user.bio = obj.bio || "Nothing about me yet"
         user.role = obj.role || "User"

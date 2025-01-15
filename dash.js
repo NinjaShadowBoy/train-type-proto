@@ -14,6 +14,15 @@ $(document).ready(function () {
         document.body.classList.toggle("dark-theme-variables");
         $(".theme").toggleClass("active");
         $(".theme1").toggleClass("active");
+        if ($("body").hasClass("dark-theme-variables")) {
+            user.theme = "dark"
+        } else {
+            user.theme = "light"
+        }
+        db.users[user.username].theme = user.theme
+        db.save()
+        sessionStorage.setItem("user", JSON.stringify(db.users[user.username]))
+        console.log("User theme", db.users[user.username].theme);
     })
 
     let activeIndex;
@@ -403,6 +412,7 @@ $(document).ready(function () {
                 window.location.href = "/admin.html"
             })
         }
+        applyTheme(user.theme)
     }
 
     let user = User.load();
@@ -411,7 +421,6 @@ $(document).ready(function () {
     active_tab.style.visibility = "visible";
     sessionStorage.setItem("opponent", "");
     sessionStorage.setItem("initiator", "");
-    applyTheme(user.theme)
 
     loadUserOnPage();
     switch (window.location.pathname) {
@@ -1294,21 +1303,19 @@ $(document).ready(function () {
     }
 
     function applyTheme(theme) {
-        let light = $(".theme")
         if (theme == "light") {
-            if (!light.hasClass("active")) {
-                document.body.classList.toggle("dark-theme-variables");
-                $(".theme").toggleClass("active");
-                $(".theme1").toggleClass("active");
-            }
+            document.body.classList.remove("dark-theme-variables");
+            $(".theme").addClass("active");
+            $(".theme1").removeClass("active");
+            console.log("Set light logo");
         } else {
-            if (light.hasClass("active")) {
-                document.body.classList.toggle("dark-theme-variables");
-                $(".theme").toggleClass("active");
-                $(".theme1").toggleClass("active");
-            }
+            document.body.classList.add("dark-theme-variables");
+            $(".theme").removeClass("active");
+            $(".theme1").addClass("active");
+            console.log("Set dark logo");
         }
     }
+
 });
 
 
