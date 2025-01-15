@@ -515,3 +515,96 @@ body {
 .profile-stats .stat-card {
     background-color: var(--card-bg);
 }
+body {
+    background-color: #fce4ec; /* Soft pink background */
+    color: #333; /* Darker text for better readability */
+    text-align: center;
+    font-family: 'Arial', sans-serif; /* Clean font */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.heading {
+    margin-bottom: 20px;
+    font-size: 3rem;
+    color: #d81b60; /* Pinkish color for the heading */
+}
+
+.header {
+    display: flex;
+    align-items: center;
+}
+
+.timer, .errors, .accuracy,
+.cpm, .wpm {
+    background-color: #ff80ab; /* Light pink for boxes */
+    height: 60px;
+    width: 70px;
+    margin: 8px;
+    padding: 12px;
+    border-radius: 15px; /* Slightly softer corners */
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 10px; /* Softer shadow */
+}
+
+.cpm, .wpm {
+    display: none;
+}
+
+.header_text {
+    text-transform: uppercase;
+    font-size: 0.8rem; /* Slightly larger for better readability */
+    font-weight: 600;
+    color: #6a1b9a; /* Darker purple for text */
+}
+
+.curr_time, .curr_errors,
+.curr_accuracy, .curr_cpm,
+.curr_wpm {
+    font-size: 2.5rem; /* Adjusted size for better fit */
+}
+
+.quote {
+    background-color: #ffccbc; /* Light peach for quotes */
+    font-size: 1.5rem;
+    margin: 10px;
+    padding: 25px;
+    border-radius: 10px; /* Softer corners */
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 10px; /* Softer shadow */
+}
+
+.input_area {
+    background-color: #fff3e0; /* Soft cream color */
+    height: 80px;
+    width: 50%; /* Slightly wider for better usability */
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 15px;
+    padding: 20px;
+    border: 2px solid #d81b60; /* Border for better definition */
+    border-radius: 10px; /* Softer corners */
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 10px; /* Softer shadow */
+}
+
+.restart_btn {
+    display: none;
+    background-color: #ad1457; /* Darker pink for the button */
+    color: white; /* White text for contrast */
+    font-size: 1.5rem;
+    padding: 10px 20px; /* Increased padding for better size */
+    border: none; /* Removed border */
+    border-radius: 5px; /* Softer corners */
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 10px; /* Softer shadow */
+}
+
+.incorrect_char {
+    color: #e57373; /* Soft red for incorrect characters */
+    text-decoration: underline;
+}
+
+.correct_char {
+    color: #388e3c; /* Dark green for correct characters */
+}
