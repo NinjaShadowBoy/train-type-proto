@@ -10,11 +10,10 @@ let currentUser = null;
 $(".auth-container button").on("click", handleAuth)
 $(".nav-item .logout-btn").on("click", logout)
 $("#showAddUserForm").on("click", showAddUserForm)
-$("#userForm .btn-primary").on("click", saveUser)
-$("#userForm .btn-danger").on("click", closeUserForm)
-$("#profile .profile-header button").on("click", editProfile)
+$("#saveUser").on("click", saveUser)
+$("#closeUserForm").on("click", closeUserForm)
 $(".logout-btn").on("click", logout)
-$(".profile-header button").on("click", editProfile)
+$("#editProfile").on("click", editProfile)
 
 $("#saveProfileSettings").ready(() => {
     $("#saveProfileSettings").on("click", saveProfileSettings)
@@ -204,7 +203,6 @@ function showExerciseForm(exerciseId = null) {
     const form = document.getElementById('exerciseForm');
     const title = document.getElementById('exerciseTitle');
     const content = document.getElementById('exerciseContent');
-    const difficulty = document.getElementById('exerciseDifficulty');
 
     if (exerciseId) {
         let db = DB.load()
@@ -213,15 +211,12 @@ function showExerciseForm(exerciseId = null) {
         if (exercise) {
             title.value = `${exercise.title}`;
             content.value = exercise.text;
-            difficulty.value = exercise.difficulty;
             document.getElementById('exerciseId').value = exerciseId;
         }
     } else {
         // Add mode
         title.value = '';
         content.value = '';
-        difficulty.value = 'easy';
-        document.getElementById('exerciseId').value = '';
     }
 
     form.style.display = 'block';
@@ -248,8 +243,8 @@ function saveExercise() {
 
     } else {
         // Add new exercise
-        console.log("Exercise id",exerciseId);
-        
+        console.log("Exercise id", exerciseId);
+
         // exercises[exerciseId] = {}
         // exercises[exerciseId].title = title
         // exercises[exerciseId].text = content
@@ -298,6 +293,20 @@ function populateExercisesTable() {
         }
         return (total / exoIDs.length).toFixed(1)
     })()}`)
+    $(`#mostUsedExercise`).text(`${(() => {
+        let total = 0
+        let exos = Object.values(db.exos)
+        if (exos.length == 0) {
+            return "-"
+        }
+        let mostUsed = exos[1]
+        for (const exo of exos) {
+            if (exo.timesAttempted > mostUsed.timesAttempted) {
+                mostUsed = exo
+            }
+        }
+        return `${mostUsed.exoID}: ${mostUsed.title}`
+    })()}`)
     const tbody = document.querySelector('#exercisesTable tbody');
     tbody.innerHTML = '';
     const exercises = Object.values(db.exos);
@@ -305,6 +314,7 @@ function populateExercisesTable() {
         const row = tbody.insertRow();
         i = i + 1
         row.innerHTML = `
+            <td>${exercise.exoID}</td>
             <td>${exercise.title}</td>
             <td>${exercise.timesAttempted}</td>
             <td>${new Date(exercise.last_modified_date).toDateString()}</td>
@@ -404,16 +414,17 @@ function saveExercises(exercises) {
 
 // User management functions
 function showAddUserForm() {
-    document.getElementById('userFormTitle').textContent = 'Add New User';
+    document.getElementById('userFormTitle').textContent = 'Add New User (default password 1234)';
     document.getElementById('username').value = '';
-    document.getElementById('email').value = '';
+    document.getElementById('email').value = 'nobody@nothing.empty';
+    document.getElementById('recommendations').value = "Welcome newbie"
+
     document.getElementById('userForm').style.display = 'block';
     document.getElementById('userModalBackdrop').style.display = 'block';
 }
 
 function showEditUserForm(username) {
     let db = DB.load()
-    const users = db.users;
     const user = db.users[username];
     if (user) {
         document.getElementById('userFormTitle').textContent = 'Edit User';
@@ -422,13 +433,14 @@ function showEditUserForm(username) {
         document.getElementById('role').value = user.role;
         let existing_recommendations = user.recommendations || ["Focus on accuracy not on speed", "Try not to look on your keyboard even if your speed drops"]
         user.recommendations = existing_recommendations
+        $(".recommendations-inputs").html("")
         for (let i = 0; i < existing_recommendations.length; i++) {
             const r = existing_recommendations[i];
             $(".recommendations-inputs").html($(".recommendations-inputs").html() +
                 `
                 <div class="form-group">
             <label>Recommendation${i + 1}</label>
-            <input type="text" id="recommendation${i + 1}" value="${r}"/>
+            <input type="text" class="recommendation${i + 1}" value="${r}"/>
           </div>
             `)
         }
@@ -439,8 +451,6 @@ function showEditUserForm(username) {
     }
 }
 
-$("#userForm .btn-primary").on("click", saveUser)
-
 function closeUserForm() {
     document.getElementById('userForm').style.display = 'none';
     document.getElementById('userModalBackdrop').style.display = 'none';
@@ -449,65 +459,59 @@ function closeUserForm() {
 
 function saveUser() {
     let db = DB.load()
-    const username = document.getElementById('username').value;
-    const email = document.getElementById('email').value;
-    const role = document.getElementById('role').value;
-    const lastRecom = document.getElementById('recommendations').value;
-    const originalUsername = document.getElementById('username').getAttribute('data-original-username');
+    let username = document.getElementById('username').value;
+    let email = document.getElementById('email').value;
+    let role = document.getElementById('role').value;
+    console.log("Role", role);
+    
+    let lastRecom = document.getElementById('recommendations').value;
 
     if (!username || !email) {
         alert('Please fill in all fields');
         return;
     }
-    let userAdded = true
 
     let users = db.users;
-    if (!db.users[username]) {
-        let n = new User(username, 1234)
-        userAdded = db.addUser(n)
-    }
-
-    if (username && userAdded) {
+    if (username) {
         // Editing existing user
         let user = users[username]
         user.username = username
         user.email = email
         user.role = role
         let existing = user.recommendations
+        console.log("Recomendations for " + username, existing);
+
         user.recommendations = []
         for (let i = 0; i < existing.length; i++) {
-            let r = document.getElementById(`recommendation${i + 1}`).value
+            let r = document.getElementsByClassName(`recommendation${i + 1}`)[0].value
+            r = r.trim()
+            console.log("Recomendation " + i, r || "Empty");
+
             if (r) {
                 user.recommendations.push(r)
             }
         }
-        user.recommendations.push(lastRecom)
+        lastRecom = lastRecom.trim()
+        if (lastRecom) {
+            user.recommendations.push(lastRecom)
+        }
         console.log(db);
         closeUserForm();
     } else {
         // Adding new user
-        if (users.some(u => u.username === username)) {
-            alert('Username already exists');
-            return;
-        }
-        users.push({
-            username,
-            email,
-            joinDate: new Date().toISOString().split('T')[0]
-        });
+        db.addUser(new User(username, 1234, role, email))
     }
 
     db.save()
 
-    saveUsers(users);
     populateUsersTable();
 }
 
 function deleteUser(username) {
     if (confirm(`Are you sure you want to delete user: ${username}?`)) {
-        let users = getUsers();
-        users = users.filter(user => user.username !== username);
-        saveUsers(users);
+        let db = DB.load()
+        delete db.users[username]
+        db.save()
         populateUsersTable();
     }
 }
@@ -606,6 +610,7 @@ function populateUsersTable() {
         const row = tbody.insertRow();
         row.innerHTML = `
             <td>${user.username}</td>
+            <td>${user.role}</td>
             <td>${user.email}</td>
             <td>${(new Date(user.join_date)).toDateString()}</td>
             <td>
@@ -618,10 +623,8 @@ function populateUsersTable() {
                 showEditUserForm(user.username)
             })
         })
-        $(`#deleteUser${user.username}`).ready(() => {
-            $(`#deleteUser${user.username}`).on("click", () => {
-                deleteUser(user.username)
-            })
+        $(`#deleteUser${user.username}`).on("click", () => {
+            deleteUser(user.username)
         })
     });
 }
@@ -760,7 +763,7 @@ function displayProfile() {
     </div>
 </div>
 `;
-    
+
     console.log($("#profilePictureInput"));
     $("#profilePictureInput").ready(() => {
         console.log($("#profilePictureInput"));
@@ -880,7 +883,7 @@ function editProfile() {
                 <input type="password" id="confirmPassword">
             </div>
             <button type="button" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-danger" onclick="displayProfile()">Cancel</button>
+            <button type="button" class="btn btn-danger">Cancel</button>
         </form>
     `;
 
@@ -928,7 +931,7 @@ function handleProfilePictureUpload(event) {
     const file = event.target.files[0];
     if (file) {
         console.log(file);
-        
+
         if (file.size > 10 * 1024 * 1024) { // 5MB limit
             alert('File size must be less than 5MB');
             return;
@@ -937,10 +940,10 @@ function handleProfilePictureUpload(event) {
         const reader = new FileReader();
         reader.onload = function (e) {
             console.log(e);
-            
+
             const base64Image = e.target.result;
             console.log(base64Image);
-            
+
             // updateProfile({ profilePicture: base64Image });
             let user = User.load()
             user.avatar_path = base64Image

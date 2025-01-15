@@ -165,6 +165,10 @@ export class DB {
             alert(`Username "${user.username}" already existing. Choose another username please.`)
             return false
         } else {
+            if (/\s/.test(user.username)) {
+                alert("Please no white spaces in username")
+                return false
+            }
             this.users[user.username] = user
             this.numUser++
             this.save()

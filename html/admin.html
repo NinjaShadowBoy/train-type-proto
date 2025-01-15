@@ -46,7 +46,7 @@
         <div class="nav-item" data-section="users">Users</div>
         <div class="nav-item" data-section="exercises">Exercises</div>
         <div class="nav-item" data-section="statistics">Statistics</div>
-        <div class="logout-btn" data-section="dashboard" onclick="logout()">
+        <div class="logout-btn" data-section="dashboard">
           logout
         </div>
       </div>
@@ -85,6 +85,7 @@
             <thead>
               <tr>
                 <th>Username</th>
+                <th>Role</th>
                 <th>Email</th>
                 <th>Join Date</th>
                 <th>Actions</th>
@@ -105,18 +106,19 @@
             <input type="email" id="email" required />
           </div>
           <div class="form-group">
-              <div class="recommendations-inputs"></div>
-              <label>Recommendations</label>
+            <div class="recommendations-inputs"></div>
+            <label>Recommendations</label>
             <input type="text" id="recommendations" />
           </div>
           <div class="form-group">
-            <label>Role</label>
-            <input type="text" id="role" required />
-          </div>
-          <button class="btn btn-primary" onclick="saveUser()">Save</button>
-          <button class="btn btn-danger" onclick="closeUserForm()">
-            Cancel
-          </button>
+              <label>Difficulty Level:</label>
+              <select id="role" class="form-control" required>
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+          <button class="btn btn-primary" id="saveUser">Save</button>
+          <button class="btn btn-danger" id="closeUserForm">Cancel</button>
         </div>
 
         <!-- Exercises Section -->
@@ -148,14 +150,6 @@
                 required
               ></textarea>
             </div>
-            <div class="form-group">
-              <label>Difficulty Level:</label>
-              <select id="exerciseDifficulty" class="form-control">
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-            </div>
             <input type="hidden" id="exerciseId" />
             <div class="exercise-actions">
               <button class="btn btn-primary" id="saveExerciseBtn">
@@ -185,6 +179,7 @@
           <table id="exercisesTable">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Title</th>
                 <th>Times Used</th>
                 <th>Last Modified</th>
@@ -213,7 +208,7 @@
         <div class="content-section" id="profile">
           <div class="profile-header">
             <h2>My Profile</h2>
-            <button class="btn btn-primary" onclick="editProfile()">
+            <button class="btn btn-primary" id="editProfile">
               Edit Profile
             </button>
           </div>
@@ -228,4 +223,3 @@
     <script type="module" src="../js/admin.js"></script>
   </body>
 </html>
-

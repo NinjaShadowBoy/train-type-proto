@@ -405,13 +405,13 @@ $(document).ready(function () {
         $(".sidebar-footer .show").text(`${user.username}`);
         $(".admin-profile img").attr("src", `${user.avatar_path}`)
         console.log($(".admin-profile img"));
-        
+
 
         if (user.role == "Admin") {
             $(".sidebar-footer .show").text(`${user.username} Goto Dashboard`);
-            $(".sidebar-footer .account").attr('href', "/admin.html")
+            $(".sidebar-footer .account").attr('href', "/html/admin.html")
             $(".sidebar-footer .admin-profile").on('click', () => {
-                window.location.href = "/admin.html"
+                window.location.href = "/html/admin.html"
             })
         }
         applyTheme(user.theme)
@@ -435,16 +435,16 @@ $(document).ready(function () {
                     return user.role == "Admin"
                 }).map(usr => usr.avatar_path)
                 console.log("Admin photos", adminPhotos);
-                
+
                 $(".updates").html("")
                 for (const r of user.recommendations) {
                     $(".updates").html($(".updates").html() + `
                         <div class="update">
                   <div class="profile-photo">
                     <img src="${(() => {
-                        let photo = adminPhotos[Math.floor(Math.random() * adminPhotos.length)]
-                        console.log("Photo", photo);
-                        
+                            let photo = adminPhotos[Math.floor(Math.random() * adminPhotos.length)]
+                            console.log("Photo", photo);
+
                             return photo
                         })()}" />
                   </div>
