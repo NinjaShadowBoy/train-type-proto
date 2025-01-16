@@ -1173,11 +1173,15 @@ $(document).ready(function () {
                             return;
                         }
                         user.password = newPassword
-                        db.users[user.username] = user
-                        sessionStorage.setItem("user", JSON.stringify(user))
-                        db.save()
                         alert("Password changed")
                     }
+                    user.email = email
+                    db.users[user.username] = user
+                    sessionStorage.setItem("user", JSON.stringify(user))
+                    console.log(sessionStorage.getItem("user"));
+                    
+                    db.save()
+                    console.log(user);
                 }
 
                 function editProfile() {
@@ -1201,7 +1205,7 @@ $(document).ready(function () {
                                 <label>Confirm New Password:</label>
                                 <input type="password" id="confirmPassword">
                             </div>
-                            <button type="button"  class="btn btn-primary">Save Changes</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
                             <button type="button" class="btn btn-danger">Cancel</button>
                         </form>
                     `;
@@ -1228,7 +1232,7 @@ $(document).ready(function () {
                     db.save()
                     sessionStorage.setItem("user", JSON.stringify(user))
                     console.log("Settings saved");
-                    
+
 
                     // if (updateProfile(profileData)) {
                     //     logUserActivity('profile_update', 'Updated profile settings');
@@ -1270,7 +1274,11 @@ $(document).ready(function () {
                     }
                 }
                 function displayProfile() {
+                    console.log(sessionStorage.getItem("user"));
+                    
                     let user = User.load()
+                    console.log(user);
+                    
                     const profileContent = document.getElementById('profileContent');
                     const defaultTheme = 'light';
                     profileContent.innerHTML = `

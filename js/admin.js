@@ -883,7 +883,7 @@ function saveProfileSettings() {
     sessionStorage.setItem("user", JSON.stringify(user))
     console.log("Settings saved");
 
-    
+
     // if (updateProfile(profileData)) {
     //     logUserActivity('profile_update', 'Updated profile settings');
     //     alert('Profile settings saved successfully');
@@ -970,11 +970,12 @@ function saveProfileChanges(event) {
             return;
         }
         user.password = newPassword
-        db.users[user.username] = user
-        sessionStorage.setItem("user", JSON.stringify(user))
-        db.save()
         alert("Password changed")
     }
+    user.email = email
+    db.users[user.username] = user
+    sessionStorage.setItem("user", JSON.stringify(user))
+    db.save()
 }
 
 // Profile picture handling

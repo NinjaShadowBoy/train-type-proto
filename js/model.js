@@ -46,7 +46,7 @@ export class User {
         user.customExos = obj.customExos || []
 
         let now = (new Date()).getTime()
-        user.email = obj.e_mail || "nobody@nothing.empty"
+        user.email = obj.email || "nobody@nothing.empty"
         user.join_date = obj.join_date || user.perf[0]?.date || now
         // user.last_login_date = obj.last_login_date || now
         user.theme = obj.theme || "dark"
