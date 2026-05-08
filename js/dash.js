@@ -134,7 +134,7 @@ $(document).ready(function () {
         }
 
         $(".start-button").on("click", function (e) {
-            let Initiating_challenge = "/html/challenge.html" == window.location.pathname
+            let Initiating_challenge = "./challenge.html" == window.location.pathname
             $(this).css({
                 margin: "0",
                 padding: "0",
@@ -409,7 +409,7 @@ $(document).ready(function () {
 
         if (user.role == "Admin") {
             $(".sidebar-footer .show").text(`${user.username} Goto Dashboard`);
-            $(".sidebar-footer .account").attr('href', "/html/admin.html")
+            $(".sidebar-footer .account").attr('href', "./admin.html")
             $(".sidebar-footer .admin-profile").on('click', () => {
                 window.location.href = "./admin.html"
             })
@@ -426,7 +426,7 @@ $(document).ready(function () {
 
     loadUserOnPage();
     switch (window.location.pathname) {
-        case "/html/dash.html":
+        case "./dash.html":
             (() => {
                 $("main h1").text(`Welcome ${user.username} !`);
                 $("main, aside").css("flex", "1")
@@ -658,7 +658,7 @@ $(document).ready(function () {
 
             break;
 
-        case "/html/exercises.html":
+        case "./exercises.html":
             (() => {
                 activeIndex = 2;
                 moveActiveTab();
@@ -666,7 +666,7 @@ $(document).ready(function () {
                 loadExercisesOnPage();
             })();
             break;
-        case "/html/challenge.html":
+        case "./challenge.html":
             activeIndex = 3;
 
             moveActiveTab();
@@ -726,7 +726,7 @@ $(document).ready(function () {
             });
 
             break;
-        case "/html/leaderboards.html":
+        case "./leaderboards.html":
             (() => {
                 activeIndex = 4;
                 moveActiveTab();
@@ -797,7 +797,7 @@ $(document).ready(function () {
                 }
             })();
             break;
-        case "/html/statistics.html":
+        case "./statistics.html":
             (() => {
                 $("main>h1").text(`History and Statistics`);
                 activeIndex = 5;
@@ -1148,7 +1148,7 @@ $(document).ready(function () {
             })()
             break
 
-        case "/html/settings.html":
+        case "./settings.html":
             (() => {
                 activeIndex = 6;
                 moveActiveTab();
