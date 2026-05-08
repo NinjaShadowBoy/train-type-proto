@@ -64,22 +64,22 @@ $(document).ready(function () {
         setTimeout(() => {
             switch (Number(activeIndex)) {
                 case 1:
-                    location = "/html/dash.html";
+                    location = "./dash.html";
                     break;
                 case 2:
-                    location = "/html/exercises.html";
+                    location = "./exercises.html";
                     break;
                 case 3:
-                    location = "/html/challenge.html";
+                    location = "./challenge.html";
                     break;
                 case 4:
-                    location = "/html/leaderboards.html";
+                    location = "./leaderboards.html";
                     break;
                 case 5:
-                    location = "/html/statistics.html"
+                    location = "./statistics.html"
                     break;
                 case 6:
-                    location = "/html/settings.html"
+                    location = "./settings.html"
                     break;
                 default:
                     break;
