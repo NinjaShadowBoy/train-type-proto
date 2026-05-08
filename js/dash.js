@@ -28,7 +28,7 @@ $(document).ready(function () {
     let activeIndex;
 
     logout_btn.on("click", function () {
-        window.location.href = "/html/login.html";
+        window.location.href = "./login.html";
     });
     shrink_btn.addEventListener("click", () => {
         document.body.classList.toggle("shrink");
@@ -411,7 +411,7 @@ $(document).ready(function () {
             $(".sidebar-footer .show").text(`${user.username} Goto Dashboard`);
             $(".sidebar-footer .account").attr('href', "/html/admin.html")
             $(".sidebar-footer .admin-profile").on('click', () => {
-                window.location.href = "/html/admin.html"
+                window.location.href = "./admin.html"
             })
         }
         applyTheme(user.theme)
