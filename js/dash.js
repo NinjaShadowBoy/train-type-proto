@@ -61,6 +61,7 @@ $(document).ready(function () {
         console.log("active index", activeIndex);
 
         let location = window.location.pathname;
+        console.log("window.location.pathname: ",location);
         setTimeout(() => {
             switch (Number(activeIndex)) {
                 case 1:
