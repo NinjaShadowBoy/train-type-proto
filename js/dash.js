@@ -63,30 +63,25 @@ $(document).ready(function () {
         let location = window.location.pathname;
         console.log("window.location.pathname: ",location);
         setTimeout(() => {
-            switch (Number(activeIndex)) {
-                case 1:
-                    location = "/train-type-proto/html/dash.html";
-                    break;
-                case 2:
-                    location = "/train-type-proto/html/exercises.html";
-                    break;
-                case 3:
-                    location = "/train-type-proto/html/challenge.html";
-                    break;
-                case 4:
-                    location = "/train-type-proto/html/leaderboards.html";
-                    break;
-                case 5:
-                    location = "/train-type-proto/html/statistics.html"
-                    break;
-                case 6:
-                    location = "/train-type-proto/html/settings.html"
-                    break;
-                default:
-                    break;
-            }
-            if (location != window.location.pathname) {
-                window.location.href = location;
+            const pages = {
+                1: "dash.html",
+                2: "exercises.html",
+                3: "challenge.html",
+                4: "leaderboards.html",
+                5: "statistics.html",
+                6: "settings.html"
+            };
+            
+            const newPageName = pages[Number(activeIndex)];
+            if (newPageName) {
+                const pathParts = window.location.pathname.split("/");
+                const currentPageName = pathParts[pathParts.length - 1];
+                
+                if (newPageName !== currentPageName) {
+                    pathParts[pathParts.length - 1] = newPageName;
+                    location = pathParts.join("/");
+                    window.location.href = location;
+                }
             }
         }, 300);
     }
@@ -135,7 +130,7 @@ $(document).ready(function () {
         }
 
         $(".start-button").on("click", function (e) {
-            let Initiating_challenge = "/train-type-proto/html/challenge.html" == window.location.pathname
+            let Initiating_challenge = "challenge.html" == window.location.pathname.split("/").slice(-1)[0]
             $(this).css({
                 margin: "0",
                 padding: "0",
@@ -221,7 +216,9 @@ $(document).ready(function () {
                             sessionStorage.setItem("difficulty", difficulty);
                             sessionStorage.setItem("exoID", exoID);
                             setTimeout(() => {
-                                window.location.href = "./game.html";
+                                const pathParts = window.location.pathname.split("/");
+                                pathParts[pathParts.length - 1] = "game.html";
+                                window.location.href = pathParts.join("/");
                             }, 500);
                         }
                     });
@@ -231,7 +228,9 @@ $(document).ready(function () {
                         sessionStorage.setItem("difficulty", difficulty);
                         sessionStorage.setItem("exoID", exoID);
                         setTimeout(() => {
-                            window.location.href = "./game.html";
+                            const pathParts = window.location.pathname.split("/");
+                            pathParts[pathParts.length - 1] = "game.html";
+                            window.location.href = pathParts.join("/");
                         }, 500);
                     });
 
@@ -251,7 +250,9 @@ $(document).ready(function () {
 
             } else {
                 setTimeout(() => {
-                    window.location.href = "./game.html"; // Add Jan 4 data
+                    const pathParts = window.location.pathname.split("/");
+                    pathParts[pathParts.length - 1] = "game.html";
+                    window.location.href = pathParts.join("/"); // Add Jan 4 data
                 }, 500);
                 sessionStorage.setItem("difficulty", difficulty);
                 sessionStorage.setItem(
@@ -410,9 +411,12 @@ $(document).ready(function () {
 
         if (user.role == "Admin") {
             $(".sidebar-footer .show").text(`${user.username} Goto Dashboard`);
-            $(".sidebar-footer .account").attr('href', "./admin.html")
+            const pathParts = window.location.pathname.split("/");
+            pathParts[pathParts.length - 1] = "admin.html";
+            const adminPath = pathParts.join("/");
+            $(".sidebar-footer .account").attr('href', adminPath)
             $(".sidebar-footer .admin-profile").on('click', () => {
-                window.location.href = "./admin.html"
+                window.location.href = adminPath
             })
         }
         applyTheme(user.theme)
@@ -426,8 +430,8 @@ $(document).ready(function () {
     sessionStorage.setItem("initiator", "");
 
     loadUserOnPage();
-    switch (window.location.pathname) {
-        case "./dash.html":
+    switch (window.location.pathname.split("/").slice(-1)[0]) {
+        case "dash.html":
             (() => {
                 $("main h1").text(`Welcome ${user.username} !`);
                 $("main, aside").css("flex", "1")
@@ -659,7 +663,7 @@ $(document).ready(function () {
 
             break;
 
-        case "./exercises.html":
+        case "exercises.html":
             (() => {
                 activeIndex = 2;
                 moveActiveTab();
@@ -667,7 +671,7 @@ $(document).ready(function () {
                 loadExercisesOnPage();
             })();
             break;
-        case "./challenge.html":
+        case "challenge.html":
             activeIndex = 3;
 
             moveActiveTab();
@@ -695,7 +699,9 @@ $(document).ready(function () {
 
                             setTimeout(() => {
                                 console.log("Sent connection confirmation " + exoID + " " + difficulty)
-                                window.location.href = "./game.html"; // Add Jan 4 data
+                                const pathParts = window.location.pathname.split("/");
+                                pathParts[pathParts.length - 1] = "game.html";
+                                window.location.href = pathParts.join("/"); // Add Jan 4 data
                             }, 5000);
                             sessionStorage.setItem("difficulty", difficulty);
                             sessionStorage.setItem("exoID", exoID);
@@ -727,7 +733,7 @@ $(document).ready(function () {
             });
 
             break;
-        case "./leaderboards.html":
+        case "leaderboards.html":
             (() => {
                 activeIndex = 4;
                 moveActiveTab();
@@ -798,7 +804,7 @@ $(document).ready(function () {
                 }
             })();
             break;
-        case "./statistics.html":
+        case "statistics.html":
             (() => {
                 $("main>h1").text(`History and Statistics`);
                 activeIndex = 5;
@@ -1149,7 +1155,7 @@ $(document).ready(function () {
             })()
             break
 
-        case "./settings.html":
+        case "settings.html":
             (() => {
                 activeIndex = 6;
                 moveActiveTab();

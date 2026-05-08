@@ -17,7 +17,10 @@ function changeBackgroundImage() {
 changeBackgroundImage(); // Changer d'image immédiatement
 setInterval(changeBackgroundImage, 5000); // Changer d'image toutes les 10 secondes
 $("#startGameButton").on("click", () => {
-    window.location.href = "./html/login.html"
+    const pathParts = window.location.pathname.split("/");
+    pathParts[pathParts.length - 1] = "login.html";
+    const loginPath = [...pathParts.slice(0, -1), "html", "login.html"].join("/");
+    window.location.href = loginPath
 })
 
 

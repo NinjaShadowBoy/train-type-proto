@@ -18,7 +18,9 @@ $(document).ready(function () {
                     .css("transform", "translateX(100vw)")
 
                 setTimeout(function () {
-                    window.location.href = "dash.html"
+                    const pathParts = window.location.pathname.split("/");
+                    pathParts[pathParts.length - 1] = "dash.html";
+                    window.location.href = pathParts.join("/")
                     console.log(user);
                 }, 800)
             }

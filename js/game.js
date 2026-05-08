@@ -141,7 +141,9 @@ $("#Type-again-button").on("click", () => {
 $("#Go-back-button").on("click", () => {
     $("body").css("transform", "translateX(100vw)")
     setTimeout(() => {
-        window.location.href = "./dash.html"
+        const pathParts = window.location.pathname.split("/");
+        pathParts[pathParts.length - 1] = "dash.html";
+        window.location.href = pathParts.join("/")
     }, 600)
 })
 
