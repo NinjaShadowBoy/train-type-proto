@@ -64,22 +64,22 @@ $(document).ready(function () {
         setTimeout(() => {
             switch (Number(activeIndex)) {
                 case 1:
-                    location = "./dash.html";
+                    location = "/html/dash.html";
                     break;
                 case 2:
-                    location = "./exercises.html";
+                    location = "/html/exercises.html";
                     break;
                 case 3:
-                    location = "./challenge.html";
+                    location = "/html/challenge.html";
                     break;
                 case 4:
-                    location = "./leaderboards.html";
+                    location = "/html/leaderboards.html";
                     break;
                 case 5:
-                    location = "./statistics.html"
+                    location = "/html/statistics.html"
                     break;
                 case 6:
-                    location = "./settings.html"
+                    location = "/html/settings.html"
                     break;
                 default:
                     break;
@@ -134,7 +134,7 @@ $(document).ready(function () {
         }
 
         $(".start-button").on("click", function (e) {
-            let Initiating_challenge = "./challenge.html" == window.location.pathname
+            let Initiating_challenge = "/html/challenge.html" == window.location.pathname
             $(this).css({
                 margin: "0",
                 padding: "0",
