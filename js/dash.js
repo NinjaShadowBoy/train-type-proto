@@ -135,7 +135,7 @@ $(document).ready(function () {
         }
 
         $(".start-button").on("click", function (e) {
-            let Initiating_challenge = "/html/challenge.html" == window.location.pathname
+            let Initiating_challenge = "/train-type-proto/html/challenge.html" == window.location.pathname
             $(this).css({
                 margin: "0",
                 padding: "0",
